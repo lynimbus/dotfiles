@@ -9,7 +9,6 @@
     ../../modules/home/nushell.nix
     #../../modules/home/fish.nix
     ../../modules/home/git.nix
-    ../../modules/home/rime.nix
     #../../modules/home/kitty.nix
     ../../modules/home/alacritty.nix
     ../../modules/home/ssh.nix
