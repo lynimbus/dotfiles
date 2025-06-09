@@ -31,6 +31,7 @@
 
   users.users.lantianx = {
     isNormalUser = true;
+    shell = pkgs.nushell;
     extraGroups = ["wheel" "networkmanager" "keys"];
   };
 
