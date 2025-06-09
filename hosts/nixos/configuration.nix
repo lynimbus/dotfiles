@@ -15,7 +15,7 @@
     ../../modules/system/nvidia.nix
     ../../modules/system/fonts.nix
     ../../modules/system/rime.nix
-    ../../modules/system/dae/dae.nix
+    ../../modules/system/dae.nix
     ../../modules/system/localization.nix
     ../../modules/system/power.nix
     ../../modules/system/sound.nix
