@@ -8,7 +8,6 @@
     neovim
     tmux
     docker
-    lazygit
     # yazi
     file
     ffmpeg

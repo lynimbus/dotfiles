@@ -23,7 +23,6 @@
     ../../modules/system/access-tokens.nix
     ../../modules/system/cleaner.nix
     ../../modules/system/pkgs.nix
-    #../../modules/system/rust.nix
   ];
 
   nixpkgs.config.allowUnfree = true;
