@@ -1,8 +1,7 @@
 {
-  config,
   pkgs,
   lib,
-  inputs,
+  config,
   ...
 }: {
   nixpkgs.overlays = [
@@ -10,43 +9,55 @@
       librime =
         (prev.librime.override {
           plugins = [
-            #           (pkgs.fetchFromGitHub {
-            #             owner = "hchunhui";
-            #             repo = "librime-lua";
-            #             rev = "e3912a4b3ac2c202d89face3fef3d41eb1d7fcd6";
-            #             sha256 = "sha256-zx0F41szn5qlc2MNjt1vizLIsIFQ67fp5cb8U8UUgtY=";
-            #           })
             pkgs.librime-lua
             pkgs.librime-octagram
           ];
         }).overrideAttrs (old: {
           buildInputs = (old.buildInputs or []) ++ [pkgs.luajit]; # 用luajit
-          #         buildInputs = (old.buildInputs or []) ++ [pkgs.lua5_4]; # 用lua5.4
+          #buildInputs = (old.buildInputs or []) ++ [pkgs.lua5_4]; # 用lua5.4
         });
     })
   ];
 
-  #   i18n.inputMethod.enable = false;
-
   i18n.inputMethod = {
-    type = "fcitx5";
     enable = true;
+    type = "fcitx5";
     fcitx5.waylandFrontend = true;
     fcitx5.addons = with pkgs; [
-      rime-data # 如果你不需要内置数据可以注释掉，我就注释掉了
+      (fcitx5-rime.override {
+        rimeDataPkgs =
+          with pkgs.nur.repos.linyinfeng.rimePackages;
+            withRimeDeps [
+              rime-ice
+            ];
+      })
+      fcitx5-chinese-addons
       fcitx5-gtk
       kdePackages.fcitx5-qt
-      fcitx5-rime
-      fcitx5-nord # 主题
-      #       fcitx5-material-color # 主题
+      fcitx5-nord
+      fcitx5-material-color
     ];
   };
 
-  #   i18n.inputMethod = {
-  #     type = "ibus"; # 用iBus框架
-  #     enable = true;
-  #     ibus.engines = with pkgs.ibus-engines; [
-  #       rime
-  #     ];
-  #   };
+  environment.variables = lib.mkIf (!config.i18n.inputMethod.fcitx5.waylandFrontend) {
+    INPUT_METHOD = "fcitx";
+    SDL_IM_MODULE = "fcitx";
+    GLFW_IM_MODULE = "ibus";
+    QT_IM_MODULES = "wayland;fcitx;ibus";
+  };
 }
+
+# copy to .local/share/fcitx5/rime/default.custom.yaml
+
+# patch:
+#  # 仅使用「雾凇拼音」的默认配置，配置此行即可
+#  __include: rime_ice_suggestion:/
+#  # 以下根据自己所需自行定义，仅做参考。
+#  # 针对对应处方的定制条目，请使用 <recipe>.custom.yaml 中配置，例如 rime_ice.custom.yaml
+#  __patch:
+#    menu/page_size: 5
+#    key_binder/bindings/+:
+#      # 开启逗号句号翻页
+#      - { when: paging, accept: comma, send: Page_Up }
+#      - { when: has_menu, accept: period, send: Page_Down }
+

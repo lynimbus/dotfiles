@@ -3,11 +3,15 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
+    nur = {
+      url = "github:nix-community/NUR";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    daeuniverse.url = "github:daeuniverse/flake.nix";
     alejandra = {
       url = "github:kamadorueda/alejandra";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -16,11 +20,13 @@
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    daeuniverse.url = "github:daeuniverse/flake.nix";
   };
 
   outputs = inputs @ {
     self,
     nixpkgs,
+    nur,
     home-manager,
     daeuniverse,
     alejandra,
@@ -30,6 +36,9 @@
     nixosConfigurations = {
       nixos = nixpkgs.lib.nixosSystem rec {
         system = "x86_64-linux";
+        specialArgs = {
+          inherit inputs;
+        };
         modules = [
           ./hosts/nixos/configuration.nix
 
@@ -42,6 +51,8 @@
             home-manager.backupFileExtension = "backup";
           }
 
+          nur.modules.nixos.default
+          nur.legacyPackages."${system}".repos.iopq.modules.xraya
           daeuniverse.nixosModules.dae
           sops-nix.nixosModules.sops
           {
