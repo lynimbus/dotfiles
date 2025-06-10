@@ -32,5 +32,7 @@
 
     hmcl
     jdk17
+
+    obs-studio
   ];
 }

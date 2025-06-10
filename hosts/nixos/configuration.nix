@@ -24,6 +24,7 @@
     ../../modules/system/access-tokens.nix
     ../../modules/system/cleaner.nix
     ../../modules/system/pkgs.nix
+    ../../modules/system/steam.nix
   ];
 
   nixpkgs.config.allowUnfree = true;
