@@ -8,6 +8,7 @@
     neovim
     tmux
     docker
+    tree
     # yazi
     file
     ffmpeg
@@ -29,6 +30,7 @@
     wechat-uos
     telegram-desktop
     code-cursor
+    vscode
 
     hmcl
     jdk17

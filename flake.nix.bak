@@ -32,40 +32,33 @@
     alejandra,
     sops-nix,
     ...
-  }: let
-    inherit (self) outputs;
-    system = "x86_64-linux";
-  in {
-    packages.${system} = import ./pkgs nixpkgs.legacyPackages.${system};
-    formatter.${system} = nixpkgs.legacyPackages.${system}.alejandra;
-    overlays = import ./overlays {inherit inputs;};
-
+  }: {
     nixosConfigurations = {
-      nixos = nixpkgs.lib.nixosSystem {
+      nixos = nixpkgs.lib.nixosSystem rec {
+        system = "x86_64-linux";
         specialArgs = {
-          inherit inputs outputs;
+          inherit inputs;
         };
         modules = [
           ./nixos/configuration.nix
 
           home-manager.nixosModules.home-manager
           {
-            home-manager = {
-              useGlobalPkgs = true;
-              useUserPackages = true;
-              users.lantianx = import ./home/home.nix;
-              extraSpecialArgs = {inherit inputs outputs;};
-              backupFileExtension = "";
-            };
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.users.lantianx = import ./home/home.nix;
+            home-manager.extraSpecialArgs = inputs;
+            home-manager.backupFileExtension = "backup";
           }
 
           nur.modules.nixos.default
           nur.legacyPackages."${system}".repos.iopq.modules.xraya
           daeuniverse.nixosModules.dae
           sops-nix.nixosModules.sops
-
           {
-            environment.systemPackages = [alejandra.defaultPackage.${system}];
+            environment.systemPackages = [
+              alejandra.defaultPackage.${system}
+            ];
           }
         ];
       };
