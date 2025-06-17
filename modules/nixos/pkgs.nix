@@ -10,5 +10,6 @@
     git
     neovim
     sops
+    inputs.alejandra.defaultPackage."${system}"
   ];
 }

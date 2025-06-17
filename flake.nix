@@ -20,7 +20,14 @@
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    daeuniverse.url = "github:daeuniverse/flake.nix";
+    daeuniverse = {
+      url = "github:daeuniverse/flake.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    zen-browser = {
+      url = "github:0xc000022070/zen-browser-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs @ {
@@ -28,9 +35,10 @@
     nixpkgs,
     nur,
     home-manager,
-    daeuniverse,
     alejandra,
     sops-nix,
+    daeuniverse,
+    zen-browser,
     ...
   }: let
     inherit (self) outputs;
@@ -63,10 +71,6 @@
           nur.legacyPackages."${system}".repos.iopq.modules.xraya
           daeuniverse.nixosModules.dae
           sops-nix.nixosModules.sops
-
-          {
-            environment.systemPackages = [alejandra.defaultPackage.${system}];
-          }
         ];
       };
     };

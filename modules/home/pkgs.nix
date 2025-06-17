@@ -1,6 +1,8 @@
 {
   config,
   pkgs,
+  lib,
+  inputs,
   ...
 }: {
   home.packages = with pkgs; [
@@ -25,11 +27,12 @@
     yazi
     # GUI
     firefox
+    inputs.zen-browser.packages."${system}".default
+    bilibili
     localsend
     qq
     wechat-uos
     telegram-desktop
-    code-cursor
     vscode
 
     hmcl
