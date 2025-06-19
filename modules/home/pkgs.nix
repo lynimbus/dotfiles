@@ -11,7 +11,7 @@
     tmux
     docker
     tree
-    # yazi
+
     file
     ffmpeg
     p7zip

@@ -13,7 +13,9 @@
     ./nvidia.nix
     ./rime.nix
     ./dae.nix
-    ./kde.nix
+    ./displaymanager.nix
+    #./kde.nix
+    ./cosmic-de.nix
     ./cleaner.nix
     ./steam.nix
   ];
