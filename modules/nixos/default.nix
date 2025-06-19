@@ -14,8 +14,7 @@
     ./rime.nix
     ./dae.nix
     ./displaymanager.nix
-    #./kde.nix
-    ./cosmic-de.nix
+    ./kde.nix
     ./cleaner.nix
     ./steam.nix
   ];

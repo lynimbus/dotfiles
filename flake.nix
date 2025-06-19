@@ -27,10 +27,6 @@
       url = "github:0xc000022070/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nixos-cosmic = {
-      url = "github:lilyinstarlight/nixos-cosmic";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs = inputs @ {
@@ -42,7 +38,6 @@
     sops-nix,
     daeuniverse,
     zen-browser,
-    nixos-cosmic,
     ...
   }: let
     inherit (self) outputs;
@@ -75,7 +70,6 @@
           nur.legacyPackages."${system}".repos.iopq.modules.xraya
           sops-nix.nixosModules.sops
           daeuniverse.nixosModules.dae
-          nixos-cosmic.nixosModules.default
         ];
       };
     };

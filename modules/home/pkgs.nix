@@ -11,7 +11,6 @@
     tmux
     docker
     tree
-
     file
     ffmpeg
     p7zip
@@ -26,7 +25,6 @@
     xclip
     yazi
     # GUI
-    firefox
     inputs.zen-browser.packages."${system}".default
     bilibili
     localsend
@@ -34,10 +32,8 @@
     wechat-uos
     telegram-desktop
     vscode
-
     hmcl
     jdk17
-
     obs-studio
   ];
 }
