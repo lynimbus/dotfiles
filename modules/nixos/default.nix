@@ -11,11 +11,11 @@
     ./localization.nix
     ./pkgs.nix
     ./nvidia.nix
-    ./rime.nix
+    ./rime
+    ./rust
     ./dae.nix
-    ./displaymanager.nix
     ./kde.nix
+    
     ./cleaner.nix
-    ./steam.nix
   ];
 }

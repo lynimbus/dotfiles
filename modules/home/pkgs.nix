@@ -6,6 +6,8 @@
   ...
 }: {
   home.packages = with pkgs; [
+    pfetch
+    neofetch
     fastfetch
     neovim
     tmux

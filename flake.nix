@@ -27,6 +27,11 @@
       url = "github:0xc000022070/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    hyprland = {
+      url = "github:hyprwm/Hyprland";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    rust-overlay.url = "github:oxalica/rust-overlay";
   };
 
   outputs = inputs @ {
@@ -38,6 +43,7 @@
     sops-nix,
     daeuniverse,
     zen-browser,
+    hyprland,
     ...
   }: let
     inherit (self) outputs;
@@ -67,7 +73,6 @@
           }
 
           nur.modules.nixos.default
-          nur.legacyPackages."${system}".repos.iopq.modules.xraya
           sops-nix.nixosModules.sops
           daeuniverse.nixosModules.dae
         ];

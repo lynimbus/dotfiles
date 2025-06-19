@@ -8,7 +8,6 @@
       experimental-features = "nix-command flakes";
       flake-registry = "";
       nix-path = config.nix.nixPath;
-      auto-optimise-store = true;
 
       substituters = [
         "https://mirrors.ustc.edu.cn/nix-channels/store"
