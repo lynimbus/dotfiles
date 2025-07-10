@@ -4,7 +4,6 @@
   ...
 }: {
   environment.sessionVariables = rec {
-    
     EDITOR = "nvim";
 
     XDG_CACHE_HOME = "$HOME/.cache";

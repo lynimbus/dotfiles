@@ -117,7 +117,7 @@
       ui = {
         default-command = "log";
         editor = "nvim";
-	pager = ":builtin";
+        pager = ":builtin";
       };
       user = {
         email = "128837704+lantianx233@users.noreply.github.com";
@@ -137,7 +137,6 @@
       };
     };
   };
-
 
   programs.starship = {
     enable = true;
