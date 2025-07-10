@@ -9,7 +9,6 @@
 
   # 直接将当前文件夹的配置文件，链接到 Home 目录下的指定位置
   # home.file.".config/i3/wallpaper.jpg".source = ./wallpaper.jpg;
-  home.file.".local/share/fcitx5/rime/default.custom.yaml".source = ./dot/default.custom.yaml;
 
   # 递归将某个文件夹中的文件，链接到 Home 目录下的指定位置
   # home.file.".config/i3/scripts" = {
@@ -195,6 +194,24 @@
       };
     };
   };
+
+  i18n.inputMethod = {
+    enable = true;
+    type = "fcitx5";
+    #fcitx5.waylandFrontend = true;
+    fcitx5.addons = with pkgs; [
+      (fcitx5-rime.override {
+        rimeDataPkgs = with pkgs.nur.repos.linyinfeng.rimePackages;
+          withRimeDeps [
+            rime-ice
+          ];
+      })
+      fcitx5-gtk
+      fcitx5-configtool
+    ];
+  };
+
+  home.file.".local/share/fcitx5/rime/default.custom.yaml".source = ./dot/default.custom.yaml;
 
   # This value determines the Home Manager release that your
   # configuration is compatible with. This helps avoid breakage
