@@ -47,6 +47,7 @@
     lazyjj
     jjui
     jj-fzf
+    mergiraf
 
     # networking tools
     mtr # A network diagnostic tool
@@ -107,6 +108,9 @@
     enable = true;
     userName = "lantianx";
     userEmail = "128837704+lantianx233@users.noreply.github.com";
+    extraConfig = {
+      merge = {conflictStyle = "diff3";};
+    };
   };
 
   programs.jujutsu = {
@@ -116,7 +120,9 @@
       ui = {
         default-command = "log";
         editor = "nvim";
-        pager = ":builtin";
+        paginate = "never";
+        diff-formatter = ":git";
+        merge-editor = "mergiraf";
       };
       user = {
         email = "128837704+lantianx233@users.noreply.github.com";
