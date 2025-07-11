@@ -99,6 +99,7 @@
     git
     inputs.alejandra.defaultPackage."${system}"
     android-tools
+    payload-dumper-go
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
