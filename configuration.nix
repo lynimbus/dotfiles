@@ -100,6 +100,7 @@
     inputs.alejandra.defaultPackage."${system}"
     android-tools
     payload-dumper-go
+    git-repo
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
