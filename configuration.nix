@@ -75,13 +75,15 @@
   users.users.lantianx = {
     isNormalUser = true;
     description = "lantianx";
-    extraGroups = ["networkmanager" "wheel"];
+    extraGroups = ["networkmanager" "wheel" "kvm" "adbusers"];
     packages = with pkgs; [
       #  thunderbird
     ];
   };
 
   security.sudo.wheelNeedsPassword = false;
+
+  programs.adb.enable = true;
 
   # Install firefox.
   programs.firefox.enable = true;
@@ -96,6 +98,7 @@
     wget
     git
     inputs.alejandra.defaultPackage."${system}"
+    android-tools
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
