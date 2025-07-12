@@ -172,7 +172,6 @@
       sw = "sudo nixos-rebuild switch --flake ~/dotfiles#nixos";
       error = "journalctl -b -p err";
       v = "nvim";
-      vim = "nvim";
       c = "clear";
       cd = "z";
       rsync = "rsync -avhzP";
