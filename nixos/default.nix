@@ -4,7 +4,8 @@
     #./intel-drivers.nix
     ./amd-drivers.nix
     ./nvidia-drivers.nix
-    ./nvidia-prime-drivers.nix
+    #./optimus-prime-offload-mode.nix
+    ./optimus-prime-sync-mode.nix
     ./gnome.nix
     #./hyprland.nix
     ./variables.nix
