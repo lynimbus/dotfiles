@@ -102,6 +102,7 @@
     telegram-desktop
     qq
     wechat-uos
+    motrix
   ];
 
   programs.git = {
