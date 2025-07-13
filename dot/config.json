@@ -1,0 +1,11 @@
+{
+  "baseVersion": "3.2.18-36580",
+  "curVersion": "3.2.18-36580",
+  "prevVersion": "3.2.18-36580",
+  "onErrorVersions": [ "3.2.18-37051" ],
+  "buildId": "36580",
+  "unzipRetryCount": 0,
+  "readyVersion": "",
+  "readyInstaller": "",
+  "retryTimes": 0
+}
