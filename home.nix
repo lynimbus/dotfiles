@@ -101,7 +101,7 @@
     vscode
     telegram-desktop
     qq
-    wechat-uos
+    wechat
     motrix
   ];
 
