@@ -98,6 +98,10 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
+  nixpkgs.config.permittedInsecurePackages = [
+    "ventoy-1.1.05"
+  ];
+
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
@@ -108,6 +112,7 @@
     android-tools
     payload-dumper-go
     git-repo
+    ventoy-full
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
