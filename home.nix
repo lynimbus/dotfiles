@@ -11,7 +11,7 @@
   # home.file.".config/i3/wallpaper.jpg".source = ./wallpaper.jpg;
 
   # https://wiki.archlinux.org.cn/title/Tencent_QQ#Empty_login_page_after_a_hot_update
-  home.file.".config/QQ/versions/config.json".source = ./dot/config.json;
+  home.file.".config/QQ/versions/config.json".source = ./assets/config.json;
 
   # 递归将某个文件夹中的文件，链接到 Home 目录下的指定位置
   # home.file.".config/i3/scripts" = {
@@ -220,7 +220,7 @@
     ];
   };
 
-  home.file.".local/share/fcitx5/rime/default.custom.yaml".source = ./dot/default.custom.yaml;
+  home.file.".local/share/fcitx5/rime/default.custom.yaml".source = ./assets/default.custom.yaml;
 
   # This value determines the Home Manager release that your
   # configuration is compatible with. This helps avoid breakage
