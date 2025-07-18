@@ -12,6 +12,7 @@
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader.systemd-boot.configurationLimit = 5;
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
@@ -106,12 +107,19 @@
   # networking.firewall.allowedUDPPorts = [ ... ];
   networking.firewall.enable = false;
 
-  nix.settings = {
-    experimental-features = ["nix-command" "flakes"];
-    substituters = lib.mkForce ["https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"];
-    download-buffer-size = 524288000;
+  nix = {
+    settings = {
+      experimental-features = ["nix-command" "flakes"];
+      substituters = lib.mkForce ["https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"];
+      download-buffer-size = 524288000;
+      auto-optimise-store = true;
+    };
+    gc = {
+      automatic = true;
+      dates = "weekly";
+      options = "--delete-older-than 1w";
+    };
   };
-
   fonts.packages = with pkgs; [
     noto-fonts
     noto-fonts-cjk-sans
