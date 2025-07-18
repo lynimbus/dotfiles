@@ -46,6 +46,7 @@
     jjui
     jj-fzf
     mergiraf
+    delta
 
     mtr
     iperf3
@@ -120,7 +121,8 @@
       ui = {
         default-command = "log";
         editor = "hx";
-        paginate = "never";
+        #paginate = "never";
+        pager = "delta";
         diff-formatter = ":git";
         merge-editor = "mergiraf";
       };
