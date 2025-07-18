@@ -47,6 +47,7 @@
     jj-fzf
     mergiraf
     delta
+    diffedit3
 
     mtr
     iperf3
@@ -124,6 +125,7 @@
         #paginate = "never";
         pager = "delta";
         diff-formatter = ":git";
+        diff-editor = "diffedit3";
         merge-editor = "mergiraf";
       };
       user = {
