@@ -1,0 +1,5 @@
+theme = "catppuccin_macchiato"
+
+[editor]
+shell = ["fish", "-c"]
+line-number = "relative"
