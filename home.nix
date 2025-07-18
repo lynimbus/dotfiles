@@ -93,6 +93,17 @@
     motrix
   ];
 
+  programs.helix = {
+    enable = true;
+    defaultEditor = true;
+  };
+
+  xdg.configFile."helix" = {
+    source = ./assets/helix;
+    recursive = true;
+    executable = true;
+  };
+
   programs.git = {
     enable = true;
     userName = "lantianx";
@@ -108,7 +119,7 @@
       git.sign-on-push = true;
       ui = {
         default-command = "log";
-        editor = "nvim";
+        editor = "hx";
         paginate = "never";
         diff-formatter = ":git";
         merge-editor = "mergiraf";
