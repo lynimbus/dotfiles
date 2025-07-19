@@ -12,9 +12,31 @@
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.loader.systemd-boot.configurationLimit = 5;
+  boot.loader.systemd-boot.configurationLimit = 3;
+  boot.loader.timeout = 0;
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
+
+  boot.kernelParams = [
+    "quiet"
+    "splash"
+    "boot.shell_on_fail"
+    "udev.log_priority=3"
+    "rd.systemd.show_status=auto"
+    "rd.udev.log_level=3"
+  ];
+  boot.consoleLogLevel = 3;
+  boot.initrd.verbose = false;
+
+  boot.plymouth = {
+    enable = true;
+    theme = "rings";
+    themePackages = with pkgs; [
+      (adi1090x-plymouth-themes.override {
+        selected_themes = ["rings"];
+      })
+    ];
+  };
 
   networking.hostName = "nixos";
   # networking.wireless.enable = true;
