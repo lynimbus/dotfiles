@@ -102,6 +102,12 @@
 
   nixpkgs.config.allowUnfree = true;
 
+  programs.steam = {
+    enable = true;
+    remotePlay.openFirewall = true;
+    localNetworkGameTransfers.openFirewall = true;
+  };
+
   nixpkgs.config.permittedInsecurePackages = [
     "ventoy-1.1.05"
   ];
