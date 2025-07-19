@@ -15,7 +15,7 @@
   boot.loader.systemd-boot.configurationLimit = 3;
   boot.loader.timeout = 0;
 
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.kernelPackages = pkgs.linuxPackages_zen;
 
   boot.kernelParams = [
     "quiet"
