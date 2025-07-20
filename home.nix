@@ -179,7 +179,7 @@
       set -g fish_greeting
     '';
     shellAliases = {
-      sw = "sudo nixos-rebuild switch --recreate-lock-file --flake ~/dotfiles#nixos";
+      sw = "sudo nixos-rebuild switch --flake ~/dotfiles#nixos";
       error = "journalctl -b -p err";
       v = "nvim";
       c = "clear";
