@@ -33,4 +33,20 @@
     gnomeExtensions.just-perfection
     gnomeExtensions.appindicator
   ];
+  nixpkgs.overlays = [
+    (final: prev: {
+      gnome-console = prev.gnome-console.overrideAttrs (old: {
+        patches =
+          (old.patches or [])
+          ++ [
+            ../assets/disable-gnome-console-close-window-prompt-48.0.1.patch
+          ];
+      });
+      mpv = prev.mpv.override {
+        scripts = [
+          final.mpvScripts.inhibit-gnome
+        ];
+      };
+    })
+  ];
 }
