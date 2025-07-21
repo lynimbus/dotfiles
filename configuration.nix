@@ -182,23 +182,28 @@
     maple-mono.NF-CN-unhinted
   ];
 
-  #  services.dae = {
-  #    enable = true;
-  #    configFile = "/home/lantianx/dae/config.dae";
-  #    assets = with pkgs; [
-  #      v2ray-geoip
-  #      v2ray-domain-list-community
-  #    ];
-  #  };
-
-  services.daed = {
+  services.dae = {
     enable = true;
-
+    package = inputs.daeuniverse.packages.x86_64-linux.dae-unstable;
+    configFile = "/etc/dae/config.dae";
+    disableTxChecksumIpGeneric = false;
+    assets = with pkgs; [
+      v2ray-geoip
+      v2ray-domain-list-community
+    ];
     openFirewall = {
       enable = true;
       port = 12345;
     };
   };
+
+  # services.daed = {
+  #   enable = true;
+  #   openFirewall = {
+  #     enable = true;
+  #     port = 12345;
+  #   };
+  # };
 
   system.stateVersion = "25.05";
 }
