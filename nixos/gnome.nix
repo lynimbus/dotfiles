@@ -39,7 +39,7 @@
         patches =
           (old.patches or [])
           ++ [
-            ../assets/disable-gnome-console-close-window-prompt-48.0.1.patch
+            ../assets/gnome/disable-gnome-console-close-window-prompt-48.0.1.patch
           ];
       });
       mpv = prev.mpv.override {
