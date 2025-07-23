@@ -4,6 +4,10 @@
   inputs,
   ...
 }: {
+  imports = [
+    ./home
+  ];
+
   home.username = "lantianx";
   home.homeDirectory = "/home/lantianx";
 
