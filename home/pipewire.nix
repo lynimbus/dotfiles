@@ -1,29 +1,32 @@
-{pkgs, ...}: let
-  inherit (pkgs) rnnoise-plugin;
-in {
+{pkgs, ...}: {
   xdg.configFile."pipewire/pipewire.conf.d/99-rnnoise.conf".text = ''
     context.modules = [
       {
         name = libpipewire-module-filter-chain
         args = {
-          node.description = "Noise Canceling source"
-          media.name = "Noise Canceling source"
+          node.description = "Auto Gain + Noise Cancel Source"
+          media.name = "Auto Gain + Noise Cancel Source"
 
           filter.graph = {
             nodes = [
               {
                 type = ladspa
-                name = gain
-                plugin = "${pkgs.ladspa-sdk}/lib/ladspa/amp.so"
-                label = amp_mono
+                name = gain_control
+                plugin = "${pkgs.ladspaPlugins}/lib/ladspa/dyson_compress_1403.so"
+                label = dysonCompress
                 control = {
-                  "Gain" = 10.0
+                  "Input Gain" = 6.0
+                  "Threshold" = -20.0
+                  "Ratio" = 4.0
+                  "Attack Time" = 0.01
+                  "Release Time" = 0.1
+                  "Makeup Gain" = 6.0
                 }
               }
               {
                 type = ladspa
                 name = rnnoise
-                plugin = "${rnnoise-plugin}/lib/ladspa/librnnoise_ladspa.so"
+                plugin = "${pkgs.rnnoise-plugin}/lib/ladspa/librnnoise_ladspa.so"
                 label = noise_suppressor_mono
                 control = {
                   "VAD Threshold (%)" = 80.0
