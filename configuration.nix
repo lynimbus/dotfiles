@@ -40,6 +40,9 @@
     ];
   };
 
+  services.power-profiles-daemon.enable = false;
+  services.tlp.enable = true;
+
   networking.hostName = "nixos";
   # networking.wireless.enable = true;
 
