@@ -30,6 +30,9 @@
   # '';
 
   home.packages = with pkgs; [
+    broot
+    yazi
+
     fastfetch
     neofetch
     pfetch
