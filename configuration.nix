@@ -146,6 +146,7 @@
     payload-dumper-go
     git-repo
     ventoy-full
+    ladspa-sdk
   ];
 
   programs.mtr.enable = true;
