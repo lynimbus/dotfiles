@@ -51,7 +51,7 @@
               useUserPackages = true;
               users.lantianx = import ./home.nix;
               extraSpecialArgs = {inherit inputs outputs;};
-              backupFileExtension = "";
+              backupFileExtension = "backup";
             };
           }
         ];
