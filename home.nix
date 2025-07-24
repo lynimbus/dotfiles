@@ -47,7 +47,10 @@
     yq-go
     eza
     fzf
+    fd
     xclip
+    wl-clipboard
+    xsel
     lazygit
     lazyjj
     jjui
@@ -63,6 +66,10 @@
     socat
     nmap
     ipcalc
+    imagemagick
+    resvg
+    poppler
+    ffmpeg
 
     cowsay
     file
