@@ -17,6 +17,10 @@
   # https://wiki.archlinux.org.cn/title/Tencent_QQ#Empty_login_page_after_a_hot_update
   home.file.".config/QQ/versions/config.json".source = ./assets/QQ/config.json;
 
+  xdg.configFile.".ripgreprc".source = ./assets/ripgreprc;
+  
+  xdg.configFile."starship.toml".source = ./assets/starship.toml;
+
   # 递归将某个文件夹中的文件，链接到 Home 目录下的指定位置
   # home.file.".config/i3/scripts" = {
   #   source = ./scripts;
@@ -24,6 +28,55 @@
   #   executable = true;  # 将其中所有文件添加「执行」权限
   # };
 
+    xdg.configFile."hypr" = {
+      source = ./assets/hypr;
+      recursive = true;
+      executable = true;
+    };
+
+    xdg.configFile."kitty" = {
+      source = ./assets/kitty;
+      recursive = true;
+      executable = true;
+    };
+
+    xdg.configFile."mako" = {
+      source = ./assets/mako;
+      recursive = true;
+      executable = true;
+    };
+
+    xdg.configFile."niri" = {
+      source = ./assets/niri;
+      recursive = true;
+      executable = true;
+    };
+
+    xdg.configFile."nvim" = {
+      source = ./assets/nvim;
+      recursive = true;
+      executable = true;
+    };
+
+    xdg.configFile."rmpc" = {
+      source = ./assets/rmpc;
+      recursive = true;
+      executable = true;
+    };
+
+    xdg.configFile."rofi" = {
+      source = ./assets/rofi;
+      recursive = true;
+      executable = true;
+    };
+
+    xdg.configFile."waybar" = {
+      source = ./assets/waybar;
+      recursive = true;
+      executable = true;
+    };
+
+  
   # 直接以 text 的方式，在 nix 配置文件中硬编码文件内容
   # home.file.".xxx".text = ''
   #     xxx
@@ -165,12 +218,12 @@
 
   programs.starship = {
     enable = true;
-    settings = {
-      add_newline = false;
-      aws.disabled = true;
-      gcloud.disabled = true;
-      line_break.disabled = true;
-    };
+    # settings = {
+    #   add_newline = false;
+    #   aws.disabled = true;
+    #   gcloud.disabled = true;
+    #   line_break.disabled = true;
+    # };
   };
 
   programs.zoxide = {
