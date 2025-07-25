@@ -29,6 +29,8 @@
   #     xxx
   # '';
 
+  home.file.".config/user-dirs.locale".text = "en_US.UTF-8";
+
   home.packages = with pkgs; [
     broot
     yazi
