@@ -9,6 +9,6 @@
     ./gnome.nix
     #./hyprland.nix
     ./variables.nix
-    ./windows-vm.nix
+    # ./windows-vm.nix
   ];
 }
