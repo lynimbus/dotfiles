@@ -43,11 +43,13 @@
     p7zip
 
     ripgrep
+    ast-grep
     jq
     yq-go
     eza
     fzf
     fd
+    serpl
     xclip
     wl-clipboard
     xsel
