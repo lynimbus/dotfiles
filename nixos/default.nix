@@ -7,8 +7,6 @@
     #./optimus-prime-offload-mode.nix
     ./optimus-prime-sync-mode.nix
     ./gnome.nix
-    #./hyprland.nix
     ./variables.nix
-    # ./windows-vm.nix
   ];
 }
