@@ -150,6 +150,7 @@
     git-repo
     ventoy-full
     ladspa-sdk
+    just
   ];
 
   programs.mtr.enable = true;
