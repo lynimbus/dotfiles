@@ -124,7 +124,7 @@
   programs.git = {
     enable = true;
     userName = "lantianx";
-    userEmail = "128837704+lantianx233@users.noreply.github.com";
+    userEmail = "lantianx233@gmail.com";
     extraConfig = {
       merge = {conflictStyle = "diff3";};
     };
@@ -143,7 +143,7 @@
         merge-editor = "mergiraf";
       };
       user = {
-        email = "128837704+lantianx233@users.noreply.github.com";
+        email = "lantianx233@gmail.com";
         name = "lantianx";
       };
     };
