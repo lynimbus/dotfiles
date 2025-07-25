@@ -157,6 +157,11 @@
     pciutils
     usbutils
 
+    gcc
+    gdb
+    valgrind
+    zig
+
     localsend
     vscode
     telegram-desktop
