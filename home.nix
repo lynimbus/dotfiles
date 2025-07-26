@@ -247,7 +247,9 @@
       c = "clear";
       cd = "z";
       bye = "shutdown now";
-      la = "ls -lah";
+      ls = "eza";
+      ll = "eza -lh";
+      la = "eza -lah";
     };
     functions = {
       y = {
