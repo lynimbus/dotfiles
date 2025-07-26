@@ -108,10 +108,6 @@
     localNetworkGameTransfers.openFirewall = true;
   };
 
-  nixpkgs.config.permittedInsecurePackages = [
-    "ventoy-1.1.05"
-  ];
-
   environment.systemPackages = with pkgs; [
     vim
     wget
@@ -119,9 +115,6 @@
     inputs.alejandra.defaultPackage."${system}"
     android-tools
     payload-dumper-go
-    git-repo
-    ventoy-full
-    ladspa-sdk
     just
   ];
 
