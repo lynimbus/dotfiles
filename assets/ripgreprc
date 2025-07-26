@@ -9,6 +9,3 @@
 --glob=!.git/*
 
 --smart-case
-
-# allow clicking on file names to open them
---hyperlink-format=kitty
