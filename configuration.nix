@@ -44,10 +44,6 @@
   services.tlp.enable = true;
 
   networking.hostName = "nixos";
-  # networking.wireless.enable = true;
-
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
   networking.networkmanager.enable = true;
 
@@ -67,11 +63,6 @@
     LC_TIME = "zh_CN.UTF-8";
   };
 
-  # services.udev.extraRules = ''
-  #   ACTION=="add", SUBSYSTEM=="pci", DRIVER=="pinctrl_amd", ATTR{power/wakeup}="disabled"
-  #   SUBSYSTEM=="pci", ATTR{power/wakeup}="disabled"
-  # '';
-
   services.udev.packages = [
     (pkgs.writeTextFile {
       name = "disable-ps2-wakeup";
@@ -81,14 +72,6 @@
       '';
       destination = "/etc/udev/rules.d/99-disable-keyboard-wakeup.rules";
     })
-    # (pkgs.writeTextFile {
-    #   name = "disable-usb-wakeup";
-    #   text = ''
-    #     # Disable wakeup for usb controller
-    #     ACTION=="add", SUBSYSTEM=="usb", TEST=="power/wakeup", ATTR{power/wakeup}="disabled"
-    #   '';
-    #   destination = "/etc/udev/rules.d/99-disable-usb-wakeup.rules";
-    # })
   ];
 
   services.printing.enable = true;
@@ -110,9 +93,6 @@
     isNormalUser = true;
     description = "lantianx";
     extraGroups = ["networkmanager" "wheel" "kvm" "adbusers"];
-    packages = with pkgs; [
-      #  thunderbird
-    ];
   };
 
   security.sudo.wheelNeedsPassword = false;

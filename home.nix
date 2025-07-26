@@ -212,12 +212,6 @@
 
   programs.starship = {
     enable = true;
-    # settings = {
-    #   add_newline = false;
-    #   aws.disabled = true;
-    #   gcloud.disabled = true;
-    #   line_break.disabled = true;
-    # };
   };
 
   programs.zoxide = {
@@ -247,23 +241,10 @@
       v = "nvim";
       c = "clear";
       cd = "z";
-      rsync = "rsync -avhzP";
-      rm = "rm -I";
-      cp = "cp -irv";
-      mv = "mv -iv";
       bye = "shutdown now";
       la = "ls -lah";
     };
     functions = {
-      relpath = {
-        body = ''
-          if test (count $argv) -ne 1
-                   echo "Usage: relpath /path/to/target"
-                   return 1
-                 end
-                 realpath --relative-to=(pwd) $argv[1]
-        '';
-      };
       y = {
         body = ''
           set tmp (mktemp -t "yazi-cwd.XXXXXX")
