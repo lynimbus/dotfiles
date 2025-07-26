@@ -19,8 +19,6 @@
 
   xdg.configFile.".ripgreprc".source = ./assets/ripgreprc;
 
-  xdg.configFile."starship.toml".source = ./assets/starship.toml;
-
   # 递归将某个文件夹中的文件，链接到 Home 目录下的指定位置
   # home.file.".config/i3/scripts" = {
   #   source = ./scripts;
@@ -42,12 +40,6 @@
 
   xdg.configFile."niri" = {
     source = ./assets/niri;
-    recursive = true;
-    executable = true;
-  };
-
-  xdg.configFile."nvim" = {
-    source = ./assets/nvim;
     recursive = true;
     executable = true;
   };
@@ -163,9 +155,21 @@
     enable = true;
     # defaultEditor = true;
   };
-
   xdg.configFile."helix" = {
     source = ./assets/helix;
+    recursive = true;
+    executable = true;
+  };
+
+  programs.neovim = {
+    enable = true;
+    defaultEditor = true;
+    viAlias = true;
+    vimAlias = true;
+    vimdiffAlias = true;
+  };
+  xdg.configFile."nvim" = {
+    source = ./assets/nvim;
     recursive = true;
     executable = true;
   };
@@ -213,6 +217,7 @@
   programs.starship = {
     enable = true;
   };
+  xdg.configFile."starship.toml".source = ./assets/starship.toml;
 
   programs.zoxide = {
     enable = true;
@@ -273,7 +278,6 @@
       fcitx5-configtool
     ];
   };
-
   home.file.".local/share/fcitx5/rime/default.custom.yaml".source = ./assets/rime/default.custom.yaml;
 
   home.stateVersion = "25.05";

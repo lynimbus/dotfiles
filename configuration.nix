@@ -94,19 +94,11 @@
     description = "lantianx";
     extraGroups = ["networkmanager" "wheel" "kvm" "adbusers"];
   };
-
   security.sudo.wheelNeedsPassword = false;
 
   programs.adb.enable = true;
 
   programs.firefox.enable = true;
-
-  programs.neovim = {
-    enable = true;
-    defaultEditor = true;
-    viAlias = true;
-    vimAlias = true;
-  };
 
   nixpkgs.config.allowUnfree = true;
 
