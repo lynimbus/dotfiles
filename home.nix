@@ -149,6 +149,8 @@
     valgrind
     zig
 
+    nim-unwrapped
+
     localsend
     vscode
     telegram-desktop
