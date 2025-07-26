@@ -161,7 +161,7 @@
 
   programs.helix = {
     enable = true;
-    defaultEditor = true;
+    # defaultEditor = true;
   };
 
   xdg.configFile."helix" = {
