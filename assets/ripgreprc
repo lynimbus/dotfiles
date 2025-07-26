@@ -8,4 +8,7 @@
 # ignore Git data
 --glob=!.git/*
 
+--glob=!.jj/*
+--glob=!.vscode/*
+
 --smart-case
