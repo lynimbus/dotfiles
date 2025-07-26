@@ -1,5 +1,11 @@
 # https://starship.rs/presets/bracketed-segments
 
+[directory]
+style = "blue"
+truncation_length = 3
+truncate_to_repo = false
+fish_style_pwd_dir_length = 1
+
 [aws]
 format = '\[[$symbol($profile)(\($region\))(\[$duration\])]($style)\]'
 
