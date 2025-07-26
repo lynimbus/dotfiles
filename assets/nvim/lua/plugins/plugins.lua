@@ -113,12 +113,6 @@ require("lazy").setup({
 	-- Markdown
 	require("plugins.markdown"),
 
-	-- Vim syntax highlighting for Kitty terminal config files
-	{
-		"fladson/vim-kitty",
-		ft = "kitty",
-	},
-
 	-- basic vim/terraform integration
 	{
 		"hashivim/vim-terraform",

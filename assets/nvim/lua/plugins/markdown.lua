@@ -12,8 +12,6 @@ return {
 		build = false,
 		ft = { "markdown", "md" },
 		opts = {
-			backend = "kitty",
-			kitty_method = "normal",
 			processor = "magick_cli",
 			integrations = {
 				markdown = {

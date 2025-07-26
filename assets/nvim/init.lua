@@ -31,12 +31,6 @@ require("autocmds")
 
 -- Integrations {{{
 
--- Support kitty's extended terminal codes (for italic, strikethrough etc.)
-if vim.env.TERM == "xterm-kitty" then
-	local configpath = vim.fn.stdpath("config") .. "/kitty.vim"
-	vim.cmd("source " .. configpath)
-end
-
 -- }}}
 
 -- Plugins {{{
