@@ -131,12 +131,6 @@
     pciutils
     usbutils
 
-    gcc
-    gdb
-    valgrind
-    zig
-    nim-unwrapped
-
     localsend
     vscode
     telegram-desktop
