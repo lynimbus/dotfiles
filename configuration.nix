@@ -115,6 +115,9 @@
     android-tools
     payload-dumper-go
     just
+    clang
+    lua
+    python314
   ];
 
   programs.mtr.enable = true;
