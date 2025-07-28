@@ -141,7 +141,7 @@
     vscode
     telegram-desktop
     qq
-    wechat
+    # wechat
     motrix
   ];
 
