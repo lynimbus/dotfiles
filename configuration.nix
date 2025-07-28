@@ -159,11 +159,10 @@
     };
   };
   fonts.packages = with pkgs; [
-    noto-fonts
-    noto-fonts-cjk-sans
-    noto-fonts-emoji
-    wqy_zenhei
-    maple-mono.NF-CN-unhinted
+    nerd-fonts.jetbrains-mono
+    fira-code
+    fira-code-symbols
+    sarasa-gothic
   ];
 
   services.dae = {
