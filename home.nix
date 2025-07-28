@@ -87,6 +87,7 @@
     xclip
     wl-clipboard
     xsel
+
     lazygit
     lazyjj
     jjui
@@ -106,7 +107,6 @@
     resvg
     poppler
     ffmpeg
-
     cowsay
     file
     which
@@ -116,20 +116,15 @@
     gawk
     zstd
     gnupg
-
     nix-output-monitor
-
     hugo
     glow
-
     btop
     iotop
     iftop
-
     strace
     ltrace
     lsof
-
     sysstat
     lm_sensors
     ethtool
@@ -140,7 +135,6 @@
     gdb
     valgrind
     zig
-
     nim-unwrapped
 
     localsend
