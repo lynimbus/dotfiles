@@ -15,8 +15,6 @@
   # 直接将当前文件夹的配置文件，链接到 Home 目录下的指定位置
   # home.file.".config/i3/wallpaper.jpg".source = ./wallpaper.jpg;
 
-  xdg.configFile.".ripgreprc".source = ./assets/ripgreprc;
-
   # 递归将某个文件夹中的文件，链接到 Home 目录下的指定位置
   # home.file.".config/i3/scripts" = {
   #   source = ./scripts;
@@ -24,42 +22,14 @@
   #   executable = true;  # 将其中所有文件添加「执行」权限
   # };
 
-  xdg.configFile."hypr" = {
-    source = ./assets/hypr;
-    recursive = true;
-    executable = true;
-  };
-
-  xdg.configFile."mako" = {
-    source = ./assets/mako;
-    recursive = true;
-    executable = true;
-  };
-
-  xdg.configFile."niri" = {
-    source = ./assets/niri;
-    recursive = true;
-    executable = true;
-  };
-
-  xdg.configFile."rofi" = {
-    source = ./assets/rofi;
-    recursive = true;
-    executable = true;
-  };
-
-  xdg.configFile."waybar" = {
-    source = ./assets/waybar;
-    recursive = true;
-    executable = true;
-  };
-
   # 直接以 text 的方式，在 nix 配置文件中硬编码文件内容
   # home.file.".xxx".text = ''
   #     xxx
   # '';
 
   home.file.".config/user-dirs.locale".text = "en_US.UTF-8";
+
+  xdg.configFile.".ripgreprc".source = ./assets/ripgreprc;
 
   home.packages = with pkgs; [
     broot
