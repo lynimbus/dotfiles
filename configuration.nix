@@ -92,8 +92,10 @@
     isNormalUser = true;
     description = "lantianx";
     extraGroups = ["networkmanager" "wheel" "kvm" "adbusers"];
+    shell = pkgs.fish;
   };
   security.sudo.wheelNeedsPassword = false;
+  programs.fish.enable = true;
 
   programs.adb.enable = true;
 
