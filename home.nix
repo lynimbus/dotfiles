@@ -242,6 +242,20 @@
           rm -f -- "$tmp"
         '';
       };
+      devinit = {
+        body = ''
+          set env $argv[1]
+
+          if test (count $argv) -ge 2
+            set dir $argv[2]
+          else
+            set dir .
+          end
+
+          nix flake new --template "https://flakehub.com/f/the-nix-way/dev-templates/*#$env" $dir
+          direnv allow $dir
+        '';
+      };
     };
   };
 
