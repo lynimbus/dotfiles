@@ -137,6 +137,12 @@
     motrix
   ];
 
+  programs.direnv = {
+    enable = true;
+    enableBashIntegration = true;
+    nix-direnv.enable = true;
+  };
+
   programs.helix = {
     enable = true;
     # defaultEditor = true;
