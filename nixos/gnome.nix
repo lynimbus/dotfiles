@@ -29,10 +29,9 @@
   services.udev.packages = [pkgs.gnome-settings-daemon];
 
   environment.systemPackages = with pkgs; [
-    gnomeExtensions.blur-my-shell
-    gnomeExtensions.just-perfection
     gnomeExtensions.appindicator
   ];
+
   nixpkgs.overlays = [
     (final: prev: {
       gnome-console = prev.gnome-console.overrideAttrs (old: {
