@@ -100,9 +100,9 @@
 
     localsend
     vscode
+    zed-editor
     telegram-desktop
     qq
-    # wechat
     motrix
   ];
 
