@@ -111,7 +111,7 @@
     enableFishIntegration = true;
 
     plugins = with pkgs.yaziPlugins; {
-      inherit nord yatline full-border smart-enter ouch;
+      inherit nord yatline full-border smart-enter ouch jump-to-char bypass;
     };
 
     flavors = {inherit (pkgs.yaziPlugins) nord;};
@@ -131,20 +131,32 @@
     keymap = {
       mgr.prepend_keymap = [
         {
+          on = ["h"];
+          run = "plugin bypass reverse";
+        }
+        {
+          on = ["<Left>"];
+          run = "plugin bypass reverse";
+        }
+        {
           on = ["l"];
-          run = "plugin smart-enter";
+          run = "plugin bypass smart-enter";
         }
         {
           on = ["<Enter>"];
-          run = "plugin smart-enter";
+          run = "plugin bypass smart-enter";
         }
         {
           on = ["<Right>"];
-          run = "plugin smart-enter";
+          run = "plugin bypass smart-enter";
         }
         {
           on = ["C"];
           run = "plugin ouch";
+        }
+        {
+          on = ["f"];
+          run = "plugin jump-to-char";
         }
       ];
     };
