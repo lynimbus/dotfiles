@@ -16,6 +16,7 @@
   boot.initrd.kernelModules = [];
   boot.kernelModules = ["kvm-amd"];
   boot.extraModulePackages = [];
+  boot.supportedFilesystems = ["ntfs"];
 
   fileSystems."/" = {
     device = "/dev/disk/by-uuid/1955021a-9915-428f-aeac-057ee52cf8ac";
@@ -43,12 +44,14 @@
 
   fileSystems."/media/windows" = {
     device = "/dev/disk/by-uuid/E85E63F75E63BD46";
-    fsType = "ntfs";
+    fsType = "ntfs-3g";
+    options = ["rw" "uid=1000"];
   };
 
   fileSystems."/media/ntfsdata" = {
     device = "/dev/disk/by-uuid/2A0F47B7B3B0B016";
-    fsType = "ntfs";
+    fsType = "ntfs-3g";
+    options = ["rw" "uid=1000"];
   };
 
   swapDevices = [
