@@ -8,5 +8,6 @@
     ./optimus-prime-sync-mode.nix
     ./gnome.nix
     ./variables.nix
+    ./steam.nix
   ];
 }
