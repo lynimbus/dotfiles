@@ -104,6 +104,8 @@
     telegram-desktop
     qq
     motrix
+
+    devenv
   ];
 
   programs.direnv = {
