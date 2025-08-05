@@ -17,16 +17,6 @@
 
   boot.kernelPackages = pkgs.linuxPackages_zen;
 
-  boot.kernelParams = [
-    "quiet"
-    "splash"
-    "boot.shell_on_fail"
-    "udev.log_priority=3"
-    "rd.systemd.show_status=auto"
-    "rd.udev.log_level=3"
-    "acpi.ec_no_wakeup=1"
-    "gpiolib_acpi.ignore_interrupt=AMDI0030:00:6"
-  ];
   boot.consoleLogLevel = 3;
   boot.initrd.verbose = false;
 
@@ -40,9 +30,6 @@
     ];
   };
 
-  services.power-profiles-daemon.enable = false;
-  services.tlp.enable = true;
-
   networking.hostName = "nixos";
 
   networking.networkmanager.enable = true;
@@ -54,17 +41,6 @@
   i18n.supportedLocales = [
     "en_US.UTF-8/UTF-8"
     "zh_CN.UTF-8/UTF-8"
-  ];
-
-  services.udev.packages = [
-    (pkgs.writeTextFile {
-      name = "disable-ps2-wakeup";
-      text = ''
-        # Disable wakeup for PS/2 keyboard controller
-        ACTION=="add", SUBSYSTEM=="serio", KERNEL=="serio0", ATTR{power/wakeup}="disabled"
-      '';
-      destination = "/etc/udev/rules.d/99-disable-keyboard-wakeup.rules";
-    })
   ];
 
   services.printing.enable = true;
