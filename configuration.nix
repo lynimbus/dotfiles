@@ -13,11 +13,12 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.systemd-boot.configurationLimit = 3;
-  boot.loader.timeout = 0;
+  boot.loader.timeout = 2;
 
   boot.kernelPackages = pkgs.linuxPackages_zen;
 
-  boot.consoleLogLevel = 3;
+  boot.kernelParams = ["nowatchdog"];
+  boot.consoleLogLevel = 5;
   boot.initrd.verbose = false;
 
   boot.plymouth = {
