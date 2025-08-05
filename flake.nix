@@ -2,6 +2,7 @@
   description = "nixos flake config";
 
   inputs = {
+    nixos-hardware.url = "github:lynimbus/nixos-hardware";
     nixpkgs.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-unstable";
     # nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     # nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
@@ -26,6 +27,7 @@
 
   outputs = inputs @ {
     self,
+    nixos-hardware,
     nixpkgs,
     home-manager,
     nur,
@@ -40,6 +42,8 @@
       nixos = nixpkgs.lib.nixosSystem {
         specialArgs = {inherit inputs outputs;};
         modules = [
+          nixos-hardware.nixosModules.mechrevo-gm5hg0a
+
           ./configuration.nix
           nur.modules.nixos.default
           daeuniverse.nixosModules.dae
