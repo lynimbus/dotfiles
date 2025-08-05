@@ -56,7 +56,7 @@
     jack.enable = true;
   };
 
-  # services.xserver.libinput.enable = true;
+  services.libinput.enable = true;
 
   users.users.lantianx = {
     isNormalUser = true;
