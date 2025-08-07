@@ -82,6 +82,7 @@
     vim
     wget
     git
+    nixfmt-rfc-style
     inputs.alejandra.defaultPackage."${system}"
     android-tools
     payload-dumper-go
