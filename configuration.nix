@@ -15,7 +15,7 @@
   boot.loader.systemd-boot.configurationLimit = 3;
   boot.loader.timeout = 2;
 
-  boot.kernelPackages = pkgs.linuxPackages_zen;
+  boot.kernelPackages = pkgs.linuxPackages_lqx;
 
   boot.kernelParams = ["nowatchdog"];
   boot.consoleLogLevel = 5;
