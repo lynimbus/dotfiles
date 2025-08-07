@@ -13,23 +13,21 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.systemd-boot.configurationLimit = 3;
-  boot.loader.timeout = 2;
+  boot.loader.timeout = 0;
 
   boot.kernelPackages = pkgs.linuxPackages_lqx;
 
-  boot.kernelParams = ["nowatchdog"];
-  boot.consoleLogLevel = 5;
+  boot.kernelParams = [
+    "nowatchdog"
+    "quiet"
+    "splash"
+    "vga=current"
+    "rd.systemd.show_status=false"
+    "rd.udev.log_level=3"
+    "udev.log_priority=3"
+  ];
+  boot.consoleLogLevel = 0;
   boot.initrd.verbose = false;
-
-  boot.plymouth = {
-    enable = true;
-    theme = "rings";
-    themePackages = with pkgs; [
-      (adi1090x-plymouth-themes.override {
-        selected_themes = ["rings"];
-      })
-    ];
-  };
 
   networking.hostName = "nixos";
 
