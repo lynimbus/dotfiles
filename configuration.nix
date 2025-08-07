@@ -10,24 +10,31 @@
     ./nixos
   ];
 
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-  boot.loader.systemd-boot.configurationLimit = 3;
-  boot.loader.timeout = 0;
+  boot = {
+    loader = {
+      timeout = 0;
+      systemd-boot = {
+        editor = false;
+        enable = true;
+        configurationLimit = 3;
+      };
+      efi.canTouchEfiVariables = true;
+    };
 
-  boot.kernelPackages = pkgs.linuxPackages_lqx;
+    kernelPackages = pkgs.linuxPackages_lqx;
 
-  boot.kernelParams = [
-    "nowatchdog"
-    "quiet"
-    "splash"
-    "vga=current"
-    "rd.systemd.show_status=false"
-    "rd.udev.log_level=3"
-    "udev.log_priority=3"
-  ];
-  boot.consoleLogLevel = 0;
-  boot.initrd.verbose = false;
+    kernelParams = [
+      "nowatchdog"
+      "quiet"
+      "splash"
+      "vga=current"
+      "rd.systemd.show_status=false"
+      "rd.udev.log_level=3"
+      "udev.log_priority=3"
+    ];
+    consoleLogLevel = 0;
+    initrd.verbose = false;
+  };
 
   networking.hostName = "nixos";
 
