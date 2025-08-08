@@ -21,8 +21,6 @@
       efi.canTouchEfiVariables = true;
     };
 
-    kernelPackages = pkgs.linuxPackages_lqx;
-
     kernelParams = [
       "nowatchdog"
       "quiet"
