@@ -91,7 +91,7 @@
     android-tools
     payload-dumper-go
     just
-    clang
+    gcc
     lua
     python314
   ];
