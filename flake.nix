@@ -6,6 +6,10 @@
     nixpkgs.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-unstable";
     # nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     # nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
+    linux-xanmod-bore = {
+      url = "github:micros24/linux-xanmod-bore";
+      flake = false;
+    };
     home-manager = {
       url = "github:nix-community/home-manager";
       # url = "github:nix-community/home-manager/release-25.05";
@@ -29,6 +33,7 @@
     self,
     nixos-hardware,
     nixpkgs,
+    linux-xanmod-bore,
     home-manager,
     nur,
     daeuniverse,
