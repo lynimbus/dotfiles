@@ -36,6 +36,10 @@
     initrd.verbose = false;
   };
 
+  services.power-profiles-daemon.enable = false;
+  services.tlp.enable = false;
+  services.tuned.enable = true;
+
   networking.hostName = "nixos";
 
   networking.networkmanager.enable = true;
