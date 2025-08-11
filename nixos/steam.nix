@@ -8,13 +8,9 @@
       extraCompatPackages = [pkgs.proton-ge-bin];
     };
 
-    gamescope = {
+    appimage = {
       enable = true;
-      capSysNice = true;
-      args = [
-        "--rt"
-        "--expose-wayland"
-      ];
+      binfmt = true;
     };
   };
 }
