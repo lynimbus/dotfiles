@@ -129,10 +129,8 @@
     };
   };
   fonts.packages = with pkgs; [
+    source-han-sans
     nerd-fonts.jetbrains-mono
-    fira-code
-    fira-code-symbols
-    sarasa-gothic
   ];
 
   services.dae = {
