@@ -106,6 +106,15 @@
     devenv
   ];
 
+  programs.kitty = {
+    enable = true;
+    font = {
+      name = "JetBrainsMono Nerd Font Mono";
+      size = 14;
+    };
+    themeFile = "JetBrains_Darcula";
+  };
+
   programs.direnv = {
     enable = true;
     nix-direnv.enable = true;
