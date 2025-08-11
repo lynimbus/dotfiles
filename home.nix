@@ -27,8 +27,6 @@
   #     xxx
   # '';
 
-  home.file.".config/user-dirs.locale".text = "en_US.UTF-8";
-
   xdg.configFile.".ripgreprc".source = ./assets/ripgreprc;
 
   home.packages = with pkgs; [
