@@ -1,12 +1,11 @@
 {
-  config,
   pkgs,
   lib,
   inputs,
   ...
 }: {
   imports = [
-    ./home
+    (inputs.import-tree ./home)
   ];
 
   home.username = "lantianx";
@@ -31,27 +30,26 @@
 
   home.packages = with pkgs; [
     broot
-
     fastfetch
-    neofetch
-    pfetch
+    hyfetch
 
     zip
     xz
     unzip
     p7zip
 
-    ripgrep
-    ast-grep
+    ffmpeg
     jq
-    yq-go
-    eza
-    fzf
+    poppler
     fd
-    serpl
-    xclip
+    ripgrep
+    fzf
+    zoxide
+    resvg
+    imagemagick
     wl-clipboard
-    xsel
+    eza
+    devenv
 
     lazygit
     lazyjj
@@ -60,50 +58,12 @@
     mergiraf
     delta
 
-    mtr
-    iperf3
-    dnsutils
-    ldns
-    aria2
-    socat
-    nmap
-    ipcalc
-    imagemagick
-    resvg
-    poppler
-    ffmpeg
-    cowsay
-    file
-    which
-    tree
-    gnused
-    gnutar
-    gawk
-    zstd
-    gnupg
-    nix-output-monitor
-    hugo
-    glow
-    btop
-    iotop
-    iftop
-    strace
-    ltrace
-    lsof
-    sysstat
-    lm_sensors
-    ethtool
-    pciutils
-    usbutils
-
     localsend
     vscode
     zed-editor
     telegram-desktop
     qq
     motrix
-
-    devenv
   ];
 
   programs.kitty = {
@@ -112,7 +72,7 @@
       name = "JetBrainsMono Nerd Font Mono";
       size = 14;
     };
-    themeFile = "JetBrains_Darcula";
+    themeFile = "Dracula";
   };
 
   programs.direnv = {
@@ -120,35 +80,14 @@
     nix-direnv.enable = true;
   };
 
-  programs.helix = {
-    enable = true;
-    # defaultEditor = true;
-  };
-  xdg.configFile."helix" = {
-    source = ./assets/helix;
-    recursive = true;
-    executable = true;
-  };
-
-  programs.neovim = {
-    enable = true;
-    defaultEditor = true;
-    viAlias = true;
-    vimAlias = true;
-    vimdiffAlias = true;
-  };
-  xdg.configFile."nvim" = {
-    source = ./assets/nvim;
-    recursive = true;
-    executable = true;
-  };
-
   programs.git = {
     enable = true;
     userName = "lantianx";
     userEmail = "lantianx233@gmail.com";
     extraConfig = {
-      merge = {conflictStyle = "diff3";};
+      merge = {
+        conflictStyle = "diff3";
+      };
     };
   };
 
@@ -158,7 +97,7 @@
       git.sign-on-push = true;
       ui = {
         default-command = "log";
-        editor = "hx";
+        editor = "nvim";
         # paginate = "never";
         pager = "delta";
         diff-formatter = ":git";
@@ -199,7 +138,6 @@
       set -g fish_greeting
     '';
     shellAliases = {
-      sw = "sudo nixos-rebuild switch --flake ~/dotfiles#nixos";
       error = "journalctl -b -p err";
       v = "nvim";
       c = "clear";

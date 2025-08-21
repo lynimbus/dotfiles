@@ -1,16 +1,17 @@
 {
-  config,
   pkgs,
-  lib,
   inputs,
   ...
 }: {
   imports = [
     ./hardware-configuration.nix
-    ./nixos
+    (inputs.import-tree ./nixos)
   ];
 
+  nixpkgs.config.allowUnfree = true;
+
   boot = {
+    kernelPackages = pkgs.linuxPackages_lqx;
     loader = {
       timeout = 0;
       systemd-boot = {
@@ -64,30 +65,26 @@
   users.users.lantianx = {
     isNormalUser = true;
     description = "lantianx";
-    extraGroups = ["networkmanager" "wheel" "kvm" "adbusers"];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "kvm"
+      "adbusers"
+    ];
     shell = pkgs.fish;
   };
   security.sudo.wheelNeedsPassword = false;
   programs.fish.enable = true;
 
-  programs.adb.enable = true;
-
   programs.firefox.enable = true;
-
-  nixpkgs.config.allowUnfree = true;
 
   environment.systemPackages = with pkgs; [
     vim
     wget
     git
+    just
     nixfmt-rfc-style
     inputs.alejandra.defaultPackage."${system}"
-    android-tools
-    payload-dumper-go
-    just
-    gcc
-    lua
-    python314
   ];
 
   programs.mtr.enable = true;
@@ -104,32 +101,24 @@
 
   nix = {
     settings = {
-      experimental-features = ["nix-command" "flakes"];
+      experimental-features = [
+        "nix-command"
+        "flakes"
+      ];
       substituters = [
         "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"
-        "https://cache.nixos.org/"
-        "https://nix-community.cachix.org"
-        "https://cache.garnix.io"
-        "https://hyprland.cachix.org"
       ];
       trusted-public-keys = [
         "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-        "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-        "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
-        "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
       ];
       trusted-users = ["lantianx"];
       download-buffer-size = 524288000;
       auto-optimise-store = true;
     };
-    gc = {
-      automatic = true;
-      dates = "weekly";
-      options = "--delete-older-than 1w";
-    };
   };
   fonts.packages = with pkgs; [
-    source-han-sans
+    noto-fonts
+    noto-fonts-cjk-sans
     nerd-fonts.jetbrains-mono
   ];
 
@@ -158,7 +147,10 @@
 
   systemd.services."disable-wakeup-devices" = {
     description = "Disable unwanted wakeup devices";
-    wantedBy = ["multi-user.target" "suspend.target"];
+    wantedBy = [
+      "multi-user.target"
+      "suspend.target"
+    ];
     serviceConfig.Type = "oneshot";
     after = ["suspend.target"];
     script = ''
@@ -166,7 +158,6 @@
       echo "XHC1" > /proc/acpi/wakeup
       echo "XHC3" > /proc/acpi/wakeup
       echo "XHC4" > /proc/acpi/wakeup
-      echo "GPP5" > /proc/acpi/wakeup
       echo "GPP6" > /proc/acpi/wakeup
       echo "GPP0" > /proc/acpi/wakeup
     '';

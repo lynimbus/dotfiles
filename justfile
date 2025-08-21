@@ -1,16 +1,11 @@
-# just is a command runner, Justfile is very similar to Makefile, but simpler.
-
-############################################################################
-#
-#  Nix commands related to the local machine
-#
-############################################################################
-
 switch:
   nixos-rebuild switch --flake . --sudo
 
 debug:
-  nixos-rebuild switch --flake . --sudo --show-trace --verbose
+  nixos-rebuild build --flake . --sudo --show-trace --verbose
+
+check:
+  nix flake check
 
 up:
   nix flake update
