@@ -59,7 +59,7 @@
     delta
 
     localsend
-    vscode
+    vscode-fhs
     zed-editor
     telegram-desktop
     qq
