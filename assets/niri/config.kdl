@@ -1,0 +1,357 @@
+input {
+    keyboard {
+        xkb {
+            layout "us"
+            variant "pc104"
+            options "compose:ralt,ctrl:nocaps"
+        }
+    }
+
+    // Omitting touchpad settings disables them, or leaves them at their default values.
+touchpad {
+        tap
+        dwt
+        dwtp
+        natural-scroll
+        accel-speed 0.2
+        // accel-profile "flat"
+    }
+
+mouse {
+        // natural-scroll
+        // accel-speed 0.2
+        accel-profile "flat"
+    }
+
+    // Uncomment this to make the mouse warp to the center of newly focused windows.
+    // warp-mouse-to-focus
+
+    // Focus windows and outputs automatically when moving the mouse into them.
+    focus-follows-mouse
+}
+
+layout {
+    // Set gaps around windows in logical pixels.
+    gaps 6
+    center-focused-column "never"
+
+preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+
+        // fixed 1920
+    }
+
+focus-ring {
+        off
+    }
+
+border {
+        width 2
+         active-color "#f38ba8"
+         inactive-color "#5b4e65"
+
+       // active-gradient from="#bf616a" to="#f38ba8" angle=45 relative-to="workspace-view"
+       // inactive-gradient from="#505050" to="#808080" angle=45 relative-to="workspace-view"
+    }
+shadow {
+        on
+        softness 10
+        spread 3
+        offset x=0 y=2
+        draw-behind-window false
+        color "#00000080"
+        inactive-color "#00000060"
+    }
+insert-hint {
+        // off
+        color "#ffc87f80"
+        gradient from="#ffbb6680" to="#ffc88080" angle=45 relative-to="workspace-view"
+    }
+tab-indicator {
+        // off
+        hide-when-single-tab
+        place-within-column
+        gap 5
+        width 4
+        length total-proportion=1.0
+        position "left"
+        gaps-between-tabs 2
+        corner-radius 8
+        active-color "bf616a"
+        inactive-color "d08770"
+        // active-gradient from="#80c8ff" to="#bbddff" angle=45
+        // inactive-gradient from="#505050" to="#808080" angle=45 relative-to="workspace-view"
+    }
+}
+
+workspace "common"
+workspace "chat"
+workspace "game"
+
+prefer-no-csd
+
+spawn-at-startup "xwayland-satellite"
+spawn-at-startup "fcitx5" "-d" "--replace"
+
+hotkey-overlay {
+    skip-at-startup
+}
+
+environment {
+    NIXOS_OZONE_WL "1"
+    XDG_CURRENT_DESKTOP "niri"
+    DISPLAY ":0"
+    XDG_SESSION_TYPE "wayland"
+    QT_QPA_PLATFORM "wayland"
+    GDK_BACKEND "wayland"
+    CLUTTER_BACKEND "wayland"
+    MOZ_ENABLE_WAYLAND "1"
+    QT_WAYLAND_DISABLE_WINDOWDECORATION "1"
+    ELECTRON_OZONE_PLATFORM_HINT "auto"
+
+    // GTK_IM_MODULE "fcitx"
+    QT_IM_MODULE "fcitx"
+    XMODIFIERS "@im=fcitx"
+    SDL_IM_MODULE "fcitx"
+    GLFW_IM_MODULE "fcitx"
+
+    LANG "zh_CN.UTF-8"
+}
+
+screenshot-path "~/Pictures/Screenshot from %Y-%m-%d %H-%M-%S.png"
+
+// You can also set this to null to disable saving screenshots to disk.
+// screenshot-path null
+
+animations {
+    slowdown 2.0
+    window-open {
+      duration-ms 200
+      curve "linear"
+      custom-shader r"
+
+    vec4 expanding_circle(vec3 coords_geo, vec3 size_geo) {
+    vec3 coords_tex = niri_geo_to_tex * coords_geo;
+    vec4 color = texture2D(niri_tex, coords_tex.st);
+    vec2 coords = (coords_geo.xy - vec2(0.5, 0.5)) * size_geo.xy * 2.0;
+    coords = coords / length(size_geo.xy);
+    float p = niri_clamped_progress;
+    if (p * p <= dot(coords, coords))
+    color = vec4(0.0);
+
+    return color;
+  }
+
+    vec4 open_color(vec3 coords_geo, vec3 size_geo) {
+    return expanding_circle(coords_geo, size_geo);
+   }
+  "
+ }
+
+   window-close {
+      duration-ms 250
+      curve "linear"
+      custom-shader r"
+
+    vec4 fall_and_rotate(vec3 coords_geo, vec3 size_geo) {
+    float progress = niri_clamped_progress * niri_clamped_progress;
+    vec2 coords = (coords_geo.xy - vec2(0.5, 1.0)) * size_geo.xy;
+    coords.y -= progress * 1440.0;
+    float random = (niri_random_seed - 0.5) / 2.0;
+    random = sign(random) - random;
+    float max_angle = 0.5 * random;
+    float angle = progress * max_angle;
+    mat2 rotate = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
+    coords = rotate * coords;
+    coords_geo = vec3(coords / size_geo.xy + vec2(0.5, 1.0), 1.0);
+    vec3 coords_tex = niri_geo_to_tex * coords_geo;
+    vec4 color = texture2D(niri_tex, coords_tex.st);
+
+    return color;
+  }
+
+    vec4 close_color(vec3 coords_geo, vec3 size_geo) {
+    return fall_and_rotate(coords_geo, size_geo);
+     }
+    "
+   }
+}
+
+overview {
+    zoom 0.25
+    backdrop-color "#777777"
+    workspace-shadow {
+        off
+    }
+}
+
+window-rule {
+    geometry-corner-radius 8
+    clip-to-geometry true
+}
+
+window-rule {
+    block-out-from "screen-capture"
+    // block-out-from "screencast"
+}
+
+window-rule {
+    draw-border-with-background false
+    match is-active=true
+    match is-active=false
+    opacity 0.85
+}
+
+window-rule {
+    match app-id="firefox"
+    opacity 0.95
+}
+
+window-rule {
+    opacity 1.0
+}
+
+window-rule {
+   match app-id="kitty" title="kitty-common"
+   match app-id="firefox"
+   open-on-workspace "common"
+   open-maximized true
+   // default-column-width { fixed 1300; }
+}
+
+window-rule {
+    match app-id="localsend"
+    match app-id="kitty" title="kitty-floating"
+    match app-id="firefox" title="Opening .*"
+    open-floating true
+}
+
+window-rule {
+    match app-id="org.telegram.desktop"
+    match app-id="QQ"
+    open-on-workspace "chat"
+    default-column-width { fixed 1300; }
+}
+
+window-rule {
+    match app-id="steam"
+    open-on-workspace "game"
+    open-floating true
+}
+
+binds {
+    Mod+Shift+Slash { show-hotkey-overlay; }
+
+    Mod+Return { spawn "kitty" "--title" "kitty-common"; }
+    Mod+Shift+Return { spawn "kitty" "--title" "kitty-floating"; }
+    Mod+E { spawn "dolphin"; }
+    Mod+B { spawn "firefox"; }
+
+    // Volume keys mappings for PipeWire & WirePlumber.
+    XF86AudioRaiseVolume  allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%+"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%-"; }
+    XF86AudioMute allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
+    XF86AudioMicMute allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
+
+    XF86MonBrightnessUp { spawn "brightnessctl" "set" "+10"; }
+    XF86MonBrightnessDown { spawn "brightnessctl" "set" "10-"; }
+
+    Mod+Q { close-window; }
+    Mod+O { toggle-overview; }
+
+    Mod+V { toggle-window-floating; }
+    Mod+Shift+V { switch-focus-between-floating-and-tiling; }
+
+    Mod+Left  { focus-column-left; }
+    Mod+Right { focus-column-right; }
+
+    Mod+Shift+Left  { focus-column-first; }
+    Mod+Shift+Right { focus-column-last; }
+
+    Mod+Ctrl+Left   { move-column-left; }
+    Mod+Ctrl+Right  { move-column-right; }
+
+    Mod+Down            { focus-workspace-down; }
+    Mod+Up              { focus-workspace-up; }
+    Mod+Ctrl+Down       { move-column-to-workspace-down; }
+    Mod+Ctrl+Up         { move-column-to-workspace-up; }
+
+    Mod+Page_Down            { focus-workspace-down; }
+    Mod+Page_Up              { focus-workspace-up; }
+    Mod+Ctrl+Page_Down       { move-column-to-workspace-down; }
+    Mod+Ctrl+Page_Up         { move-column-to-workspace-up; }
+
+    Mod+WheelScrollDown      cooldown-ms=150 { focus-workspace-down; }
+    Mod+WheelScrollUp        cooldown-ms=150 { focus-workspace-up; }
+    Mod+Ctrl+WheelScrollDown cooldown-ms=150 { move-column-to-workspace-down; }
+    Mod+Ctrl+WheelScrollUp   cooldown-ms=150 { move-column-to-workspace-up; }
+
+    Mod+WheelScrollRight      { focus-column-right; }
+    Mod+WheelScrollLeft       { focus-column-left; }
+    Mod+Ctrl+WheelScrollRight { move-column-right; }
+    Mod+Ctrl+WheelScrollLeft  { move-column-left; }
+
+    // Usually scrolling up and down with Shift in applications results in
+    // horizontal scrolling; these binds replicate that.
+    Mod+Shift+WheelScrollDown      { focus-column-right; }
+    Mod+Shift+WheelScrollUp        { focus-column-left; }
+    Mod+Ctrl+Shift+WheelScrollDown { move-column-right; }
+    Mod+Ctrl+Shift+WheelScrollUp   { move-column-left; }
+
+    Mod+1 { focus-workspace 1; }
+    Mod+2 { focus-workspace 2; }
+    Mod+3 { focus-workspace 3; }
+    Mod+4 { focus-workspace 4; }
+    Mod+5 { focus-workspace 5; }
+    Mod+6 { focus-workspace 6; }
+    Mod+7 { focus-workspace 7; }
+    Mod+8 { focus-workspace 8; }
+    Mod+9 { focus-workspace 9; }
+    Mod+Ctrl+1 { move-column-to-workspace 1; }
+    Mod+Ctrl+2 { move-column-to-workspace 2; }
+    Mod+Ctrl+3 { move-column-to-workspace 3; }
+    Mod+Ctrl+4 { move-column-to-workspace 4; }
+    Mod+Ctrl+5 { move-column-to-workspace 5; }
+    Mod+Ctrl+6 { move-column-to-workspace 6; }
+    Mod+Ctrl+7 { move-column-to-workspace 7; }
+    Mod+Ctrl+8 { move-column-to-workspace 8; }
+    Mod+Ctrl+9 { move-column-to-workspace 9; }
+
+    // Alternatively, there are commands to move just a single window:
+    // Mod+Ctrl+1 { move-window-to-workspace 1; }
+
+    // Switches focus between the current and the previous workspace.
+    Mod+Tab { focus-workspace-previous; }
+
+    Mod+Comma  { consume-window-into-column; }
+    Mod+Period { expel-window-from-column; }
+
+    // There are also commands that consume or expel a single window to the side.
+    Mod+Ctrl+Comma  { consume-or-expel-window-left; }
+    Mod+Ctrl+Period { consume-or-expel-window-right; }
+
+    Mod+R { switch-preset-column-width; }
+    Mod+F { maximize-column; }
+    Mod+Shift+F { fullscreen-window; }
+    Mod+C { center-column; }
+
+    Mod+Minus { set-column-width "-5%"; }
+    Mod+Equal { set-column-width "+5%"; }
+
+    Mod+Shift+Minus { set-window-height "-5%"; }
+    Mod+Shift+Equal { set-window-height "+5%"; }
+    Mod+Shift+R  { reset-window-height; }
+
+    Mod+Alt+0        { set-column-width "1200"; }
+
+    Print { screenshot show-pointer=false; }
+    Ctrl+Print { screenshot-screen show-pointer=false; }
+    Alt+Print { screenshot-window; }
+    Ctrl+F1 { screenshot show-pointer=false; }
+
+    Mod+Shift+P { power-off-monitors; }
+    Mod+Shift+Q { quit skip-confirmation=true; }
+    Mod+Z { toggle-column-tabbed-display; }
+}
