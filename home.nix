@@ -48,7 +48,6 @@
     zoxide
     resvg
     imagemagick
-    wl-clipboard
     eza
     devenv
 

@@ -29,6 +29,16 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    niri = {
+      url = "github:sodiboo/niri-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    dankMaterialShell = {
+      url = "github:AvengeMedia/DankMaterialShell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     kickstart-nixvim.url = "github:JMartJonesy/kickstart.nixvim";
     nixos-hardware.url = "github:lynimbus/nixos-hardware";
     import-tree.url = "github:vic/import-tree";
@@ -43,6 +53,7 @@
       nixos-hardware,
       nur,
       daeuniverse,
+      niri,
       ...
     }:
     let
@@ -72,6 +83,7 @@
             nur.modules.nixos.default
             daeuniverse.nixosModules.dae
             daeuniverse.nixosModules.daed
+            niri.nixosModules.niri
 
             home-manager.nixosModules.home-manager
             {
