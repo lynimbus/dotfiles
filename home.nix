@@ -59,7 +59,6 @@
     mergiraf
     delta
 
-    localsend
     vscode-fhs
     zed-editor
     telegram-desktop
