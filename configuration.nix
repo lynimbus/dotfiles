@@ -86,6 +86,7 @@
     git
     just
     nixfmt-rfc-style
+    nixfmt-tree
     inputs.alejandra.defaultPackage."${system}"
   ];
 
