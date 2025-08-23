@@ -2,15 +2,17 @@
   pkgs,
   inputs,
   ...
-}: let
+}:
+let
   myPkgs = import pkgs.path {
-    overlays = [inputs.mac-style-plymouth.overlays.default];
+    overlays = [ inputs.mac-style-plymouth.overlays.default ];
     system = pkgs.system;
   };
-in {
+in
+{
   boot.plymouth = {
     enable = true;
     theme = "mac-style";
-    themePackages = [myPkgs.mac-style-plymouth];
+    themePackages = [ myPkgs.mac-style-plymouth ];
   };
 }

@@ -1,4 +1,5 @@
-{inputs, ...}: {
+{ inputs, ... }:
+{
   imports = [
     inputs.kickstart-nixvim.homeManagerModules.default
   ];

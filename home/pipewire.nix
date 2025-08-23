@@ -1,4 +1,5 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   xdg.configFile."pipewire/pipewire.conf.d/99-rnnoise.conf".text = ''
     context.modules = [
       {
