@@ -3,7 +3,8 @@
   lib,
   inputs,
   ...
-}: {
+}:
+{
   imports = [
     (inputs.import-tree ./home)
   ];
@@ -181,7 +182,8 @@
     #fcitx5.waylandFrontend = true;
     fcitx5.addons = with pkgs; [
       (fcitx5-rime.override {
-        rimeDataPkgs = with pkgs.nur.repos.linyinfeng.rimePackages;
+        rimeDataPkgs =
+          with pkgs.nur.repos.linyinfeng.rimePackages;
           withRimeDeps [
             rime-ice
           ];
@@ -194,7 +196,7 @@
 
   # https://wiki.archlinux.org.cn/title/Tencent_QQ#Empty_login_page_after_a_hot_update
   home.activation = {
-    qqRollbackScript = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    qqRollbackScript = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       run ${pkgs.bash}/bin/bash ${builtins.toPath ./assets/QQ/qq-version-rollback.sh}
     '';
   };

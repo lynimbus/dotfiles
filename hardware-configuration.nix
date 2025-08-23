@@ -7,55 +7,79 @@
   pkgs,
   modulesPath,
   ...
-}: {
+}:
+{
   imports = [
     (modulesPath + "/installer/scan/not-detected.nix")
   ];
 
-  boot.initrd.availableKernelModules = ["nvme" "xhci_pci" "usbhid"];
-  boot.initrd.kernelModules = [];
-  boot.kernelModules = ["kvm-amd"];
-  boot.extraModulePackages = [];
-  boot.supportedFilesystems = ["ntfs"];
+  boot.initrd.availableKernelModules = [
+    "nvme"
+    "xhci_pci"
+    "usbhid"
+  ];
+  boot.initrd.kernelModules = [ ];
+  boot.kernelModules = [ "kvm-amd" ];
+  boot.extraModulePackages = [ ];
+  boot.supportedFilesystems = [ "ntfs" ];
 
   fileSystems."/" = {
     device = "/dev/disk/by-uuid/1955021a-9915-428f-aeac-057ee52cf8ac";
     fsType = "btrfs";
-    options = ["subvol=root" "compress=zstd"];
+    options = [
+      "subvol=root"
+      "compress=zstd"
+    ];
   };
 
   fileSystems."/nix" = {
     device = "/dev/disk/by-uuid/1955021a-9915-428f-aeac-057ee52cf8ac";
     fsType = "btrfs";
-    options = ["subvol=nix" "noatime" "compress=zstd"];
+    options = [
+      "subvol=nix"
+      "noatime"
+      "compress=zstd"
+    ];
   };
 
   fileSystems."/home" = {
     device = "/dev/disk/by-uuid/1955021a-9915-428f-aeac-057ee52cf8ac";
     fsType = "btrfs";
-    options = ["subvol=home" "compress=zstd"];
+    options = [
+      "subvol=home"
+      "compress=zstd"
+    ];
   };
 
   fileSystems."/boot" = {
     device = "/dev/disk/by-uuid/880C-19A2";
     fsType = "vfat";
-    options = ["fmask=0022" "dmask=0022"];
+    options = [
+      "fmask=0022"
+      "dmask=0022"
+    ];
   };
 
   fileSystems."/media/windows" = {
     device = "/dev/disk/by-uuid/E85E63F75E63BD46";
     fsType = "ntfs-3g";
-    options = ["rw" "uid=1000"];
+    options = [
+      "rw"
+      "uid=1000"
+    ];
   };
 
   fileSystems."/media/ntfsdata" = {
     device = "/dev/disk/by-uuid/2A0F47B7B3B0B016";
     fsType = "ntfs-3g";
-    options = ["rw" "uid=1000"];
+    options = [
+      "rw"
+      "uid=1000"
+    ];
   };
 
   swapDevices = [
-    {device = "/dev/disk/by-uuid/730ff702-2cbc-4f31-8819-e93b45b87caf";}
+    { device = "/dev/disk/by-uuid/730ff702-2cbc-4f31-8819-e93b45b87caf"; }
   ];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";

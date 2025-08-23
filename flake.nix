@@ -35,45 +35,48 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
   };
 
-  outputs = inputs @ {
-    self,
-    nixpkgs,
-    home-manager,
-    nixos-hardware,
-    nur,
-    daeuniverse,
-    ...
-  }: let
-    inherit (self) outputs;
-    system = "x86_64-linux";
-    hostname = "nixos";
-    username = "lantianx";
-    email = "lantianx233@gmail.com";
-  in {
-    nixosConfigurations = {
-      ${hostname} = nixpkgs.lib.nixosSystem {
-        inherit system;
-        specialArgs = {inherit inputs outputs;};
-        modules = [
-          ./configuration.nix
+  outputs =
+    inputs@{
+      self,
+      nixpkgs,
+      home-manager,
+      nixos-hardware,
+      nur,
+      daeuniverse,
+      ...
+    }:
+    let
+      inherit (self) outputs;
+      system = "x86_64-linux";
+      hostname = "nixos";
+      username = "lantianx";
+      email = "lantianx233@gmail.com";
+    in
+    {
+      nixosConfigurations = {
+        ${hostname} = nixpkgs.lib.nixosSystem {
+          inherit system;
+          specialArgs = { inherit inputs outputs; };
+          modules = [
+            ./configuration.nix
 
-          nixos-hardware.nixosModules.mechrevo-gm5hg0a
-          nur.modules.nixos.default
-          daeuniverse.nixosModules.dae
-          daeuniverse.nixosModules.daed
+            nixos-hardware.nixosModules.mechrevo-gm5hg0a
+            nur.modules.nixos.default
+            daeuniverse.nixosModules.dae
+            daeuniverse.nixosModules.daed
 
-          home-manager.nixosModules.home-manager
-          {
-            home-manager = {
-              useGlobalPkgs = true;
-              useUserPackages = true;
-              users.${username} = import ./home.nix;
-              extraSpecialArgs = {inherit inputs outputs;};
-              backupFileExtension = "bak";
-            };
-          }
-        ];
+            home-manager.nixosModules.home-manager
+            {
+              home-manager = {
+                useGlobalPkgs = true;
+                useUserPackages = true;
+                users.${username} = import ./home.nix;
+                extraSpecialArgs = { inherit inputs outputs; };
+                backupFileExtension = "bak";
+              };
+            }
+          ];
+        };
       };
     };
-  };
 }

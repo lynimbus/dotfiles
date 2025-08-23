@@ -2,7 +2,8 @@
   pkgs,
   inputs,
   ...
-}: {
+}:
+{
   imports = [
     ./hardware-configuration.nix
     (inputs.import-tree ./nixos)
@@ -46,7 +47,7 @@
   time.timeZone = "Asia/Shanghai";
 
   i18n.defaultLocale = "en_US.UTF-8";
-  i18n.supportedLocales = ["all"];
+  i18n.supportedLocales = [ "all" ];
 
   hardware.bluetooth.enable = true;
 
@@ -114,7 +115,7 @@
       trusted-public-keys = [
         "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
       ];
-      trusted-users = ["lantianx"];
+      trusted-users = [ "lantianx" ];
       download-buffer-size = 524288000;
       auto-optimise-store = true;
     };
@@ -155,7 +156,7 @@
       "suspend.target"
     ];
     serviceConfig.Type = "oneshot";
-    after = ["suspend.target"];
+    after = [ "suspend.target" ];
     script = ''
       echo "XHC0" > /proc/acpi/wakeup
       echo "XHC1" > /proc/acpi/wakeup
