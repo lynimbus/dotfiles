@@ -48,6 +48,8 @@
   i18n.defaultLocale = "en_US.UTF-8";
   i18n.supportedLocales = ["all"];
 
+  hardware.bluetooth.enable = true;
+
   services.printing.enable = true;
 
   services.pulseaudio.enable = false;
