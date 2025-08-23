@@ -91,6 +91,11 @@
     inputs.alejandra.defaultPackage."${system}"
   ];
 
+  programs.localsend = {
+    enable = true;
+    openFirewall = true;
+  };
+
   programs.mtr.enable = true;
   programs.gnupg.agent = {
     enable = true;
