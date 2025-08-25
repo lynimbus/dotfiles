@@ -154,23 +154,5 @@
   #   };
   # };
 
-  systemd.services."disable-wakeup-devices" = {
-    description = "Disable unwanted wakeup devices";
-    wantedBy = [
-      "multi-user.target"
-      "suspend.target"
-    ];
-    serviceConfig.Type = "oneshot";
-    after = [ "suspend.target" ];
-    script = ''
-      echo "XHC0" > /proc/acpi/wakeup
-      echo "XHC1" > /proc/acpi/wakeup
-      echo "XHC3" > /proc/acpi/wakeup
-      echo "XHC4" > /proc/acpi/wakeup
-      echo "GPP6" > /proc/acpi/wakeup
-      echo "GPP0" > /proc/acpi/wakeup
-    '';
-  };
-
   system.stateVersion = "25.05";
 }
