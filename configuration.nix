@@ -65,6 +65,8 @@
 
   services.libinput.enable = true;
 
+  services.dbus.implementation = "broker";
+
   users.users.lantianx = {
     isNormalUser = true;
     description = "lantianx";
