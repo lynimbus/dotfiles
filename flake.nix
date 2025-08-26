@@ -56,7 +56,15 @@
       nixosConfigurations = {
         ${hostname} = nixpkgs.lib.nixosSystem {
           inherit system;
-          specialArgs = { inherit inputs outputs; };
+          specialArgs = {
+            inherit
+              inputs
+              outputs
+              hostname
+              username
+              email
+              ;
+          };
           modules = [
             ./configuration.nix
 
@@ -71,7 +79,15 @@
                 useGlobalPkgs = true;
                 useUserPackages = true;
                 users.${username} = import ./home.nix;
-                extraSpecialArgs = { inherit inputs outputs; };
+                extraSpecialArgs = {
+                  inherit
+                    inputs
+                    outputs
+                    hostname
+                    username
+                    email
+                    ;
+                };
                 backupFileExtension = "bak";
               };
             }
