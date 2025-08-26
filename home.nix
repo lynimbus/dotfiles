@@ -215,5 +215,19 @@
     '';
   };
 
+  xdg.desktopEntries = {
+    # 修复linuxqq在niri上无法使用fcitx5
+    qq = {
+      name = "QQ";
+      exec = "qq --wayland-text-input-version=3 %U";
+      icon = "qq";
+      categories = [
+        "Network"
+        "InstantMessaging"
+      ];
+      terminal = false;
+    };
+  };
+
   home.stateVersion = "25.05";
 }
