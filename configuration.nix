@@ -107,6 +107,7 @@
     enable = true;
     enableSSHSupport = true;
   };
+  security.polkit.enable = true;
 
   services.openssh.enable = true;
 
