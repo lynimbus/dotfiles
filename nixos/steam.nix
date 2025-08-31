@@ -13,5 +13,7 @@
       enable = true;
       binfmt = true;
     };
+    gamescope.enable = true;
+    gamemode.enable = true;
   };
 }

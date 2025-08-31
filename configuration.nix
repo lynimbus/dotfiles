@@ -13,6 +13,10 @@
 
   boot = {
     kernelPackages = pkgs.linuxPackages_lqx;
+    kernel.sysctl = {
+      "vm.swappiness" = 10;
+      "vm.nr_hugepages" = 256;
+    };
     loader = {
       timeout = 0;
       systemd-boot = {
