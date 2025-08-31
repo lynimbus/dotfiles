@@ -77,6 +77,8 @@
         showDesktopNotification = false;
         showAbortNotification = false;
         showStartupLaunchMessage = false;
+        autoCloseIdleDaemon = true;
+        startupLaunch = false;
       };
     };
   };
