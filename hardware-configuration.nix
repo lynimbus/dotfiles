@@ -28,7 +28,7 @@
     fsType = "btrfs";
     options = [
       "subvol=root"
-      "compress=zstd"
+      "compress=zstd:3"
     ];
   };
 
@@ -38,7 +38,7 @@
     options = [
       "subvol=nix"
       "noatime"
-      "compress=zstd"
+      "compress=zstd:3"
     ];
   };
 
@@ -47,7 +47,7 @@
     fsType = "btrfs";
     options = [
       "subvol=home"
-      "compress=zstd"
+      "compress=zstd:3"
     ];
   };
 
