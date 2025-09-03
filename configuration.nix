@@ -18,7 +18,7 @@
       "vm.nr_hugepages" = 256;
     };
     loader = {
-      timeout = 0;
+      timeout = 3;
       systemd-boot = {
         editor = false;
         enable = true;
