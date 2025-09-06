@@ -63,6 +63,7 @@
     telegram-desktop
     qq
     motrix
+    obs-studio
   ];
 
   services.flameshot = {
