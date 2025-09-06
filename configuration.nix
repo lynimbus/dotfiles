@@ -95,6 +95,7 @@
     nixfmt-rfc-style
     nixfmt-tree
     inputs.alejandra.defaultPackage."${system}"
+    wineWowPackages.stable
   ];
 
   programs.localsend = {
