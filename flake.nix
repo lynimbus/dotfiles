@@ -40,7 +40,7 @@
     };
 
     kickstart-nixvim.url = "github:JMartJonesy/kickstart.nixvim";
-    nixos-hardware.url = "github:lynimbus/nixos-hardware";
+    nixos-hardware.url = "github:NixOS/nixos-hardware";
     import-tree.url = "github:vic/import-tree";
     flake-parts.url = "github:hercules-ci/flake-parts";
   };
