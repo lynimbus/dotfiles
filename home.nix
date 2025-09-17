@@ -59,7 +59,7 @@
     delta
 
     vscode-fhs
-    zed-editor
+    zed-editor-fhs
     telegram-desktop
     qq
     motrix
