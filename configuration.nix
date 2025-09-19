@@ -95,6 +95,7 @@
     nixfmt-tree
     inputs.alejandra.defaultPackage."${system}"
     wineWowPackages.stable
+    gemini-cli
   ];
 
   programs.localsend = {
