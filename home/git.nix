@@ -1,9 +1,9 @@
-{ ... }:
+{ username, email, ... }:
 {
   programs.git = {
     enable = true;
-    userName = "lantianx";
-    userEmail = "lantianx233@gmail.com";
+    userName = username;
+    userEmail = email;
     extraConfig = {
       merge = {
         conflictStyle = "diff3";
@@ -24,8 +24,8 @@
         merge-editor = "mergiraf";
       };
       user = {
-        email = "lantianx233@gmail.com";
-        name = "lantianx";
+        email = email;
+        name = username;
       };
     };
   };

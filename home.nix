@@ -1,5 +1,6 @@
 {
   inputs,
+  username,
   ...
 }:
 {
@@ -7,7 +8,7 @@
     (inputs.import-tree ./home)
   ];
 
-  home.username = "lantianx";
-  home.homeDirectory = "/home/lantianx";
+  home.username = username;
+  home.homeDirectory = "/home/${username}";
   home.stateVersion = "25.05";
 }

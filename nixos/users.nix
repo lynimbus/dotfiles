@@ -1,13 +1,10 @@
-{ pkgs, ... }:
+{ pkgs, username, ... }:
 {
-  users.users.lantianx = {
+  users.users.${username} = {
     isNormalUser = true;
-    description = "lantianx";
     extraGroups = [
       "networkmanager"
       "wheel"
-      "kvm"
-      "adbusers"
     ];
     shell = pkgs.fish;
   };
