@@ -1,7 +1,7 @@
 { pkgs, ... }:
 {
   boot = {
-    kernelPackages = pkgs.linuxPackages_lqx;
+    kernelPackages = pkgs.linuxPackages_xanmod_latest;
     kernel.sysctl = {
       "vm.swappiness" = 10;
       "vm.nr_hugepages" = 256;
