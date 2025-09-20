@@ -39,6 +39,7 @@
       "dmask=0022"
     ];
   };
+  boot.loader.efi.efiSysMountPoint = "/boot";
 
   swapDevices = [ { device = "/swapfile"; } ];
   boot.resumeDevice = "/dev/nvme0n1p4";
