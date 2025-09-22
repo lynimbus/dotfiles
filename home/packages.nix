@@ -21,6 +21,7 @@
     imagemagick
     eza
     devenv
+    devbox
 
     lazygit
     lazyjj
