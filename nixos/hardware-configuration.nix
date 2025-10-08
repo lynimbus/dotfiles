@@ -27,28 +27,25 @@
   boot.supportedFilesystems = [ "ntfs" ];
 
   fileSystems."/" = {
-    device = "/dev/disk/by-uuid/8ffc335e-8ecc-4605-b84f-3a5d3a6f3fdc";
+    device = "/dev/disk/by-uuid/f2e6246d-0ab3-4c37-98d9-1c35dc4fe7b3";
     fsType = "xfs";
   };
 
   fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/1619-4C3E";
+    device = "/dev/disk/by-uuid/4D25-835C";
     fsType = "vfat";
     options = [
       "fmask=0022"
       "dmask=0022"
     ];
   };
-  boot.loader.efi.efiSysMountPoint = "/boot";
 
-  swapDevices = [ { device = "/swapfile"; } ];
-  boot.resumeDevice = "/dev/nvme0n1p4";
-  boot.kernelParams = [
-    "resume_offset=570187"
+  swapDevices = [
+    { device = "/dev/disk/by-uuid/d13b6794-603b-4c89-bc7b-4477e534e5bc"; }
   ];
 
   fileSystems."/media/windows" = {
-    device = "/dev/disk/by-uuid/4EC2DBAEC2DB9913";
+    device = "/dev/disk/by-uuid/2464825E6482331A";
     fsType = "ntfs-3g";
     options = [
       "rw"
@@ -57,7 +54,7 @@
   };
 
   fileSystems."/media/ntfsdata" = {
-    device = "/dev/disk/by-uuid/2A0F47B7B3B0B016";
+    device = "/dev/disk/by-uuid/AC952490AD6A609A";
     fsType = "ntfs-3g";
     options = [
       "rw"
