@@ -1,10 +1,5 @@
 # https://starship.rs/presets/bracketed-segments
 
-[directory]
-truncation_length = 3
-truncate_to_repo = false
-fish_style_pwd_dir_length = 1
-
 [aws]
 format = '\[[$symbol($profile)(\($region\))(\[$duration\])]($style)\]'
 
@@ -66,12 +61,10 @@ format = '\[[$symbol$branch]($style)\]'
 format = '\[[$symbol$account(@$domain)(\($region\))]($style)\]'
 
 [git_branch]
-# format = '\[[$symbol$branch]($style)\]'
-disabled = true
+format = '\[[$symbol$branch]($style)\]'
 
 [git_status]
-# format = '([\[$all_status$ahead_behind\]]($style))'
-disabled = true
+format = '([\[$all_status$ahead_behind\]]($style))'
 
 [golang]
 format = '\[[$symbol($version)]($style)\]'
@@ -204,4 +197,3 @@ format = '\[[$symbol($version)]($style)\]'
 
 [solidity]
 format = '\[[$symbol($version)]($style)\]'
-
