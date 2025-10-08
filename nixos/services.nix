@@ -1,9 +1,5 @@
 { pkgs, inputs, ... }:
 {
-  services.power-profiles-daemon.enable = false;
-  services.tlp.enable = false;
-  services.tuned.enable = true;
-
   services.printing.enable = true;
 
   services.dbus.implementation = "broker";
