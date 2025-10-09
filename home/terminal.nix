@@ -14,15 +14,4 @@
       initial_window_height = 600;
     };
   };
-
-  programs.alacritty = {
-    enable = true;
-    settings = {
-      font = {
-        size = 14;
-        normal.family = "JetBrainsMono Nerd Font Mono";
-      };
-    };
-    theme = "github_dark";
-  };
 }
