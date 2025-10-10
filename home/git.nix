@@ -14,7 +14,10 @@
   programs.jujutsu = {
     enable = true;
     settings = {
-      git.sign-on-push = true;
+      git = {
+        sign-on-push = true;
+        private-commits = "description(glob:'wip:*') | description(glob:'private:*')";
+      };
       ui = {
         default-command = "log";
         editor = "nvim";
