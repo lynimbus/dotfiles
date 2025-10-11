@@ -36,5 +36,8 @@
     qq
     motrix
     obs-studio
+
+    hmcl
+    zulu
   ];
 }
