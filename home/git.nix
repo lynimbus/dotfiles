@@ -17,6 +17,7 @@
       git = {
         sign-on-push = true;
         private-commits = "description(glob:'wip:*') | description(glob:'private:*')";
+        colocate = false;
       };
       ui = {
         default-command = "log";
