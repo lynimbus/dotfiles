@@ -16,13 +16,9 @@
     ".config/zed/settings.json".source = ./config/zed/settings.json;
 
     # Ghostty 终端
+    # （ghostty 由 pacman 管理：Nix 版 glibc 2.42 与系统 GL 栈要求的 2.43+ 不兼容，
+    #   详见 2026-08-07 排障记录。此文件两种安装方式共用。）
     ".config/ghostty/config".source = ./config/ghostty/config;
-
-    # Ghostty 启动包装器 + 桌面入口覆盖
-    # （Nix 版 ghostty 的 glvnd 无法自动加载系统 EGL vendor，需注入环境变量）
-    ".local/bin/ghostty".source = ./config/ghostty/launcher.sh;
-    ".local/bin/ghostty".executable = true;
-    ".local/share/applications/com.mitchellh.ghostty.desktop".source = ./config/ghostty/com.mitchellh.ghostty.desktop;
 
     # git 全局 ignore
     ".config/git/ignore".source = ./config/git/ignore;
