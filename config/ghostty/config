@@ -1,0 +1,15 @@
+# Ghostty 配置（由 home-manager 托管）
+# 修改后运行: home-manager switch --flake ~/nix-config
+
+# 关键修复：Nix 打包的 ghostty 自带 libglvnd，默认找不到系统的 EGL vendor 驱动
+# （libEGL_mesa/libEGL_nvidia），导致 "failed to create EGL display"、窗口无法渲染。
+# 这里显式指定使用 mesa（AMD 核显）的 EGL 实现。
+env = __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json
+
+# 常用示例（按需取消注释）：
+# theme = one-dark
+# font-family = JetBrains Mono
+# font-size = 12
+# background-opacity = 0.9
+# window-padding-x = 8
+# window-padding-y = 8
