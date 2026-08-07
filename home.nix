@@ -18,6 +18,12 @@
     # Ghostty 终端
     ".config/ghostty/config".source = ./config/ghostty/config;
 
+    # Ghostty 启动包装器 + 桌面入口覆盖
+    # （Nix 版 ghostty 的 glvnd 无法自动加载系统 EGL vendor，需注入环境变量）
+    ".local/bin/ghostty".source = ./config/ghostty/launcher.sh;
+    ".local/bin/ghostty".executable = true;
+    ".local/share/applications/com.mitchellh.ghostty.desktop".source = ./config/ghostty/com.mitchellh.ghostty.desktop;
+
     # git 全局 ignore
     ".config/git/ignore".source = ./config/git/ignore;
   };
