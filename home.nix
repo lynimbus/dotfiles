@@ -64,6 +64,35 @@
   home.file = {
     # fish shell（登录 shell 仍是 /usr/bin/fish，这里是交互配置）
     ".config/fish/config.fish".source = ./config/fish/config.fish;
+
+    # --- niri 窗口管理器 (2026-08-13, 源自 NyxNiri, 适配本机) ---
+    # effects.kdl 是 eyecare 切换的符号链接源: 托管为 normal 内容作首次启动初始态,
+    # toggle-eyecare.sh 运行时用 ln -sfn 接管 (home-manager switch 会重置回 normal, 属预期)
+    ".config/niri/config.kdl".source = ./config/niri/config.kdl;
+    ".config/niri/binds.kdl".source = ./config/niri/binds.kdl;
+    ".config/niri/layout.kdl".source = ./config/niri/layout.kdl;
+    ".config/niri/rules.kdl".source = ./config/niri/rules.kdl;
+    ".config/niri/animations.kdl".source = ./config/niri/animations.kdl;
+    ".config/niri/monitor.kdl".source = ./config/niri/monitor.kdl;
+    ".config/niri/effects_normal.kdl".source = ./config/niri/effects_normal.kdl;
+    ".config/niri/effects_eyecare.kdl".source = ./config/niri/effects_eyecare.kdl;
+    ".config/niri/effects.kdl".text = builtins.readFile ./config/niri/effects_normal.kdl;
+    ".config/niri/input__custom__.kdl".source = ./config/niri/input__custom__.kdl;
+    ".config/niri/__custom__.kdl".source = ./config/niri/__custom__.kdl;
+    ".config/niri/toggle-eyecare.sh".source = ./config/niri/toggle-eyecare.sh;
+    ".config/niri/toggle-eyecare.sh".executable = true;
+    ".config/niri/backlight-up.sh".source = ./config/niri/backlight-up.sh;
+    ".config/niri/backlight-up.sh".executable = true;
+    ".config/niri/niri-scratch-toggle.sh".source = ./config/niri/niri-scratch-toggle.sh;
+    ".config/niri/niri-scratch-toggle.sh".executable = true;
+    ".config/niri/close-focused.sh".source = ./config/niri/close-focused.sh;
+    ".config/niri/close-focused.sh".executable = true;
+
+    # --- noctalia 钩子脚本 (config.toml 为应用状态, 首装时手动 seed, 不托管) ---
+    ".config/noctalia/theme-sync.sh".source = ./config/noctalia/theme-sync.sh;
+    ".config/noctalia/theme-sync.sh".executable = true;
+    ".config/noctalia/wallpaper-hook.sh".source = ./config/noctalia/wallpaper-hook.sh;
+    ".config/noctalia/wallpaper-hook.sh".executable = true;
   };
 
   imports = [
