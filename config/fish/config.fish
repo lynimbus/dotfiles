@@ -45,19 +45,14 @@ set -gx LESS_TERMCAP_ue (printf '\e[0m')
 set -gx LESS_TERMCAP_so (printf '\e[1;44;33m')
 set -gx LESS_TERMCAP_se (printf '\e[0m')
 
-# ---------- ls/cat 替代(装了才换;没装则用 fish 内建的 ls/ll/la) ----------
-if command -q eza
-    alias ls 'eza --group-directories-first --icons=auto'
-    alias ll 'eza -l --group-directories-first --icons=auto --git --time-style=long-iso'
-    alias la 'eza -la --group-directories-first --icons=auto --git --time-style=long-iso'
-    alias lt 'eza --tree --level=2 --icons=auto'
-end
+# ---------- ls/cat 替代(包已由 home.nix 声明式安装,无需再判断) ----------
+alias ls 'eza --group-directories-first --icons=auto'
+alias ll 'eza -l --group-directories-first --icons=auto --git --time-style=long-iso'
+alias la 'eza -la --group-directories-first --icons=auto --git --time-style=long-iso'
+alias lt 'eza --tree --level=2 --icons=auto'
 
-if command -q bat
-    set -gx BAT_THEME ansi
-    alias b 'bat --paging=never'    # cat 不换 bat,避免管道/复制出错
-    command -q nvim; or set -gx MANPAGER "sh -c 'col -bx | bat -l man -p'"
-end
+set -gx BAT_THEME ansi
+alias b 'bat --paging=never'    # cat 不换 bat,避免管道/复制出错
 
 alias ip 'ip -color=auto'
 alias rm 'rm -I --preserve-root'
@@ -108,13 +103,9 @@ abbr -a pacu 'sudo pacman -Syu'
 abbr -a pacorphan 'pacman -Qtdq'
 abbr -a pacclean 'sudo pacman -Sc'
 abbr -a pacown 'pacman -Qo'
-if command -q paru
-    abbr -a a paru
-    abbr -a au 'paru -Sua'
-else if command -q yay
-    abbr -a a yay
-    abbr -a au 'yay -Sua'
-end
+# AUR 助手固定 paru(AGENTS.md:paru 为 pacman 工具链,系统级)
+abbr -a a paru
+abbr -a au 'paru -Sua'
 
 # systemd
 abbr -a sc 'sudo systemctl'
@@ -127,7 +118,7 @@ abbr -a jcu 'journalctl -u'
 # 杂项
 abbr -a v nvim
 abbr -a vf 'nvim (fzf)'
-abbr -a fishrc '$EDITOR ~/.config/fish/config.fish'
+abbr -a fishrc '$EDITOR ~/nix-config/config/fish/config.fish'   # 源文件(HM 托管的是 store 符号链接,勿直接编辑)
 abbr -a reload 'exec fish'
 abbr -a ports 'ss -tulpn'
 abbr -a myip 'curl -s https://ifconfig.me; echo'
@@ -208,22 +199,18 @@ function wtf
     end
 end
 
-# ---------- 第三方(装了才加载:zoxide → fzf → starship) ----------
-command -q zoxide; and zoxide init --cmd cd fish | source
+# ---------- 第三方(zoxide → fzf → starship 均已声明式安装;direnv 未装则跳过) ----------
+zoxide init --cmd cd fish | source
 
-if command -q fzf
-    set -gx FZF_DEFAULT_OPTS '--height=60% --layout=reverse --border=rounded --info=inline --cycle --bind=ctrl-/:toggle-preview,ctrl-u:preview-page-up,ctrl-d:preview-page-down'
-    if command -q fd
-        set -gx FZF_DEFAULT_COMMAND 'fd --type f --hidden --follow --exclude .git'
-        set -gx FZF_CTRL_T_COMMAND $FZF_DEFAULT_COMMAND
-        set -gx FZF_ALT_C_COMMAND 'fd --type d --hidden --follow --exclude .git'
-    end
-    command -q bat; and set -gx FZF_CTRL_T_OPTS '--preview="bat -n --color=always {}"'
-    fzf --fish | source
-end
+set -gx FZF_DEFAULT_OPTS '--height=60% --layout=reverse --border=rounded --info=inline --cycle --bind=ctrl-/:toggle-preview,ctrl-u:preview-page-up,ctrl-d:preview-page-down'
+set -gx FZF_DEFAULT_COMMAND 'fd --type f --hidden --follow --exclude .git'
+set -gx FZF_CTRL_T_COMMAND $FZF_DEFAULT_COMMAND
+set -gx FZF_ALT_C_COMMAND 'fd --type d --hidden --follow --exclude .git'
+set -gx FZF_CTRL_T_OPTS '--preview="bat -n --color=always {}"'
+fzf --fish | source
 
 command -q direnv; and direnv hook fish | source
-command -q starship; and starship init fish | source
+starship init fish | source
 
 # ---------- 键位 ----------
 bind ctrl-z 'fg 2>/dev/null; commandline -f repaint'
