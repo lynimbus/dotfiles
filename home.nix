@@ -49,6 +49,7 @@
 
     # --- 编辑器 ---
     pkgs.neovim       # nvim（EDITOR 指向它）
+    pkgs.marktext     # Markdown 编辑器/阅读器（mimeapps：text/markdown 默认用它）
     # zed 已迁回 pacman（extra/zed）：Nix 版与系统 GL 栈不兼容，见 AGENTS.md
 
     # --- 版本控制 ---
@@ -106,11 +107,13 @@
     ./modules/vcs.nix
     ./modules/editors.nix
     ./modules/terminal.nix
+    ./modules/mimeapps.nix
   ];
 
-  # 目录/文件夹默认打开方式 → thunar：
-  # ~/.config/mimeapps.list 是手管文件（含 zed/claude/sing-box 关联），不走 HM 模块避免冲掉；
-  # 已手改加 `inode/directory=thunar.desktop`（替代 dolphin 关联）。
+  # MIME 默认程序（Thunar 双击打开方式）→ 由 modules/mimeapps.nix 声明式管理：
+  # xdg.mimeApps 生成 ~/.config/mimeapps.list（store 符号链接，只读）；改默认必须改模块后 switch。
+  # 历史：原为手管文件（含 zed/focus/claude-cli/sing-box 关联），2026-08-14 迁入 HM，
+  # 备份 ~/.config/mimeapps.list.bak-20260814；目录默认 thunar.desktop（替代 dolphin 关联）。
 
   # home-manager 自身：enable 后命令自动进入 PATH（package 为只读选项，勿手动设置）
   programs.home-manager.enable = true;
