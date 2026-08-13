@@ -189,13 +189,13 @@ binds {
     // -------------------------------------------------------------------------
     // 8. 截图按键控制 / Screenshot Controls
     // -------------------------------------------------------------------------
-    // 交互式区域截图 / Interactive region screenshot
-    Mod+Shift+S { screenshot; }
-    Print       { screenshot; }
+    // 交互式区域截图 / Interactive region screenshot (指针默认隐藏, 按 P 可临时显示)
+    Mod+Shift+S { screenshot show-pointer=false; }
+    Print       { screenshot show-pointer=false; }
 
-    // 截取整个显示器屏幕 / Fullscreen screenshot
-    Ctrl+Print  { screenshot-screen; }
+    // 截取整个显示器屏幕 / Fullscreen screenshot (不带鼠标指针)
+    Ctrl+Print  { screenshot-screen show-pointer=false; }
 
-    // 截取当前活动窗口 / Active window screenshot
-    Alt+Print   { screenshot-window; }
+    // 截取当前活动窗口 / Active window screenshot (26.04 起默认不带指针)
+    Alt+Print   { screenshot-window show-pointer=false; }
 }
