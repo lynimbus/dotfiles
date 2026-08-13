@@ -39,6 +39,9 @@
 
     # --- 文件 / 系统信息 ---
     pkgs.yazi         # 终端文件管理器
+    # GUI 文件管理器 thunar 由 pacman 管理（2026-08-14 替换 dolphin）：
+    #   nixpkgs 版 thunar 未编入 gvfs（buildInputs 无 gvfs），回收站/挂载/网络浏览缺失；
+    #   pacman 版 thunar 带 gvfs 支持，与 gvfs/tumbler 一并安装（pacman -S thunar gvfs tumbler）。
     pkgs.moreutils    # sponge 等实用工具
     pkgs.fastfetch    # 系统信息
     pkgs.hyfetch      # fastfetch 主题
@@ -100,6 +103,10 @@
     ./modules/editors.nix
     ./modules/terminal.nix
   ];
+
+  # 目录/文件夹默认打开方式 → thunar：
+  # ~/.config/mimeapps.list 是手管文件（含 zed/claude/sing-box 关联），不走 HM 模块避免冲掉；
+  # 已手改加 `inode/directory=thunar.desktop`（替代 dolphin 关联）。
 
   # home-manager 自身：enable 后命令自动进入 PATH（package 为只读选项，勿手动设置）
   programs.home-manager.enable = true;

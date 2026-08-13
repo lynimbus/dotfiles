@@ -34,8 +34,8 @@ binds {
     // 启动终端模拟器 (本机: ghostty) / Launch terminal emulator (ghostty)
     Mod+Return { spawn "ghostty"; }
 
-    // 启动文件管理器 (本机: dolphin) / Launch file manager (dolphin)
-    Mod+E { spawn "dolphin"; }
+    // 启动文件管理器 (本机: thunar, pacman) / Launch file manager (thunar)
+    Mod+E { spawn "thunar"; }
 
     // 启动浏览器 (本机: ungoogled-chromium) / Launch web browser (ungoogled-chromium)
     Mod+B { spawn "chromium"; }
