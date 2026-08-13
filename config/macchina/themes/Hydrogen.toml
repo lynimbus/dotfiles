@@ -1,0 +1,33 @@
+# Hydrogen — macchina 官方旗舰主题（文档引用最多的示例主题）
+# 本地适配：配色对齐 Atom One Dark（cyan #56b6c2 / fg #abb2bf），
+# bar 字形 ߋ→█（U+07CB 在部分字体下渲染为豆腐块）
+
+spacing         = 2
+padding         = 0
+hide_ascii      = true
+separator       = ">"
+key_color       = "#56b6c2"   # One Dark cyan
+separator_color = "#abb2bf"   # One Dark 前景
+
+[palette]
+type = "Full"
+visible = false
+
+[bar]
+glyph           = "█"
+symbol_open     = '['
+symbol_close    = ']'
+hide_delimiters = true
+visible         = true
+
+[box]
+border          = "plain"
+visible         = true
+
+[box.inner_margin]
+x = 1
+y = 0
+
+[randomize]
+key_color       = false
+separator_color = false

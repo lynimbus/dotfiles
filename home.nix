@@ -91,6 +91,10 @@
     ".config/niri/close-focused.sh".source = ./config/niri/close-focused.sh;
     ".config/niri/close-focused.sh".executable = true;
 
+    # --- macchina 系统信息 (官方 Hydrogen 主题, 适配 One Dark) ---
+    ".config/macchina/macchina.toml".source = ./config/macchina/macchina.toml;
+    ".config/macchina/themes/Hydrogen.toml".source = ./config/macchina/themes/Hydrogen.toml;
+
     # --- noctalia 钩子脚本 (config.toml 为应用状态, 首装时手动 seed, 不托管) ---
     ".config/noctalia/theme-sync.sh".source = ./config/noctalia/theme-sync.sh;
     ".config/noctalia/theme-sync.sh".executable = true;

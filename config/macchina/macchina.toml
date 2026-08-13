@@ -1,0 +1,27 @@
+# macchina 主配置
+theme = "Hydrogen"
+
+long_uptime = true
+long_shell = false
+long_kernel = false
+current_shell = true
+physical_cores = true
+
+# 只显示这些 readout（枚举名，区分大小写；GPU 会自动重复列出双显卡）
+# 注: Battery 在本机取不到值（libmacchina 解析 "not charging" 状态报错），已从列表移除
+show = [
+  "Host",
+  "Kernel",
+  "Distribution",
+  "DesktopEnvironment",
+  "Packages",
+  "Shell",
+  "Terminal",
+  "Backlight",
+  "Resolution",
+  "Uptime",
+  "Processor",
+  "ProcessorLoad",
+  "Memory",
+  "GPU",
+]
