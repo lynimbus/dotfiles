@@ -23,6 +23,13 @@ layer-rule {
 // 特定应用规则
 // ==========================================
 
+// 浮动终端 (Mod+Shift+Return 启动, ghostty --class=com.ghostty.float)
+// 注意: class 必须是合法反向域名 GTK app-id, 否则 GTK 会拒绝并回退 com.mitchellh.ghostty
+window-rule {
+    match app-id="com.ghostty.float"
+    open-floating true
+}
+
 window-rule {
     match app-id=r"dev.noctalia.Noctalia"
     open-floating true

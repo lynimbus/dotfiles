@@ -34,6 +34,9 @@ binds {
     // 启动终端模拟器 (本机: ghostty) / Launch terminal emulator (ghostty)
     Mod+Return { spawn "ghostty"; }
 
+    // 启动浮动终端 (独立 app-id, 由 rules.kdl 匹配为浮动) / Launch floating terminal
+    Mod+Shift+Return { spawn "ghostty" "--class=com.ghostty.float"; }
+
     // 启动文件管理器 (本机: thunar, pacman) / Launch file manager (thunar)
     Mod+E { spawn "thunar"; }
 
