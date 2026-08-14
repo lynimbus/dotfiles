@@ -108,6 +108,7 @@
     ./modules/editors.nix
     ./modules/terminal.nix
     ./modules/mimeapps.nix
+    ./modules/xfce4.nix   # Thunar 右键"在终端中打开"的 ghostty helper 定义（依赖 pacman 的 xfce4-settings）
   ];
 
   # MIME 默认程序（Thunar 双击打开方式）→ 由 modules/mimeapps.nix 声明式管理：
