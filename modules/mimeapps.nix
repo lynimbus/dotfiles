@@ -3,7 +3,7 @@
 # MIME 默认程序声明式管理（xdg.mimeApps）
 # 生成 ~/.config/mimeapps.list（store 符号链接，只读）：
 #   - Thunar/其他桌面右键"设为默认"会写入失败 → 改默认必须改本文件 + home-manager switch
-# 历史背景：原为手管文件（含 zed/focus/claude-cli/sing-box 关联），2026-08-14 迁入 HM，
+# 历史背景：原为手管文件（含 zed/claude-cli/sing-box 关联），2026-08-14 迁入 HM，
 # 备份在 ~/.config/mimeapps.list.bak-20260814。
 {
   xdg.mimeApps = {
@@ -21,16 +21,16 @@
       "x-scheme-handler/claude-cli" = [ "claude-code-url-handler.desktop" ];
       "x-scheme-handler/sing-box" = [ "sing-box-reF1nd.desktop" ];
 
-      # --- 文档 → focus（md 走 marktext，代码类保持 zed，.sh 保持 focus） ---
-      "application/json" = [ "focus.desktop" ];
-      "application/schema+json" = [ "focus.desktop" ];
-      "application/x-docbook+xml" = [ "focus.desktop" ];
-      "application/x-yaml" = [ "focus.desktop" ];
+      # --- 文档 → zed（md 走 marktext） ---
+      "application/json" = [ "dev.zed.Zed.desktop" ];
+      "application/schema+json" = [ "dev.zed.Zed.desktop" ];
+      "application/x-docbook+xml" = [ "dev.zed.Zed.desktop" ];
+      "application/x-yaml" = [ "dev.zed.Zed.desktop" ];
       "text/markdown" = [ "marktext.desktop" ];
-      "text/plain" = [ "focus.desktop" ];
-      "text/tab-separated-values" = [ "focus.desktop" ];
-      "text/xml" = [ "focus.desktop" ];
-      "text/x-csv" = [ "focus.desktop" ];
+      "text/plain" = [ "dev.zed.Zed.desktop" ];
+      "text/tab-separated-values" = [ "dev.zed.Zed.desktop" ];
+      "text/xml" = [ "dev.zed.Zed.desktop" ];
+      "text/x-csv" = [ "dev.zed.Zed.desktop" ];
 
       # --- 代码 → zed ---
       "text/x-c" = [ "dev.zed.Zed.desktop" ];
@@ -42,7 +42,7 @@
       "text/x-python" = [ "dev.zed.Zed.desktop" ];
       "text/x-ruby" = [ "dev.zed.Zed.desktop" ];
       "text/x-rust" = [ "dev.zed.Zed.desktop" ];
-      "text/x-shellscript" = [ "focus.desktop" ];
+      "text/x-shellscript" = [ "dev.zed.Zed.desktop" ];
       "text/x-tex" = [ "dev.zed.Zed.desktop" ];
 
       # --- 文档 → zathura(mupdf) ---
@@ -127,10 +127,10 @@
 
     # "打开方式"菜单里的备选应用
     associations.added = {
-      "application/json" = [ "focus.desktop" "dev.zed.Zed.desktop" ];
-      "application/schema+json" = [ "focus.desktop" "dev.zed.Zed.desktop" ];
-      "application/x-docbook+xml" = [ "focus.desktop" "dev.zed.Zed.desktop" ];
-      "application/x-yaml" = [ "focus.desktop" "dev.zed.Zed.desktop" ];
+      "application/json" = [ "dev.zed.Zed.desktop" ];
+      "application/schema+json" = [ "dev.zed.Zed.desktop" ];
+      "application/x-docbook+xml" = [ "dev.zed.Zed.desktop" ];
+      "application/x-yaml" = [ "dev.zed.Zed.desktop" ];
       "application/epub+zip" = [ "org.pwmt.zathura-pdf-mupdf.desktop" ];
       "application/oxps" = [ "org.pwmt.zathura-pdf-mupdf.desktop" ];
       "application/pdf" = [ "org.pwmt.zathura-pdf-mupdf.desktop" ];
@@ -138,14 +138,14 @@
       "application/x-mobipocket-ebook" = [ "org.pwmt.zathura-pdf-mupdf.desktop" ];
       "application/xhtml+xml" = [ "chromium.desktop" ];
       "text/html" = [ "chromium.desktop" ];
-      "text/markdown" = [ "marktext.desktop" "focus.desktop" "dev.zed.Zed.desktop" ];
-      "text/plain" = [ "focus.desktop" "dev.zed.Zed.desktop" ];
+      "text/markdown" = [ "marktext.desktop" "dev.zed.Zed.desktop" ];
+      "text/plain" = [ "dev.zed.Zed.desktop" ];
       "text/x-cmake" = [ "dev.zed.Zed.desktop" ];
-      "text/x-shellscript" = [ "dev.zed.Zed.desktop" "focus.desktop" ];
-      "text/xml" = [ "focus.desktop" "dev.zed.Zed.desktop" ];
+      "text/x-shellscript" = [ "dev.zed.Zed.desktop" ];
+      "text/xml" = [ "dev.zed.Zed.desktop" ];
       "text/x-c" = [ "dev.zed.Zed.desktop" ];
       "text/x-c++" = [ "dev.zed.Zed.desktop" ];
-      "text/x-csv" = [ "focus.desktop" "dev.zed.Zed.desktop" ];
+      "text/x-csv" = [ "dev.zed.Zed.desktop" ];
       "text/x-go" = [ "dev.zed.Zed.desktop" ];
       "text/x-java" = [ "dev.zed.Zed.desktop" ];
       "text/x-perl" = [ "dev.zed.Zed.desktop" ];
@@ -153,7 +153,7 @@
       "text/x-ruby" = [ "dev.zed.Zed.desktop" ];
       "text/x-rust" = [ "dev.zed.Zed.desktop" ];
       "text/x-tex" = [ "dev.zed.Zed.desktop" ];
-      "text/tab-separated-values" = [ "focus.desktop" "dev.zed.Zed.desktop" ];
+      "text/tab-separated-values" = [ "dev.zed.Zed.desktop" ];
       "image/bmp" = [ "org.xfce.ristretto.desktop" ];
       "image/gif" = [ "org.xfce.ristretto.desktop" ];
       "image/jpeg" = [ "org.xfce.ristretto.desktop" ];
