@@ -1,0 +1,90 @@
+# Maintainer: lynimbus <lynimbus@localhost>
+#
+# niri-glass: niri 26.04 + liquid-glass 液态玻璃补丁 (https://github.com/zaroutt/Niri-glass)
+# 本包替换官方 niri (conflicts+provides), 安装路径/会话/单元与官方一致。
+#
+# 版本固定: 必须与 overlay 匹配 (Niri-glass flake 钉的 rev), 上游更新前勿动。
+#   2026-08-15: niri 49fc611 + Niri-glass f7bd56f
+#
+# 构建/安装: makepkg -si (makedepends: rust/clang/git 均为 pacman 包, 2026-08-15 已装)
+# 升级: 上游更新后改下面两个 rev + 重新下载源码换 sha512 (或删除 sha512sums 行用
+#   makepkg -f --skipinteg 走一遍再回填)。
+
+pkgname=niri-glass
+pkgver=26.04
+pkgrel=1
+pkgdesc="A scrollable-tiling Wayland compositor (with liquid-glass effect)"
+arch=(x86_64)
+url="https://github.com/zaroutt/Niri-glass"
+license=(GPL-3.0-or-later)
+depends=(
+  cairo
+  glib2
+  glibc
+  libdisplay-info
+  libgcc
+  libinput
+  libpipewire
+  libxkbcommon
+  mesa
+  pango
+  pixman
+  seatd
+  systemd-libs
+  xdg-desktop-portal-impl
+)
+makedepends=(
+  clang
+  git
+  rust
+)
+conflicts=('niri')
+provides=('niri')
+
+_niri_rev=49fc6117fd6c043adaa2ead316b82db5ed735d36
+_glass_rev=f7bd56fbbbdffe8752084a0a5ad4042e19805ccb
+
+source=(
+  "niri-$_niri_rev.tar.gz::https://github.com/niri-wm/niri/archive/$_niri_rev.tar.gz"
+  "Niri-glass-$_glass_rev.tar.gz::https://github.com/zaroutt/Niri-glass/archive/$_glass_rev.tar.gz"
+)
+sha512sums=(
+  'f23607183fab3d2f1948042d88057f70d72017a5b2b91dca9c12598eb2f120d4808c9bf8e4615dbfe278718a4dbcac3a53be92f449530595646928bda2325be3'
+  '5fc6f4872886ef030643be90572c1ac0f33dbe946a55dc68246749814475df7117037741ea301db58f14cc14dbfbb0b5b6f1f6a6e4c882e4d2cc91bd91883d35'
+)
+
+prepare() {
+  cd "niri-$_niri_rev"
+  # 应用 liquid-glass overlay (与 Niri-glass flake 的 applyGlass 相同的 8 个文件)
+  local glass="../Niri-glass-$_glass_rev"
+  cp -v "$glass"/src/render_helpers/{liquid_glass,background_effect,framebuffer_effect,xray,mod}.rs src/render_helpers/
+  cp -v "$glass"/src/render_helpers/shaders/{clipped_surface.frag,mod.rs} src/render_helpers/shaders/
+  cp -v "$glass"/niri-config/src/appearance.rs niri-config/src/
+  cargo fetch --locked --target "$(rustc --print host-tuple)"
+}
+
+build() {
+  cd "niri-$_niri_rev"
+  export NIRI_BUILD_COMMIT="$_niri_rev"
+  CFLAGS+=(' -ffat-lto-objects')
+  cargo build --frozen --release --features default
+
+  # shell completions
+  for shell in bash fish zsh; do
+    cargo run --frozen --release --bin niri -- \
+      completions "$shell" > "$shell-completions"
+  done
+}
+
+package() {
+  cd "niri-$_niri_rev"
+  install -vDm 755 target/release/niri -t "$pkgdir/usr/bin/"
+  install -vDm 755 resources/niri-session -t "$pkgdir/usr/bin/"
+  install -vDm 644 resources/niri{.service,-shutdown.target} -t "$pkgdir/usr/lib/systemd/user/"
+  install -vDm 644 resources/niri.desktop -t "$pkgdir/usr/share/wayland-sessions/"
+  install -vDm 644 resources/niri-portals.conf -t "$pkgdir/usr/share/xdg-desktop-portal/"
+  # shell completions
+  install -vDm 644 bash-completions "$pkgdir/usr/share/bash-completion/completions/niri"
+  install -vDm 644 fish-completions "$pkgdir/usr/share/fish/vendor_completions.d/niri.fish"
+  install -vDm 644 zsh-completions "$pkgdir/usr/share/zsh/site-functions/_niri"
+}

@@ -70,6 +70,9 @@
     ".config/fish/config.fish".source = ./config/fish/config.fish;
 
     # --- niri 窗口管理器 (2026-08-13, 源自 NyxNiri, 适配本机) ---
+    # niri 本体 = niri-glass 包 (pkgs/niri-glass/PKGBUILD, Arch 原生构建,
+    # 替换 pacman niri, 带 liquid-glass 液态玻璃效果)。本仓库只管配置。
+    # 构建/升级见 PKGBUILD 文件头注释。
     # effects.kdl 是 eyecare 切换的符号链接源: 托管为 normal 内容作首次启动初始态,
     # toggle-eyecare.sh 运行时用 ln -sfn 接管 (home-manager switch 会重置回 normal, 属预期)
     ".config/niri/config.kdl".source = ./config/niri/config.kdl;
