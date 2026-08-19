@@ -25,6 +25,11 @@ binds {
     // 锁定屏幕 (使用 Noctalia 原生锁屏) / Lock screen using Noctalia native lockscreen
     Mod+L { spawn "noctalia" "msg" "session" "lock"; }
 
+    // 手动阻止待机/锁屏 (Noctalia caffeine, 再按一次恢复) / Toggle idle inhibitor (caffeine)
+    // 生效范围: 屏蔽 noctalia 的 idle 自动锁屏(300s)与息屏(360s), 并注册 systemd idle block 抑制器。
+    // 不影响合盖休眠 (走 acpid 路径, 见 AGENTS.md)。切换时有 OSD 提示。
+    Mod+Shift+L hotkey-overlay-title="阻止待机/锁屏 (Caffeine)" { spawn "noctalia" "msg" "caffeine-toggle"; }
+
     // 显示快捷键提示覆盖层 / Show interactive hotkey overlay
     Mod+Slash { show-hotkey-overlay; }
 
