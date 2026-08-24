@@ -1,0 +1,16 @@
+input {
+    keyboard {
+        numlock
+    }
+    touchpad {
+        tap
+        natural-scroll
+        dwt  // 打字时禁用触摸板,强烈建议加
+        dwtp // 打字时也禁用触摸板指针移动
+        disabled-on-external-mouse // 连接外接鼠标时禁用触摸板
+    }
+    mouse {
+        accel-speed -0.72
+    }
+    trackpoint
+}

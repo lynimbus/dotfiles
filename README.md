@@ -3,9 +3,10 @@
 单主机 NixOS flake：nixpkgs `nixos-unstable` + home-manager（作为 NixOS module 集成）+ nixos-hardware。
 
 - 主机 `flakeos`，用户 `lynimbus`，系统 `x86_64-linux`
-- 桌面 KDE Plasma 6（Wayland，SDDM）+ fcitx5/rime-ice 输入法 + PipeWire
+- 桌面 niri-glass（niri + liquid-glass 液态玻璃补丁，SDDM 默认会话）+ 备用 Plasma 6（Wayland）+ fcitx5/rime-ice 输入法 + PipeWire + rnnoise 降噪
 - 硬件 profile：`nixos-hardware.nixosModules.mechrevo-gm5hg0a`
 - 部署工具 `nh`，格式化 `nixfmt`，命令入口 `justfile`
+- 用户层工具链：nushell + ghostty/zed + nvim（kickstart.nixvim）+ yazi + direnv/zoxide
 
 面向 AI agent 与日常操作的详细约定见 [AGENTS.md](AGENTS.md)。
 
@@ -21,9 +22,11 @@
 │   ├── configuration.nix              # 系统层：内核/引导/桌面/服务/locale/nix 设置
 │   └── hardware-configuration.nix     # nixos-generate-config 生成，勿手改
 ├── home/
-│   └── flakeos.nix                    # 用户层：home.packages 与 programs.*（git/jj…）
+│   ├── flakeos.nix                    # 用户层：home.packages 与 programs.*（git/jj…）
+│   └── config/niri/                   # niri 配置与脚本（glass 补丁参数在 effects_normal.kdl）
 └── inputs/
-    └── sing-box-ref1nd-flake/         # vendored flake（自建包）
+    ├── sing-box-ref1nd-flake/         # vendored flake（自建包）
+    └── kickstart-nixvim-flake/        # vendored kickstart.nixvim（修掉 unstable 移除 tmux grammar 的硬错误）
 ```
 
 ## 常用命令

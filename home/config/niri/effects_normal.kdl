@@ -1,0 +1,35 @@
+// 标准外观模式：保留 100% 原始半透明与毛玻璃模糊设置
+// liquid-glass (Niri-glass 补丁, 2026-08-15): 磨砂玻璃参数, 仅普通模式生效,
+// 护眼模式 (effects_eyecare.kdl) 整体替换本文件, 天然关闭该效果
+window-rule {
+    opacity 0.9
+    background-effect {
+        blur true
+        xray true
+        liquid-glass {
+            refraction-strength 3.0
+            power-factor 10
+            refraction-power 1.0
+            glow-weight 0.0001
+            edge-lighting 0.2
+            saturation 0.9
+            vibrancy 0.2
+            adaptive-dim 0.25
+            adaptive-boost 0.25
+            physical-refraction 0
+            lens-distortion 0
+            fringing 0
+        }
+    }
+}
+
+window-rule {
+    match is-focused=false
+    opacity 0.85
+}
+
+blur {
+    offset 2.3
+    noise 0.001
+    saturation 2
+}

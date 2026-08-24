@@ -25,6 +25,26 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # mac-style plymouth 开机动画主题（旧配置沿用）
+    mac-style-plymouth = {
+      url = "github:SergioRibera/s4rchiso-plymouth-theme";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # niri-glass：带 liquid-glass 液态玻璃补丁的 niri（旧配置在 Arch 侧是
+    # pkgs/niri-glass/PKGBUILD，换 Nix 实现就是这个 flake；它自己钉 niri 26.04
+    # rev 49fc611 + 对应 overlay，nixpkgs follows niri/nixpkgs）。
+    niri-glass = {
+      url = "github:zaroutt/Niri-glass";
+    };
+
+    # kickstart.nixvim：声明式 nvim 全家桶（旧配置沿用）。
+    # vendored 在 inputs/ 里（修掉 nixpkgs-unstable 已移除 tmux grammar 的硬错误）。
+    kickstart-nixvim = {
+      url = "./inputs/kickstart-nixvim-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # disko.url = "github:nix-community/disko";
 
     # sops-nix = {
