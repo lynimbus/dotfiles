@@ -63,6 +63,9 @@ binds {
     // 切换 Noctalia 静态壁纸选择器 / Toggle Noctalia wallpaper picker
     Mod+W { spawn "noctalia" "msg" "panel-toggle" "wallpaper"; }
 
+    // 免打扰随机切换下一张壁纸 (主题取色自动跟随更新) / Switch to a random wallpaper immediately
+    Mod+Ctrl+W { spawn "noctalia" "msg" "wallpaper-random"; }
+
     // mpvpaper 动态壁纸选择器: 本机未安装 mpvpaper (AUR), 如后续安装可恢复:
     // Mod+Shift+W { spawn "noctalia" "msg" "panel-toggle" "noctalia/mpvpaper:picker"; }
 
@@ -110,6 +113,12 @@ binds {
     // -------------------------------------------------------------------------
     // 切换当前窗口的浮动/平铺状态 / Toggle window floating state
     Mod+T { toggle-window-floating; }
+
+    // 平铺与浮动窗口之间穿透转移焦点 / Switch focus between floating and tiling layout
+    Mod+Shift+T { switch-focus-between-floating-and-tiling; }
+
+    // 切换当前列为标签页分组模式 (Tabbed Group) / Toggle column tabbed display
+    Mod+G { toggle-column-tabbed-display; }
 
     // 最大化当前列宽度 / Maximize column width
     Mod+F { maximize-column; }

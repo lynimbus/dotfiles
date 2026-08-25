@@ -37,12 +37,17 @@ spawn-at-startup "noctalia"
 spawn-at-startup "~/.config/niri/toggle-eyecare.sh" "--sync"
 // 输入法 (fcitx5, Wayland text-input 协议)
 spawn-at-startup "fcitx5" "-d"
+// GTK M3 模板重渲染：冷启动后 Noctalia 需要时间算壁纸调色板，8 秒后
+// 重新渲染 gtk.css（config-reload + templates-apply），确保 GTK 应用
+// 尽快加载到 M3 配色（移植自上游 NyxNiri）。
+spawn-at-startup "bash" "-c" "sleep 8; noctalia msg config-reload && noctalia msg templates-apply"
 
 hotkey-overlay {
     skip-at-startup
 }
 
 prefer-no-csd
+screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
 debug {
     honor-xdg-activation-with-invalid-serial
@@ -64,6 +69,7 @@ recent-windows {
 
 cursor {
     xcursor-theme "Adwaita"
+    xcursor-size 24
 }
 
 // ==========================================================

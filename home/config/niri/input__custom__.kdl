@@ -1,3 +1,9 @@
+gestures {
+    hot-corners {
+        off
+    }
+}
+
 input {
     keyboard {
         numlock

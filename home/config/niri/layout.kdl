@@ -12,9 +12,20 @@ layout {
     // background-color "00000020"
     background-color "transparent"
     gaps 12
+    center-focused-column "never"
     always-center-single-column
+    preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+    }
+    default-column-width { proportion 0.5; }
     focus-ring {
         off
+        width 0
+        active-color "#b6c7e7"
+        inactive-color "#131315"
+        urgent-color "#ffb4ab"
     }
     shadow {
         on
