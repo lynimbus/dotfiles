@@ -29,6 +29,13 @@ environment {
     QT_QPA_PLATFORMTHEME "gtk3"
     QT_WAYLAND_DISABLE_WINDOWDECORATION "1"
 
+    // chromium 原生 Wayland 开关（nixpkgs 包装器读这个变量才会加
+    // --ozone-platform-hint=auto）。此前未设置 → ungoogled-chromium 走 XWayland，
+    // 点自绘标题栏的最小化按钮会把窗口卡死（niri 不实现 minimize，X11 客户端
+    // 等不到 WM 响应，见 niri-wm/niri#3780 / #4363）。原生 Wayland 下
+    // Chromium 151 的 Minimize() 是空操作，最小化按钮无害，卡死消失。
+    NIXOS_OZONE_WL "1"
+
     // NVIDIA environment variables (本机笔记本屏由 AMD iGPU 驱动, niri 跑在 amdgpu 上,
     // 保持注释; NVIDIA 4060 仅用于 offload/CUDA, 需要时用 prime-run)
 }

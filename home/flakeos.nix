@@ -381,7 +381,6 @@
     "niri/toggle-eyecare.sh".source = ./config/niri/toggle-eyecare.sh;
     "niri/niri-scratch-toggle.sh".source = ./config/niri/niri-scratch-toggle.sh;
     "niri/backlight-up.sh".source = ./config/niri/backlight-up.sh;
-    "niri/close-focused.sh".source = ./config/niri/close-focused.sh;
 
     # noctalia GTK Material You 模板源文件（随上游 NyxNiri 移植）：
     # noctalia-config.toml 里注册为 theme.templates.user.nyxniri_gtk3/gtk4，

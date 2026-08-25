@@ -192,6 +192,7 @@ in
     curl
     wget
     git
+    xwayland-satellite
   ];
 
   nix.settings = {

@@ -13,8 +13,7 @@ binds {
     Mod+Tab repeat=false { toggle-overview; }
 
     // 关闭当前获得焦点的窗口 / Close active focused window
-    // chromium 走 SIGTERM 优雅退出(写 exit_type=Normal), 其余应用走 close-window
-    Mod+Q { spawn "~/.config/niri/close-focused.sh"; }
+    Mod+Q { close-window; }
 
     // 退出 Niri 桌面会话 / Quit Niri desktop session
     Mod+Shift+E { quit; }

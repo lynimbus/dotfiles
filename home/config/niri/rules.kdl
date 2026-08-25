@@ -124,6 +124,17 @@ window-rule {
     background-effect { blur true; }
 }
 
+// Chromium 浏览器（ungoogled-chromium）：effects.kdl 的全局规则会给所有窗口
+// 0.9 透明度 + 毛玻璃，浏览器阅读场景改为完全不透明。
+// 同时匹配 XWayland (chromium-browser) 与原生 Wayland (org.chromium.*) 两种 app-id。
+window-rule {
+    match app-id=r"^(chromium|chromium-browser|org\.chromium\.\w+)$"
+    opacity 1.0
+    background-effect {
+        blur false
+    }
+}
+
 window-rule {
     match app-id=r"^org\.gnome\.Nautilus$"
     draw-border-with-background false
