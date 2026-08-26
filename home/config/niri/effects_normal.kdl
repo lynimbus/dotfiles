@@ -1,6 +1,20 @@
-// 标准外观模式：保留 100% 原始半透明与毛玻璃模糊设置
-// liquid-glass (Niri-glass 补丁, 2026-08-15): 磨砂玻璃参数, 仅普通模式生效,
-// 护眼模式 (effects_eyecare.kdl) 整体替换本文件, 天然关闭该效果
+// =============================================================================
+// 标准外观片段 (Normal effects) —— 被 ~/.config/niri/config.kdl 以
+// `include optional=true "effects.kdl"` 引入（settings.includes，生成在最前）。
+// toggle-eyecare.sh 把 effects.kdl 符号链接在 normal/eyecare 之间切换后
+// `niri msg action load-config-file` 重载即生效，两文件整体二选一，
+// 无需任何标记。
+//
+// 归属边界（重要）：
+//  * top-level `blur` 节点由 programs.niri.settings 生成，本文件绝不能出现
+//    blur 节点（重复节点 niri 会拒载整个配置）。
+//  * 这里只放"外观类"规则：全局磨砂规则、失焦变暗、以及各应用的半透明/
+//    毛玻璃（原 rules.kdl 里 opacity/background-effect 部分，结构化规则在
+//    home/flakeos.nix 的 settings.window-rules）。它们必须待在这个可替换
+//    片段里，护眼模式才能一起换掉（settings 里没有运行期切换入口）。
+// =============================================================================
+
+// 全局 liquid-glass 磨砂规则（Niri-glass 补丁参数，官方 settings 表达不了）
 window-rule {
     opacity 0.9
     background-effect {
@@ -23,13 +37,53 @@ window-rule {
     }
 }
 
+// 失焦窗口略暗（护眼版替换为不透明）
 window-rule {
     match is-focused=false
     opacity 0.85
 }
 
-blur {
-    offset 2.3
-    noise 0.001
-    saturation 2
+// ── 各应用半透明 / 毛玻璃外观（自原 rules.kdl 迁入）────────────────────
+window-rule {
+    match app-id="org.pwmt.zathura"
+    opacity 0.8
+    background-effect { blur true; }
+}
+
+window-rule {
+    match app-id="codium"
+    opacity 0.85
+    background-effect { blur true; }
+}
+
+window-rule {
+    match app-id="steam"
+    opacity 0.9
+    background-effect { blur true; }
+}
+
+window-rule {
+    match app-id="obsidian"
+    opacity 0.9
+    background-effect { blur true; }
+}
+
+window-rule {
+    match app-id="app.zen_browser.zen"
+    background-effect { blur true; }
+}
+
+window-rule {
+    match app-id=r"^org\.gnome\.Nautilus$"
+    background-effect { blur true; }
+}
+
+window-rule {
+    match app-id=r"^org\.gnome\.Calculator$"
+    match app-id=r"^gnome-calculator$"
+    match app-id=r"^galculator$"
+    match app-id=r"^blueman-manager$"
+    match app-id=r"^org\.gnome\.Nautilus$"
+    match app-id=r"^xdg-desktop-portal$"
+    background-effect { blur true; }
 }

@@ -16,9 +16,12 @@ in
 {
   imports = [
     ./hardware-configuration.nix
-    # niri-glass（niri + liquid-glass 液态玻璃补丁）的 NixOS module：
-    # 复用 nixpkgs programs.niri 的会话/portal/polkit/systemd 接线，只换包。
-    inputs.niri-glass.nixosModules.default
+    # epireyn/niri-flake 的 NixOS module：niri 会话/portal/polkit/keyring/systemd
+    # 接线 + 声明式配置校验。它会给 home-manager 注入 homeModules.config
+    # （programs.niri.config|settings 生成 ~/.config/niri/config.kdl）。
+    # niri 包本体 = pkgs.niri-glass（下方 overlay 把 liquid-glass 补丁
+    # 覆盖到 niri-flake 的 niri-stable 之上）。
+    inputs.niri-flake.nixosModules.niri
   ];
 
   boot.loader = {
@@ -107,9 +110,13 @@ in
     };
   };
 
-  # niri-glass：带液态玻璃效果的 niri（旧配置在 Arch 侧，见 flake.nix 注释）。
+  # niri：niri-flake 模块 + liquid-glass 补丁包（glassOverlay 定义在 flake.nix）。
   # 启用后 SDDM 会出现 niri 会话；登录界面默认进 niri，Plasma 保留兜底。
-  programs.niri-glass.enable = true;
+  # 配置本体（programs.niri.config）在 home/flakeos.nix，构建期校验。
+  programs.niri = {
+    enable = true;
+    package = pkgs.niri-glass;
+  };
 
   services = {
     desktopManager.plasma6.enable = true;
