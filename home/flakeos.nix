@@ -11,7 +11,6 @@
 {
   imports = [
     inputs.deepseek-harness.homeModules.default
-    inputs.kickstart-nixvim.homeManagerModules.default
   ];
 
   home.username = username;
@@ -40,6 +39,14 @@
     bat
     fastfetch
     zoxide
+    dig
+    android-tools
+
+    # --- 语言工具链（追踪最新构庺）---
+    # zig：zig-overlay 的 master 版本（官方每日构建，跟随 flake.lock）
+    zigpkgs.master
+    # koka：nixpkgs-unstable 的 release 版本（跟随 nixpkgs 通道）
+    koka
 
     # --- 压缩 / 媒体工具（旧配置合入）---
     zip
@@ -86,6 +93,10 @@
   # zed 主题与编辑偏好（旧配置合入：One Dark + vim 模式 + 关遥测）
   programs.zed-editor = {
     enable = true;
+    # 官方 flake（zed-editor input）锁最新 release tag，从 zed.cachix 秒装。
+    # 升级方法：改 flake.nix 中 zed-editor 的 ref 为新 tag →
+    #   nix flake lock --update-input zed-editor → just switch
+    package = pkgs.zed-prebuilt;
     userSettings = {
       telemetry = {
         diagnostics = false;
@@ -291,17 +302,6 @@
   programs.zoxide = {
     enable = true;
     enableNushellIntegration = true;
-  };
-
-  # nvim 声明式全家桶（kickstart.nixvim，旧配置合入）。
-  # 注意：系统的 environment.systemPackages 里还有裸 neovim，
-  # 用户 profile 里的 nvim 优先，systemPackages 那份只作兜底。
-  programs.nixvim = {
-    enable = true;
-    defaultEditor = true;
-    viAlias = true;
-    vimAlias = true;
-    vimdiffAlias = true;
   };
 
   # rnnoise 麦克风降噪（自动增益 + 降噪，旧配置合入）。

@@ -88,6 +88,7 @@ in
     noto-fonts-cjk-sans
     noto-fonts-color-emoji
     nerd-fonts.jetbrains-mono
+    fira-code
   ];
 
   i18n.inputMethod = {

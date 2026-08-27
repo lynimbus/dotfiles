@@ -50,10 +50,16 @@
       url = "github:epireyn/niri-flake";
     };
 
-    # kickstart.nixvim：声明式 nvim 全家桶（旧配置沿用）。
-    # vendored 在 inputs/ 里（修掉 nixpkgs-unstable 已移除 tmux grammar 的硬错误）。
-    kickstart-nixvim = {
-      url = "./inputs/kickstart-nixvim-flake";
+    # zed-editor：官方发布预编译版（pkgs/zed-prebuilt.nix，下载 GitHub release zip，
+    # 秒装不编译）。版本/hash 由 scripts/update-zed.sh 自动维护（just update-zed）。
+    # 不锁官方 flake input：官方 flake 只提供源码编译（1h+）且 CI 不推主包缓存，
+    # 而官方 GitHub release 的预编译 zip 是唯一免编译路径。
+
+    # zig-overlay：mitchellh 维护的官方 Zig 预编译镜像，每天同步官方 master 构建。
+    # 升级：nix flake update zig-overlay → just switch。
+    # 用法：pkgs.zigpkgs.master（最新 master）、pkgs.zigpkgs."0.16.0" 等任意版本。
+    zig-overlay = {
+      url = "github:mitchellh/zig-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -72,6 +78,7 @@
       nixos-hardware,
       home-manager,
       deepseek-harness,
+      zig-overlay,
       ...
     }@inputs:
     let
@@ -117,6 +124,21 @@
           });
         };
 
+      # zed-editor：官方 GitHub release 预编译 zip（秒装不编译）。
+      # 版本/hash 由 scripts/update-zed.sh 维护（just update-zed）。
+      # 同时提供 `zed-editor`（新名）与 `zed-prebuilt`（兼容旧引用）。
+      zedOverlay = final: _prev: {
+        zed-editor = final.callPackage ./pkgs/zed-prebuilt.nix { };
+        # 兼容旧引用名（home/flakeos.nix programs.zed-editor.package）
+        zed-prebuilt = final.callPackage ./pkgs/zed-prebuilt.nix { };
+      };
+
+      # zig：mitchellh/zig-overlay 的 overlay 注册 `zigpkgs`（含 master/任意版本）。
+      # 最新 master：pkgs.zigpkgs.master；稳定版：pkgs.zigpkgs.default。
+
+      # koka：直接用 nixpkgs-unstable 的 release 版（3.2.3，跟随 nixpkgs 通道更新），
+      # 不再自维护 master 源码构建（一次 Haskell 全量编译几十分钟，性价比低）。
+
       mkSystem =
         hostname:
         lib.nixosSystem {
@@ -131,6 +153,8 @@
                 deepseek-harness.overlays.default
                 inputs.niri-flake.overlays.niri
                 glassOverlay
+                zedOverlay
+                zig-overlay.overlays.default
               ];
             }
 
@@ -158,6 +182,22 @@
     in
     {
       nixosConfigurations = lib.genAttrs hosts mkSystem;
+
+      # 独立暴露，便于单独构建/试用：
+      #   nix build .#zed-editor .#zig-master .#koka
+      #   nix run .#zig-master
+      packages.${system} = {
+        # zed-editor：官方 release 预编译 zip（版本由 just update-zed 维护）
+        zed-editor = nixpkgs.legacyPackages.${system}.callPackage ./pkgs/zed-prebuilt.nix { };
+        # 兼容旧引用名
+        zed-prebuilt = nixpkgs.legacyPackages.${system}.callPackage ./pkgs/zed-prebuilt.nix { };
+
+        # zig：zig-overlay 提供的最新 master 版本
+        zig-master = inputs.zig-overlay.packages.${system}.master;
+
+        # koka：nixpkgs-unstable 的 release 版本（跟随通道更新）
+        koka = nixpkgs.legacyPackages.${system}.koka;
+      };
 
       # overlays = {
       #   default = final: prev: {

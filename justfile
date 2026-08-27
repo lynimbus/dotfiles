@@ -27,6 +27,14 @@ update:
 update-input input:
     nix flake update {{input}}
 
+# 更新 zed 到官方最新 stable release（查 GitHub API + 重算 hash，改 pkgs/zed-prebuilt.nix）
+update-zed:
+    ./scripts/update-zed.sh
+
+# 更新 zig 到官方最新 master（zig-overlay 每日镜像）
+update-zig:
+    nix flake update zig-overlay
+
 # 求值校验 flake 结构，不构建
 check:
     nix flake check --no-build
