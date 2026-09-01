@@ -63,3 +63,16 @@ diff-gen a b:
 gc:
     sudo nix-collect-garbage -d --delete-older-than 14d
     nix store optimise
+
+# 在浏览器打开 dsh web；URL 带进程级 token，服务重启后旧 URL 失效，此处从服务日志取最新一条
+dsh-web:
+    @url="$(journalctl --user -u dsh-web.service --no-pager | grep 'dsh web: http' | tail -1 | sed 's/.*dsh web: //')"; \
+    if [ -z "$url" ]; then echo "未找到 dsh web URL，先启动服务：systemctl --user restart dsh-web.service" >&2; exit 1; fi; \
+    echo "opening: $url"; \
+    xdg-open "$url"
+
+# 同步 pi agent 运行时状态回仓库（trust）
+pi-sync:
+    @echo "同步 ~/.pi/agent/trust.json → home/pi-agent-state/"
+    cp -v ~/.pi/agent/trust.json home/pi-agent-state/
+    @echo "\n已同步；subagents.json 由 Nix 声明，修改 home/pi-agent-state/subagents.json 后运行 'just switch'"
