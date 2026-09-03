@@ -14,7 +14,7 @@
 
 ```
 .
-├── flake.nix                          # inputs / outputs，host 列表、用户名邮箱在这里
+├── flake.nix                          # inputs / overlays / nixosConfigurations.flakeos
 ├── flake.lock                         # 锁文件（nix flake update 更新，勿用 sudo）
 ├── justfile                           # 常用命令入口
 ├── AGENTS.md                          # 仓库约定：改哪个文件、部署流程、硬约定
@@ -22,10 +22,11 @@
 │   ├── configuration.nix              # 系统层：内核/引导/桌面/服务/locale/nix 设置
 │   └── hardware-configuration.nix     # nixos-generate-config 生成，勿手改
 ├── home/
-│   ├── flakeos.nix                    # 用户层：home.packages 与 programs.*（git/jj…）
-│   └── config/niri/                   # niri 配置与脚本（glass 补丁参数在 effects_normal.kdl）
-└── inputs/
-    └── sing-box-ref1nd-flake/         # vendored flake（自建包）
+│   ├── flakeos.nix                    # 用户层：home.packages 与 programs.*
+│   ├── config/                        # niri / noctalia 运行时文件
+│   └── pi-agent/                      # pi 的 AGENTS.md / skills / extensions
+└── pkgs/
+    └── zed-prebuilt.nix               # 官方 release 预编译 zed
 ```
 
 ## 常用命令
@@ -53,9 +54,6 @@ just gc          # 回收 14 天前的代 + store optimise
 
 ## 扩展点
 
-- **新机器**：`flake.nix` 的 `hosts` 列表加一项 + 建 `hosts/<name>/` 与 `home/<name>.nix`。
-- **共享模块**：重复配置抽到 `modules/`，在 `mkSystem` 的 `modules` 里引入。
-- **私有包/覆盖层**：启用 `flake.nix` 里注释掉的 `overlays.default`，用 `final.callPackage` 注入。
-- **机密管理**：引入 `sops-nix`，把 secrets 托管给 `age`/`sops`。
-- **声明式分区**：引入 `disko`，换机可秒级重建磁盘布局。
+- **新机器**：`flake.nix` 加 `nixosConfigurations.<name>`，再建 `hosts/<name>/` 与 `home/<name>.nix`。
+- **私有包**：`pkgs/<name>.nix`，在 `flake.nix` 的 overlay 里 `final.callPackage` 注入。
 - **换稳定通道**：`nixpkgs.url` 改成 `github:NixOS/nixpkgs/nixos-26.05`（注意 home-manager 需换到对应 release 分支）。

@@ -285,17 +285,17 @@ flake 命令默认 `pureEval = true`：禁用 `builtins.currentTime`/`currentSys
 ### 4.2 结构
 ```
 ~/dotfiles/
-├── flake.nix        # inputs: nixpkgs(nixos-unstable) + home-manager(follows) + nixos-hardware + deepseek-harness
-│                    # outputs: nixosConfigurations.flakeos（lib.genAttrs hosts mkSystem）、formatter=nixfmt
-│                    # 顶层 let 定义 system/hosts/username/email，经 specialArgs 与 extraSpecialArgs 下传
+├── flake.nix        # inputs: nixpkgs(nixos-unstable) + home-manager(follows) + nixos-hardware + deepseek-harness + niri/zed/zig overlays
+│                    # outputs: nixosConfigurations.flakeos、formatter=nixfmt
+│                    # 顶层 let 定义 system/username/email，经 specialArgs 与 extraSpecialArgs 下传
 ├── flake.lock
 ├── justfile         # switch/build/boot/update/check/diff/rollback/gc
 ├── AGENTS.md        # 仓库硬约定
 ├── hosts/flakeos/
 │   ├── configuration.nix          # 系统层：引导/内核/Plasma6+SDDM/fcitx5-rime/PipeWire/locale/nix.settings/nix.gc/programs.nh
 │   └── hardware-configuration.nix # nixos-generate-config 生成，勿手改
-├── home/flakeos.nix               # 用户层：home.packages + programs.{jujutsu,git}
-└── inputs/sing-box-ref1nd-flake/  # vendored flake（自建包）
+├── home/flakeos.nix               # 用户层：home.packages + programs.*
+└── pkgs/zed-prebuilt.nix          # 官方 release 预编译 zed
 ```
 
 ### 4.3 决策矩阵
@@ -303,9 +303,9 @@ flake 命令默认 `pureEval = true`：禁用 `builtins.currentTime`/`currentSys
 |---|---|
 | 内核、引导、系统服务、桌面/登录管理器、输入法、字体、locale、nix 设置 | `hosts/flakeos/configuration.nix` |
 | 用户级软件与程序配置（有 `programs.<name>` module 就用 module） | `home/flakeos.nix` |
-| flake input、host 列表、用户名邮箱、overlay | `flake.nix` |
+| flake input、用户名邮箱、overlay | `flake.nix` |
 | 临时用一次 | `nix shell nixpkgs#<pkg>` / `nix run nixpkgs#<pkg>` |
-| nixpkgs 没有该包 | 自建包放 `inputs/<name>-flake/`，或启用 `overlays.default` 用 `final.callPackage` 注入 |
+| nixpkgs 没有该包 | 自建包放 `pkgs/`，在 `flake.nix` overlay 里 `final.callPackage` 注入 |
 | 上游只发 AppImage / 预编译二进制 | `pkgs.appimageTools.wrapType2` 或 `buildFHSEnv`；跑闭源二进制用 `steam-run` |
 | nixpkgs 版本滞后 | 覆盖 `src`/`version` 的 overlay，或临时 `nix run github:owner/repo` |
 
@@ -343,7 +343,7 @@ just gc          # sudo nix-collect-garbage -d --delete-older-than 14d && nix st
 `lib.nixosSystem { modules = [ ... ]; specialArgs = {...}; }` 把所有 module 合并求不动点：
 - **module 形式**：`{ config, lib, pkgs, ... }: { imports = [...]; options = {...}; config = {...}; }`；没写 `options`/`config` 时整个 attrset 当 `config`（本仓的 configuration.nix 就是这种）。
 - **`config` 是最终合并结果**（不是当前文件写的），可读其他 module 的值 → module 之间天然互相可见，也因此容易无意制造 infinite recursion（`config.x` 又去定义 `x` 的前提）。
-- **`specialArgs` vs `_module.args`**：`specialArgs` 在 module 求值**之前**注入，可在 `imports` 里用；`_module.args` 是求值结果，不能用于 `imports`。本仓用 `specialArgs = { inherit inputs hostname; }` 传系统层，`extraSpecialArgs = { inherit inputs hostname username email; }` 传 home 层（home-manager 单独一套，**两边不共享**）。
+- **`specialArgs` vs `_module.args`**：`specialArgs` 在 module 求值**之前**注入，可在 `imports` 里用；`_module.args` 是求值结果，不能用于 `imports`。本仓用 `specialArgs = { inherit inputs username; }` 传系统层，`extraSpecialArgs = { inherit inputs username email; }` 传 home 层（home-manager 单独一套，**两边不共享**）。
 - **选项合并**：list 默认拼接（`environment.systemPackages` 各 module 叠加）；attrset 递归合并；标量多处定义不同值则**报错**，需 `lib.mkForce`（覆盖）/`lib.mkDefault`（让位，优先级 1000）/`lib.mkOverride <n>`。`lib.mkIf cond {...}` 条件启用整块配置。
 - 查选项实际生效值：`nix eval .#nixosConfigurations.flakeos.config.<路径>`；看选项定义与默认：`nix eval .#nixosConfigurations.flakeos.options.<路径>.{description,default,type.description}`。这两条比翻文档快，且不会因上游改名而过时。
 

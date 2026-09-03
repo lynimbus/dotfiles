@@ -1,7 +1,7 @@
 # zed-editor 官方预编译版（zed-linux-x86_64.tar.gz），不做源码编译——
 # 一次 release 从源码编译要 1 小时起步（22G 内存还需砍 debuginfo 防 OOM），
 # 而官方二进制实测（2026-08-28）已无启动/关闭延迟。
-# 升级方法：`just update-zed`（自动查最新 release 并重算 hash）→ just switch。
+# 升级：改下方 ver / zipHash 为新 GitHub release → just switch。
 # 关键坑：官方版运行时 dlopen 探测 wayland/EGL/gbm/drm/xkbcommon/xrandr/va 一套
 # 图形库，NixOS 没有 ldconfig 会直接 panic（NoWaylandLib）。解法是用
 # autoPatchelfHook 的 runtimeDependencies 把这些库写进最终 RPATH（注意 postFixup
@@ -24,7 +24,7 @@
 }:
 
 let
-  # 由 scripts/update-zed.sh 维护，勿手改
+  # 官方 GitHub release 的版本与 hash
   ver = "1.18.0";
   zipHash = "sha256-G1Jl0/eXyv6zPi7Tywog9eGXogTpCEidZDGgm6JqNPc=";
 in

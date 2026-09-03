@@ -18,9 +18,9 @@
 |---|---|
 | 内核、引导、服务、桌面、输入法、网络、locale、nix 设置 | `hosts/flakeos/configuration.nix` |
 | 用户级软件、dotfile、程序配置（git/jj/编辑器…） | `home/flakeos.nix` |
-| flake input、host 列表、用户名/邮箱、overlay、formatter | `flake.nix` |
+| flake input、用户名/邮箱、overlay、formatter | `flake.nix` |
 | 硬件探测结果 | `hosts/flakeos/hardware-configuration.nix`（**别手改**，由 `nixos-generate-config` 生成） |
-| 自建包 / vendored flake | `inputs/<name>-flake/` |
+| 自建包 | `pkgs/` |
 
 系统层与用户层的判据：**登录前就要存在的东西**（内核、显示管理器、系统服务、字体、全局 PATH）进 `configuration.nix`；**只服务于这个用户的东西**进 `home/flakeos.nix`。拿不准优先放 home，用户层可回滚粒度更细。
 
