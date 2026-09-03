@@ -69,11 +69,15 @@
     tmux # scratchpad 终端后端（niri-scratch-toggle.sh）
     fish # scratchpad 里锁定窗口标题用（与 Arch 上行为一致）
     libnotify # notify-send（toggle-eyecare.sh 的 OSD 通知）
-    # 文件管理器（Mod+E 打开 thunar；gvfs/tumbler 负责挂载与缩略图，与 Arch 上一致）
-    thunar
+    # 文件管理器：Dolphin 已由 Plasma 6 提供；gvfs 保留供挂载与其他 GTK 应用使用。
     gvfs
-    tumbler
   ];
+
+  # 将目录和“在文件管理器中打开”操作交给 Plasma 的 Dolphin。
+  xdg.mimeApps = {
+    enable = true;
+    defaultApplications."inode/directory" = [ "org.kde.dolphin.desktop" ];
+  };
 
   # ghostty 主题与窗口偏好（旧配置合入；字体走系统装好的 Nerd Font）
   programs.ghostty = {

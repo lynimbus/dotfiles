@@ -1,4 +1,4 @@
-{ config, lib, ... }:
+{ pkgs, ... }:
 
 {
   # Home Manager 的 pi 模块声明式生成 settings.json、models.json 和 AGENTS.md。
@@ -6,9 +6,10 @@
   programs.pi-coding-agent = {
     enable = true;
     context = ../../../home/pi-agent/AGENTS.md;
+    # settings.packages 的 npm:* 启动时 spawn npm；pi 默认包装器 PATH 不含 nodejs。
+    extraPackages = [ pkgs.nodejs ];
 
     settings = {
-      lastChangelogVersion = "0.84.4";
       defaultProvider = "lxiic";
       defaultModel = "claude-opus-5-max";
       defaultThinkingLevel = "max";

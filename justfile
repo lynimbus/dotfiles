@@ -27,14 +27,6 @@ update:
 update-input input:
     nix flake update {{input}}
 
-# 更新 zed 到官方最新 stable release（查 GitHub API + 重算 hash，改 pkgs/zed-prebuilt.nix）
-update-zed:
-    ./scripts/update-zed.sh
-
-# 更新 zig 到官方最新 master（zig-overlay 每日镜像）
-update-zig:
-    nix flake update zig-overlay
-
 # 求值校验 flake 结构，不构建
 check:
     nix flake check --no-build
@@ -71,8 +63,3 @@ dsh-web:
     echo "opening: $url"; \
     xdg-open "$url"
 
-# 同步 pi agent 运行时状态回仓库（trust）
-pi-sync:
-    @echo "同步 ~/.pi/agent/trust.json → home/pi-agent-state/"
-    cp -v ~/.pi/agent/trust.json home/pi-agent-state/
-    @echo "\n已同步；subagents.json 由 Nix 声明，修改 home/pi-agent-state/subagents.json 后运行 'just switch'"

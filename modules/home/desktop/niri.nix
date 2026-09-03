@@ -601,7 +601,7 @@
         "ghostty"
         "--class=com.ghostty.float"
       ];
-      "Mod+E".action.spawn = [ "thunar" ];
+      "Mod+E".action.spawn = [ "dolphin" ];
       "Mod+B".action.spawn = [ "chromium" ];
       "Mod+R".action.spawn = [
         "noctalia"
