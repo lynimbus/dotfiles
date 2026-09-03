@@ -1217,8 +1217,33 @@
     port = 3080;
   };
 
-  # home.file.".config/foo/config.toml".source = ../config/foo.toml;
-  # home.file.".bashrc".text = "export EDITOR=vim\n";
+  # ========================================
+  # pi coding agent 配置管理
+  # ========================================
+  # 静态配置（指令、扩展）→ 符号链接（只读，源文件在仓库）
+  home.file = {
+    ".pi/agent/AGENTS.md".source = ./pi-agent/AGENTS.md;
+    ".pi/agent/APPEND_SYSTEM.md".source = ./pi-agent/APPEND_SYSTEM.md;
+    ".pi/agent/agent-tool-description.md".source = ./pi-agent/agent-tool-description.md;
+    ".pi/agent/agents".source = ./pi-agent/agents;
+    ".pi/agent/extensions".source = ./pi-agent/extensions;
+    ".pi/agent/npm/package.json".source = ./pi-agent/npm/package.json;
+  };
+
+  # 可变配置（settings/subagents/trust）→ activation 脚本复制（首次部署时初始化，之后保留运行时变化）
+  home.activation.piAgentState = config.lib.dag.entryAfter [ "writeBoundary" ] ''
+    PI_AGENT_DIR="$HOME/.pi/agent"
+    PI_AGENT_STATE="${./pi-agent-state}"
+    
+    mkdir -p "$PI_AGENT_DIR"
+    
+    # 只在文件不存在时从模板复制（避免覆盖运行时变化）
+    for file in settings.json subagents.json trust.json; do
+      if [ ! -f "$PI_AGENT_DIR/$file" ] && [ -f "$PI_AGENT_STATE/$file" ]; then
+        $DRY_RUN_CMD cp -v "$PI_AGENT_STATE/$file" "$PI_AGENT_DIR/$file"
+      fi
+    done
+  '';
 
   # home.sessionPath = [ "$HOME/.local/bin" ];
 
