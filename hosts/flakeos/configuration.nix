@@ -18,15 +18,12 @@ in
     timeout = 5;
     systemd-boot = {
       enable = true;
-      # 关掉 boot 菜单里的编辑（防物理接触改内核参数）
       editor = false;
-      # boot 菜单只保留最近 3 个条目
       configurationLimit = 3;
     };
     efi.canTouchEfiVariables = true;
   };
 
-  # 静默启动 + 关看门狗（旧配置沿用）
   boot.kernelParams = [
     "nowatchdog"
     "quiet"
@@ -39,7 +36,6 @@ in
   boot.consoleLogLevel = 0;
   boot.initrd.verbose = false;
 
-  # mac-style 开机动画（配上面的 quiet/splash）
   boot.plymouth = {
     enable = true;
     theme = "mac-style";
@@ -72,7 +68,6 @@ in
     LC_TIME = "zh_CN.UTF-8";
   };
 
-  # 中文字体 + 等宽 Nerd Font（旧配置合入，中文渲染必需）
   fonts.packages = with pkgs; [
     noto-fonts
     noto-fonts-cjk-sans
@@ -101,9 +96,6 @@ in
     };
   };
 
-  # niri：nixpkgs programs.niri 提供会话；包是 overlay 打过 liquid-glass 的
-  # pkgs.niri-glass。启用后 SDDM 会出现 niri 会话，默认进 niri，Plasma 兜底。
-  # 配置本体在 home/flakeos.nix（niri-flake homeModules.config，构建期校验）。
   programs.niri = {
     enable = true;
     package = pkgs.niri-glass;
@@ -112,10 +104,8 @@ in
   services.desktopManager.plasma6.enable = true;
   services.displayManager.sddm.enable = true;
   services.displayManager.sddm.wayland.enable = true;
-  # 默认会话切到 niri-glass（KDE 的会话名是 plasma，这里两者都在 SDDM 列表里）
   services.displayManager.defaultSession = "niri";
 
-  # dbus-broker（旧配置沿用，消息总线更快）
   services.dbus.implementation = "broker";
 
   services.openssh.enable = true;
@@ -133,19 +123,11 @@ in
   };
   services.libinput.enable = true;
 
-  # 翼龙15Pro (GM5HG0A) 固件怪癖：s2idle 挂起期间 8042 会收到假键盘中断，
-  # 上游 spurious_8042 quirk 目前只覆盖同系的 GM5HG7A，本机仍需 workaround。
-  # 现象：用内置键盘唤醒时 IRQ1 顺带清掉了控制器状态；用其他方式
-  # （电源键/合盖/USB 键鼠）唤醒后 PS/2 键盘留在坏状态，atkbd 不再上报事件。
-  # 方案：恢复后强制重新绑定 atkbd = 向键盘发 0xFF 复位指令重同步，
-  # 该症状的社区通用解（/sys/bus/serio/drivers/atkbd/ unbind+bind）。
-  # serio0 即 i8042 的 PNP0303 键盘口（本机无 PS/2 AUX 口）。
   powerManagement.resumeCommands = ''
     echo -n "serio0" > /sys/bus/serio/drivers/atkbd/unbind 2>/dev/null || true
     echo -n "serio0" > /sys/bus/serio/drivers/atkbd/bind   2>/dev/null || true
   '';
 
-  # 游戏套件（旧配置合入）
   programs.steam = {
     enable = true;
     remotePlay.openFirewall = true;
@@ -167,22 +149,15 @@ in
       "networkmanager"
       "wheel"
     ];
-    # 登录 shell 换成 nushell。NixOS 会自动把它装进 systemPackages 并注册进 /etc/shells。
-    # 当前会话仍是旧 shell，重新登录后生效。
     shell = pkgs.nushell;
   };
 
-  # wheel 组 sudo 免密（旧配置沿用）
   security.sudo.wheelNeedsPassword = false;
 
-  # 让裸 `nix run nixpkgs#<pkg>` / `nix shell nixpkgs#...` 使用本 flake 锁定的 nixpkgs,
-  # 而不是 nix 内置的 github:NixOS/nixpkgs master 映射。
   nix.registry.nixpkgs.flake = inputs.nixpkgs;
 
-  # 内存压缩交换:22G 内存无 swap 文件时的安全网,平时几乎不占内存。
   zramSwap.enable = true;
 
-  # 省去生成 NixOS 手册(man configuration.nix 等),加快 rebuild。
   documentation.nixos.enable = false;
 
   nixpkgs.config.allowUnfree = true;
@@ -205,13 +180,10 @@ in
       "nix-command"
       "flakes"
     ];
-    # 清华镜像优先（内容与密钥同 cache.nixos.org，国内提速），官方兜底。
     substituters = [
       "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"
       "https://cache.nixos.org"
     ];
-    # 系统层声明二进制缓存：flake.nix 的 nixConfig 只对 trusted-users 生效，
-    # 而 trusted-users 只有 root，写在这里才对普通用户的 nix build 也生效。
     extra-substituters = [
       "https://nix-community.cachix.org"
       "https://deepseek-harness-nix.cachix.org"
@@ -220,7 +192,6 @@ in
       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CXWu8iE8f2b24L2pY="
       "deepseek-harness-nix.cachix.org-1:5NrkwLN9veNMhiINtU5ZeV4isXFhFsOwn6Ms7J1M+TA="
     ];
-    # 下载缓冲加大（旧配置沿用，大包下载更快）
     download-buffer-size = 524288000;
     auto-optimise-store = true;
     warn-dirty = false;

@@ -3,7 +3,6 @@ result-*
 .direnv/
 tmp/
 
-# pi agent 敏感凭据（不进版本控制）
 home/pi-agent-state/auth.json
 home/pi-agent-state/models.json
 home/pi-agent-state/models-store.json

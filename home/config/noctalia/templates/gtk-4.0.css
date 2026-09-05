@@ -1,16 +1,3 @@
-/*
- * GTK4 Material You 主题模板
- * 移植自 HyprYou gtk4.scss，SCSS 已展平为纯 CSS + Noctalia Jinja2 模板。
- * 转换规则与维护指南见 notes/gtk-material-you-port.md
- *
- * 由 Noctalia 在壁纸/明暗切换时渲染到 ~/.config/gtk-4.0/gtk.css
- *
- * 所有 M3 配色与 widget 规则包在 @media (prefers-color-scheme: dark/light)
- * 两个块中，让 GTK4/libadwaita 应用在 portal color-scheme 切换时即时跟随，
- * 无需重启。libadwaita 自身的 libadwaita.css 也采用相同结构。
- */
-
-/* --- 语义色（模式无关，不应跟随壁纸） --- */
 @define-color warning_color                    #FDD633;
 @define-color success_color                    #81C995;
 @define-color success_bg_color           #C5E1A5;
@@ -22,7 +9,6 @@
 @define-color shade_color                rgba(0, 0, 0, 0.36);
 @define-color scrollbar_outline_color    rgba(0, 0, 0, 0.5);
 
-/* --- GTK3 legacy named colors（GTK4 不读，留外无害，供 GTK3 兼容） --- */
 @define-color theme_fg_color                   {{ colors.on_background.default.hex }};
 @define-color theme_text_color                 {{ colors.on_background.default.hex }};
 @define-color theme_bg_color                   {{ colors.background.default.hex }};
@@ -54,7 +40,6 @@
 @define-color placeholder_text_color           {{ colors.on_surface.default.hex }};
 @define-color text_view_bg                     {{ colors.surface_container_low.default.hex }};
 
-/* --- M3 调色板参照色（模式无关） --- */
 @define-color STRAWBERRY_100             #FF9262;
 @define-color STRAWBERRY_300             #FF793E;
 @define-color STRAWBERRY_500             #F15D22;
@@ -106,12 +91,8 @@
 @define-color BLACK_700                  #33302F;
 @define-color BLACK_900                  #2B2928;
 
-/* ============================================================ */
-/*  Dark mode — M3 配色 + widget 规则                            */
-/* ============================================================ */
 @media (prefers-color-scheme: dark) {
 
-/* --- libadwaita named colors → M3 (dark) --- */
 @define-color accent_bg_color            {{ colors.primary.dark.hex }};
 @define-color accent_fg_color            {{ colors.on_primary.dark.hex }};
 @define-color accent_color               {{ colors.primary.dark.hex }};
@@ -140,8 +121,6 @@
 @define-color sidebar_fg_color           {{ colors.on_surface.dark.hex }};
 @define-color sidebar_border_color       {{ colors.surface.dark.hex }};
 @define-color sidebar_backdrop_color     {{ colors.surface.dark.hex }};
-
-/* --- Widget rules (dark) --- */
 
 window {
     --accent-bg-color: @accent_bg_color;
@@ -576,14 +555,10 @@ spinbutton button.up {
     border-radius: 0;
 }
 
-} /* end @media dark */
+}
 
-/* ============================================================ */
-/*  Light mode — M3 配色 + widget 规则                           */
-/* ============================================================ */
 @media (prefers-color-scheme: light) {
 
-/* --- libadwaita named colors → M3 (light) --- */
 @define-color accent_bg_color            {{ colors.primary.light.hex }};
 @define-color accent_fg_color            {{ colors.on_primary.light.hex }};
 @define-color accent_color               {{ colors.primary.light.hex }};
@@ -612,8 +587,6 @@ spinbutton button.up {
 @define-color sidebar_fg_color           {{ colors.on_surface.light.hex }};
 @define-color sidebar_border_color       {{ colors.surface.light.hex }};
 @define-color sidebar_backdrop_color     {{ colors.surface.light.hex }};
-
-/* --- Widget rules (light) --- */
 
 window {
     --accent-bg-color: @accent_bg_color;
@@ -1048,4 +1021,4 @@ spinbutton button.up {
     border-radius: 0;
 }
 
-} /* end @media light */
+}
