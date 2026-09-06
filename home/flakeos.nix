@@ -1,6 +1,7 @@
 {
   config,
   inputs,
+  lib,
   pkgs,
   username,
   email,
@@ -1222,7 +1223,11 @@
 
   home.file = {
     ".pi/agent/extensions".source = ./pi-agent/extensions;
-    ".pi/agent/skills".source = ./pi-agent/skills;
-  };
+    ".pi/agent/skills/nixos".source = inputs.nixos-ai-skill;
+  }
+  // lib.mapAttrs' (name: _: {
+    name = ".pi/agent/skills/${name}";
+    value.source = ./pi-agent/skills + "/${name}";
+  }) (builtins.readDir ./pi-agent/skills);
 
 }

@@ -31,8 +31,9 @@ Use this skill when the user:
 2. **不跑 CLI 也能完成大半工作**：搜索与浏览用 `web_search` / `fetch_content` 查 https://skills.sh/ （leaderboard 与 skill 页面都是普通网页）。只有**安装**才非得用 CLI。
 
 安装前额外确认两件事：
-- `npx skills add -g` 写的是用户级 skill 目录。本机 pi 的全局 skill 目录是 `~/.pi/agent/skills/`（普通可写目录，**未**被 home-manager 托管），但 skills CLI 默认写的可能是 `~/.claude/skills` 等其他位置——**装完要确认落到哪里，必要时手动挂到 `~/.pi/agent/skills/`**。
-- 向用户确认再装，不要自作主张往全局目录写东西。
+- 本机 pi 的全局 skill 目录 `~/.pi/agent/skills/` 是 **home-manager 托管的只读 store 符号链接**，`npx skills add -g` 往这里写会失败。正确做法：装到临时目录（或让 CLI 写它的默认位置，如 `~/.claude/skills`），再把 skill 目录复制进 `~/dotfiles/home/pi-agent/skills/<name>/`，然后 `nixos-rebuild`（或 `nh`）让它重新生效。
+- 同理，`npx skills update` 不能就地更新本机已装 skill；更新等于「拉上游 → 覆盖 dotfiles 里的副本 → rebuild」。
+- 向用户确认再装，不要自作主张往 dotfiles 里加 skill。
 
 以下原文保留 `npx skills` 写法，实际执行时自行换成上面的 `nix shell nixpkgs#nodejs -c` 前缀。
 

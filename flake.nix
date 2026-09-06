@@ -36,6 +36,11 @@
       url = "github:mitchellh/zig-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nixos-ai-skill = {
+      url = "github:marceloeatworld/nixos-ai-skill";
+      flake = false;
+    };
   };
 
   outputs =
