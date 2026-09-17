@@ -13,6 +13,7 @@
     ./users.nix
     ./nix.nix
     ./packages.nix
+    ./desktop-plasma.nix
   ];
 
   system.stateVersion = "26.05";
