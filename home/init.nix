@@ -13,5 +13,6 @@
     ./programs/git.nix
     ./programs/ssh.nix
     ./programs/direnv.nix
+    ./programs/zoxide.nix
   ];
 }
