@@ -13,5 +13,6 @@
     ./programs/ssh.nix
     ./programs/direnv.nix
     ./programs/zoxide.nix
+    ./audio/rnnoise.nix
   ];
 }
