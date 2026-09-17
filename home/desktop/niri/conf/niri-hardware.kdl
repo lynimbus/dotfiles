@@ -1,0 +1,14 @@
+// 本机只有一个内屏输出，名称/模式用 `niri msg outputs` 确认
+output "eDP-1" {
+    mode "2560x1600@240.000"
+    scale 1.75
+    position x=0 y=0
+}
+
+// ============= Named Workspaces =============
+workspace "1terminal" { open-on-output "eDP-1"; }
+workspace "2browser" { open-on-output "eDP-1"; }
+workspace "3chat" { open-on-output "eDP-1"; }
+workspace "4entertainment" { open-on-output "eDP-1"; }
+workspace "5utility" { open-on-output "eDP-1"; }
+workspace "0other" { open-on-output "eDP-1"; }
