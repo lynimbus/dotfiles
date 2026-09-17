@@ -19,7 +19,5 @@
     ./desktop/niri/default.nix
     ./desktop/noctalia/default.nix
     ./programs/foot.nix
-    ./programs/alacritty.nix
-    ./desktop/hypridle.nix
   ];
 }
