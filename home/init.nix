@@ -7,5 +7,6 @@
     ./packages/archive.nix
     ./packages/gui.nix
     ./programs/fish.nix
+    ./programs/zed.nix
   ];
 }
