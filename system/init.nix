@@ -11,6 +11,7 @@
     ./audio.nix
     ./hardware.nix
     ./users.nix
+    ./nix.nix
   ];
 
   system.stateVersion = "26.05";
