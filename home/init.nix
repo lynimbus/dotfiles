@@ -10,5 +10,6 @@
     ./programs/zed.nix
     ./programs/yazi.nix
     ./programs/jujutsu.nix
+    ./programs/git.nix
   ];
 }
