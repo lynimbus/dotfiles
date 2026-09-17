@@ -1,4 +1,9 @@
-{ config, pkgs, ... }:
+{
+  config,
+  inputs,
+  pkgs,
+  ...
+}:
 
 let
   repoPath = "${config.home.homeDirectory}/nixos/home/desktop/niri";
@@ -23,6 +28,23 @@ in
     "niri/spawn-at-startup.kdl".source = mkSymlink "${repoPath}/conf/spawn-at-startup.kdl";
     "niri/windowrules.kdl".source = mkSymlink "${repoPath}/conf/windowrules.kdl";
     "niri/reorder-workspaces.sh".source = mkSymlink "${repoPath}/reorder-workspaces.sh";
+  };
+
+  systemd.user.services.pyclipsync = {
+    Unit = {
+      Description = "Wayland <-> X11 clipboard sync (pyclipsync)";
+      After = [ "graphical-session.target" ];
+      PartOf = [ "graphical-session.target" ];
+    };
+    Install.WantedBy = [ "graphical-session.target" ];
+    Service = {
+      ExecStart = "${
+        inputs.pyclipsync.packages.${pkgs.stdenv.hostPlatform.system}.pyclipsync
+      }/bin/pyclipsync";
+      Restart = "on-failure";
+      RestartSec = 1;
+      TimeoutStopSec = 5;
+    };
   };
 
   systemd.user.services.niri-polkit-agent = {

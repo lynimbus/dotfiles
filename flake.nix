@@ -14,6 +14,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    pyclipsync = {
+      url = "github:ryan4yin/pyclipsync/v0.1.3";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     mac-style-plymouth = {
       url = "github:SergioRibera/s4rchiso-plymouth-theme";
       inputs.nixpkgs.follows = "nixpkgs";
