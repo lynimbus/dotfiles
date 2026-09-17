@@ -11,9 +11,9 @@ margin_edge = 5
 margin_ends = 5
 widget_spacing = 6
 font_family = "Maple Mono NF CN"
-start = ["launcher", "clock", "cpu", "ram", "active_window", "media"]
+start = ["launcher", "clock", "cpu", "ram", "active_window"]
 center = ["workspaces"]
-end = ["notifications", "battery", "volume", "brightness", "tray", "control-center"]
+end = ["notifications", "battery", "volume", "brightness", "tray", "media", "control-center"]
 
 [widget.clock]
 type = "clock"
