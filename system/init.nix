@@ -17,6 +17,7 @@
     ./desktop-sddm.nix
     ./desktop-niri.nix
     ./xdg.nix
+    ./version.nix
   ];
 
   system.stateVersion = "26.05";
