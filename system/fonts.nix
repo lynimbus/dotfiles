@@ -6,6 +6,7 @@
     noto-fonts-cjk-sans
     noto-fonts-color-emoji
     nerd-fonts.jetbrains-mono
+    maple-mono."NF-CN"
     fira-code
   ];
 }
