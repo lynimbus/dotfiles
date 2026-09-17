@@ -8,6 +8,7 @@
     ./locale.nix
     ./fonts.nix
     ./input-method.nix
+    ./audio.nix
   ];
 
   system.stateVersion = "26.05";
