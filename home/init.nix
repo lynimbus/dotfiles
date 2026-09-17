@@ -8,5 +8,6 @@
     ./packages/gui.nix
     ./programs/fish.nix
     ./programs/zed.nix
+    ./programs/yazi.nix
   ];
 }
