@@ -15,7 +15,7 @@ binds {
 
     // Suggested binds for running programs: terminal, app launcher, screen locker.
     Mod+Return { spawn "foot"; }
-    Mod+Shift+Return { spawn "ghostty" "--class=com.ghostty.float"; }
+    Mod+Shift+Return { spawn "alacritty"; }
 
     // Launcher
     Mod+D { spawn "noctalia" "msg" "panel-toggle" "launcher"; }
