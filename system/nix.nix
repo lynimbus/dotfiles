@@ -1,4 +1,4 @@
-{ inputs, ... }:
+{ inputs, lib, ... }:
 
 {
   nix.registry.nixpkgs.flake = inputs.nixpkgs;
@@ -17,15 +17,8 @@
       "nix-command"
       "flakes"
     ];
-    substituters = [
+    substituters = lib.mkForce [
       "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"
-      "https://cache.nixos.org"
-    ];
-    extra-substituters = [
-      "https://nix-community.cachix.org"
-    ];
-    extra-trusted-public-keys = [
-      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CXWu8iE8f2b24L2pY="
     ];
     download-buffer-size = 524288000;
     auto-optimise-store = true;
