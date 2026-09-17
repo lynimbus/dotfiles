@@ -10,6 +10,7 @@
     ./input-method.nix
     ./audio.nix
     ./hardware.nix
+    ./users.nix
   ];
 
   system.stateVersion = "26.05";
