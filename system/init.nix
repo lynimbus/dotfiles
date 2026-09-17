@@ -5,6 +5,7 @@
     ./plymouth.nix
     ./network.nix
     ./ssh.nix
+    ./locale.nix
   ];
 
   system.stateVersion = "26.05";
