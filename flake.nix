@@ -18,6 +18,7 @@
       ...
     }:
     let
+      system = "x86_64-linux";
       hostname = "nixos";
       username = "lynimbus";
       email = "128837704+lynimbus@users.noreply.github.com";
@@ -44,5 +45,7 @@
           }
         ];
       };
+
+      formatter.${system} = nixpkgs.legacyPackages.${system}.nixfmt-tree;
     };
 }
