@@ -12,6 +12,7 @@
     ./hardware.nix
     ./users.nix
     ./nix.nix
+    ./packages.nix
   ];
 
   system.stateVersion = "26.05";
