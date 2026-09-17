@@ -6,5 +6,6 @@
     ./packages/dev.nix
     ./packages/archive.nix
     ./packages/gui.nix
+    ./programs/fish.nix
   ];
 }
