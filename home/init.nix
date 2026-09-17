@@ -12,5 +12,6 @@
     ./programs/jujutsu.nix
     ./programs/git.nix
     ./programs/ssh.nix
+    ./programs/direnv.nix
   ];
 }
