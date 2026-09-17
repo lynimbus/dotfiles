@@ -2,7 +2,7 @@
   description = "lynimbus's nixos flake configuration";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/nixos-unstable/nixexprs.tar.xz";
 
     home-manager = {
       url = "github:nix-community/home-manager";
