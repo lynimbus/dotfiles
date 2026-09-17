@@ -9,5 +9,6 @@
     ./programs/fish.nix
     ./programs/zed.nix
     ./programs/jujutsu.nix
+    ./programs/git.nix
   ];
 }
