@@ -11,5 +11,7 @@
     shell = pkgs.fish;
   };
 
+  programs.fish.enable = true;
+
   security.sudo.wheelNeedsPassword = false;
 }
