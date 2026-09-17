@@ -16,5 +16,10 @@
     ./programs/zoxide.nix
     ./audio/rnnoise.nix
     ./programs/pi-agent.nix
+    ./desktop/niri/default.nix
+    ./desktop/noctalia/default.nix
+    ./programs/foot.nix
+    ./programs/alacritty.nix
+    ./desktop/hypridle.nix
   ];
 }
