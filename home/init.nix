@@ -15,5 +15,6 @@
     ./programs/direnv.nix
     ./programs/zoxide.nix
     ./audio/rnnoise.nix
+    ./programs/pi-agent.nix
   ];
 }
