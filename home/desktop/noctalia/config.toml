@@ -1,0 +1,214 @@
+[audio]
+enable_overdrive = true
+
+[backdrop]
+enabled = true
+blur_intensity = 0.69
+tint_intensity = 0.0
+
+[bar]
+order = ["bar"]
+
+[bar.bar]
+background_opacity = 0.0
+border_width = 0.0
+capsule = true
+capsule_border = "outline"
+capsule_foreground = "secondary"
+capsule_opacity = 0.79
+enabled = true
+font_family = "JetBrainsMono Nerd Font"
+margin_ends = 5
+margin_edge = 5
+radius = 12
+widget_spacing = 6
+shadow = false
+end = [
+    "media",
+    "volume",
+    "tray",
+    "notifications",
+    "session",
+]
+center = ["clock"]
+start = ["launcher", "workspaces", "group:g1"]
+
+[[bar.bar.capsule_group]]
+enabled = true
+fill = "surface_variant"
+foreground = "secondary"
+id = "g1"
+members = ["sysmon", "ram"]
+
+[brightness]
+enable_ddcutil = false
+
+[desktop_widgets]
+schema_version = 2
+widget_order = ["desktop-widget-0000000000000003"]
+
+[desktop_widgets.grid]
+cell_size = 16
+major_interval = 4
+visible = false
+
+[desktop_widgets.widget.desktop-widget-0000000000000003]
+box_height = 0.0
+box_width = 0.0
+cx = 731.0
+cy = 457.0
+rotation = 0.0
+type = "fancy_audio_visualizer"
+
+[desktop_widgets.widget.desktop-widget-0000000000000003.settings]
+background = false
+visualization_mode = "wave_rings"
+
+[dock]
+auto_hide = false
+enabled = true
+margin_edge = 10
+radius = 20
+reserve_space = false
+show_dots = true
+smart_auto_hide = true
+
+[hot_corners]
+enabled = true
+
+[hot_corners.bottom_right]
+action = "window_switcher"
+
+[idle]
+behavior_order = ["lock", "screen-off", "lock-and-suspend"]
+
+[idle.behavior.lock]
+action = "lock"
+enabled = true
+timeout = 300.0
+
+[idle.behavior.lock-and-suspend]
+action = "lock_and_suspend"
+enabled = true
+timeout = 900.0
+
+[idle.behavior.screen-off]
+action = "screen_off"
+enabled = true
+timeout = 360.0
+
+[lockscreen]
+fingerprint = false
+
+[lockscreen_widgets]
+enabled = false
+schema_version = 2
+widget_order = []
+
+[lockscreen_widgets.grid]
+cell_size = 16
+major_interval = 4
+visible = true
+
+[location]
+custom_schedule = false
+
+[nightlight]
+enabled = false
+temperature_day = 6500
+temperature_night = 5500
+
+[osd]
+background_opacity = 0.85
+offset_y = 20
+position = "bottom_center"
+scale = 0.9
+
+[osd.kinds]
+media = false
+nightlight = false
+
+[shell]
+font_family = "Noto Sans CJK SC"
+settings_show_advanced = true
+
+[shell.panel]
+control_center_placement = "floating"
+control_center_position = "top_right"
+session_placement = "floating"
+session_position = "center"
+transparency_mode = "soft"
+wallpaper_placement = "floating"
+wallpaper_position = "center"
+
+[theme]
+builtin = "Ayu"
+community_palette = "One Dark Two"
+mode = "dark"
+source = "wallpaper"
+wallpaper_scheme = "m3-content"
+
+[theme.templates.user.nyxniri_gtk3]
+index = 3
+input_path = "$XDG_CONFIG_HOME/noctalia/templates/gtk-3.0.css"
+output_path = "$XDG_CONFIG_HOME/gtk-3.0/gtk.css"
+
+[theme.templates.user.nyxniri_gtk4]
+index = 4
+input_path = "$XDG_CONFIG_HOME/noctalia/templates/gtk-4.0.css"
+output_path = "$XDG_CONFIG_HOME/gtk-4.0/gtk.css"
+
+[theme.templates.user.nyxuri_mango]
+index = 5
+input_path = "$XDG_CONFIG_HOME/noctalia/templates/mango.conf"
+output_path = "$XDG_CONFIG_HOME/mango/noctalia.conf"
+post_hook = "mmsg dispatch reload_config 2>/dev/null || true"
+
+[theme.templates.user.nyxmellow_theme]
+index = 6
+input_path = "$XDG_CONFIG_HOME/noctalia/templates/fcitx5/theme.conf"
+output_path = "$XDG_DATA_HOME/fcitx5/themes/noctalia/theme.conf"
+
+[theme.templates.user.nyxmellow_panel]
+index = 7
+input_path = "$XDG_CONFIG_HOME/noctalia/templates/fcitx5/panel.svg"
+output_path = "$XDG_DATA_HOME/fcitx5/themes/noctalia/panel.svg"
+
+[theme.templates.user.nyxmellow_highlight]
+index = 8
+input_path = "$XDG_CONFIG_HOME/noctalia/templates/fcitx5/highlight.svg"
+output_path = "$XDG_DATA_HOME/fcitx5/themes/noctalia/highlight.svg"
+hook_async = false
+post_hook = "busctl --user --auto-start=no call org.fcitx.Fcitx5 /controller org.fcitx.Fcitx.Controller1 ReloadAddonConfig s classicui >/dev/null 2>&1 || true"
+
+[wallpaper]
+directory = "~/Pictures/Wallpapers"
+fill_mode = "crop"
+transition = ["fade", "disc", "stripes", "wipe", "honeycomb"]
+
+[wallpaper.automation]
+enabled = true
+interval_seconds = 600
+recursive = true
+
+[widget.active_window]
+min_length = 0
+
+[widget.clock]
+format = "{:%m/%d/%y %H:%M}"
+
+[widget.media]
+hide_when_no_media = true
+max_length = 170
+
+[widget.ram]
+show_glyph = false
+visualization = "none"
+
+[widget.sysmon]
+glyph = "cpu"
+visualization = "none"
+
+[widget.tray]
+detached_panel = true
+drawer = true
