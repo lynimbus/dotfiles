@@ -16,5 +16,6 @@
     ayugram-desktop
     qq
     wechat-uos
+    strata
   ];
 }
