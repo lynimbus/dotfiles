@@ -6,6 +6,7 @@
     ./network.nix
     ./ssh.nix
     ./locale.nix
+    ./fonts.nix
   ];
 
   system.stateVersion = "26.05";
