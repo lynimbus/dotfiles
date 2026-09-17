@@ -8,6 +8,11 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nixos-hardware = {
+      url = "github:NixOS/nixos-hardware";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -22,11 +27,19 @@
       hostname = "nixos";
       username = "lynimbus";
       email = "128837704+lynimbus@users.noreply.github.com";
+
+      localOverlay = final: _prev: {
+        zed-editor = final.callPackage ./pkgs/zed-prebuilt.nix { };
+      };
     in
     {
       nixosConfigurations.${hostname} = nixpkgs.lib.nixosSystem {
         specialArgs = { inherit inputs hostname username; };
         modules = [
+          {
+            nixpkgs.overlays = [ localOverlay ];
+          }
+          inputs.nixos-hardware.nixosModules.mechrevo-gm5hg0a
           ./system/init.nix
           home-manager.nixosModules.home-manager
           {
