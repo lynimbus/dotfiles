@@ -95,12 +95,34 @@
         "type": "github"
       }
     },
+    "pyclipsync": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1789583109,
+        "narHash": "sha256-CwZHQHZBfo3furE7M/Qsc6TdU+3JRo7FPYSRtgYESU8=",
+        "owner": "ryan4yin",
+        "repo": "pyclipsync",
+        "rev": "d0b6af8913c69c64fad4d00517e75674daaa9453",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ryan4yin",
+        "ref": "v0.1.3",
+        "repo": "pyclipsync",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "home-manager": "home-manager",
         "mac-style-plymouth": "mac-style-plymouth",
         "nixos-hardware": "nixos-hardware",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "pyclipsync": "pyclipsync"
       }
     },
     "systems": {
