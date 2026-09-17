@@ -1,0 +1,128 @@
+[bar]
+order = ["bar"]
+
+[bar.bar]
+position = "top"
+capsule = true
+capsule_opacity = 1.0
+background_opacity = 0.2
+radius = 12
+margin_edge = 5
+margin_ends = 5
+widget_spacing = 6
+font_family = "Maple Mono NF CN"
+start = ["launcher", "clock", "cpu", "ram", "active_window", "media"]
+center = ["workspaces"]
+end = ["notifications", "battery", "volume", "brightness", "tray", "control-center"]
+
+[widget.clock]
+type = "clock"
+format = "{:%H:%M %a, %b %d}"
+
+[widget.cpu]
+type = "sysmon"
+stat = "cpu_usage"
+
+[widget.ram]
+type = "sysmon"
+stat = "ram_used"
+
+[widget.active_window]
+type = "active_window"
+max_length = 145.0
+
+[widget.media]
+type = "media"
+max_length = 145.0
+
+[widget.control-center]
+type = "custom_button"
+glyph = "adjustments"
+tooltip = "Control Center"
+
+[widget.control-center.actions]
+left = "panel-toggle control-center"
+
+[theme]
+mode = "dark"
+source = "wallpaper"
+wallpaper_scheme = "m3-tonal-spot"
+
+[theme.templates.user.nyxniri_gtk3]
+index = 3
+input_path = "$XDG_CONFIG_HOME/noctalia/templates/gtk-3.0.css"
+output_path = "$XDG_CONFIG_HOME/gtk-3.0/gtk.css"
+
+[theme.templates.user.nyxniri_gtk4]
+index = 4
+input_path = "$XDG_CONFIG_HOME/noctalia/templates/gtk-4.0.css"
+output_path = "$XDG_CONFIG_HOME/gtk-4.0/gtk.css"
+
+[shell]
+font_family = "Maple Mono NF CN"
+
+[wallpaper]
+directory = "~/Pictures/Wallpapers"
+fill_mode = "crop"
+transition = ["fade", "disc", "stripes", "wipe", "honeycomb"]
+transition_duration = 1500.0
+
+[wallpaper.automation]
+enabled = true
+interval_seconds = 600
+order = "random"
+recursive = true
+
+[backdrop]
+enabled = true
+blur_intensity = 0.4
+tint_intensity = 0.6
+
+[nightlight]
+enabled = true
+force = false
+temperature_night = 4000
+
+[location]
+custom_schedule = true
+sunset = "20:30"
+sunrise = "07:30"
+
+[brightness]
+enable_ddcutil = false
+
+[audio]
+enable_overdrive = false
+
+[dock]
+enabled = false
+
+[desktop_widgets]
+enabled = true
+
+[idle.behavior.lock]
+enabled = false
+
+[idle.behavior.screen-off]
+enabled = false
+
+[idle.behavior.lock-and-suspend]
+enabled = false
+
+[[control_center.shortcuts]]
+type = "wifi"
+
+[[control_center.shortcuts]]
+type = "bluetooth"
+
+[[control_center.shortcuts]]
+type = "notification"
+
+[[control_center.shortcuts]]
+type = "power_profile"
+
+[[control_center.shortcuts]]
+type = "caffeine"
+
+[[control_center.shortcuts]]
+type = "nightlight"

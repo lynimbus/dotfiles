@@ -15,6 +15,7 @@
     ./packages.nix
     ./desktop-plasma.nix
     ./desktop-sddm.nix
+    ./desktop-niri.nix
   ];
 
   system.stateVersion = "26.05";
