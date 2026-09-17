@@ -22,4 +22,6 @@
   boot.initrd.verbose = false;
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
+
+  boot.tmp.cleanOnBoot = true;
 }
