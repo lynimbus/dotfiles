@@ -6,5 +6,6 @@
     koka
     go
     android-tools
+    python3
   ];
 }
