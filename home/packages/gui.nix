@@ -14,5 +14,6 @@
     tmux
     libnotify
     gvfs
+    strata
   ];
 }
