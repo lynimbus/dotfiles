@@ -8,5 +8,7 @@
     nerd-fonts.jetbrains-mono
     maple-mono."NF-CN"
     fira-code
+    intel-one-mono
+    nerd-fonts.intone-mono
   ];
 }
