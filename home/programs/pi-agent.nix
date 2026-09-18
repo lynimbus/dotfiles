@@ -82,6 +82,74 @@
           }
         ];
       };
+      sol = {
+        api = "openai-responses";
+        baseUrl = "https://api.like-ai.cc/v1";
+        models = [
+          {
+            id = "gpt-5.6-sol";
+            name = "GPT-5.6 Sol";
+            reasoning = true;
+            input = [
+              "text"
+              "image"
+            ];
+            contextWindow = 272000;
+            maxTokens = 128000;
+            thinkingLevelMap = {
+              off = "none";
+              minimal = null;
+              low = "low";
+              medium = "medium";
+              high = "high";
+              xhigh = "xhigh";
+              max = "max";
+            };
+            compat = {
+              supportsStrictMode = true;
+              supportsOpenAIGrammarTools = true;
+              supportsAdditionalTools = true;
+              supportsToolSearch = true;
+              supportsMidConvoSystemMessages = true;
+              supportsExplicitPromptCacheMode = true;
+            };
+          }
+        ];
+      };
+      astra = {
+        api = "openai-responses";
+        baseUrl = "https://api.like-ai.cc/v1";
+        models = [
+          {
+            id = "gpt-6-astra";
+            name = "GPT-6 Astra";
+            reasoning = true;
+            input = [
+              "text"
+              "image"
+            ];
+            contextWindow = 272000;
+            maxTokens = 128000;
+            thinkingLevelMap = {
+              off = null;
+              minimal = null;
+              low = "low";
+              medium = "medium";
+              high = "high";
+              xhigh = "xhigh";
+              max = "max";
+            };
+            compat = {
+              supportsStrictMode = true;
+              supportsOpenAIGrammarTools = true;
+              supportsAdditionalTools = true;
+              supportsToolSearch = true;
+              supportsMidConvoSystemMessages = true;
+              supportsExplicitPromptCacheMode = true;
+            };
+          }
+        ];
+      };
     };
   };
 }
