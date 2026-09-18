@@ -38,7 +38,7 @@
       username = "lynimbus";
       email = "128837704+lynimbus@users.noreply.github.com";
 
-      zedOverlay = final: _prev: {
+      localOverlay = final: _prev: {
         zed-editor = final.callPackage ./pkgs/zed-prebuilt.nix { };
       };
     in
@@ -47,7 +47,7 @@
         specialArgs = { inherit inputs hostname username; };
         modules = [
           {
-            nixpkgs.overlays = [ zedOverlay ];
+            nixpkgs.overlays = [ localOverlay ];
           }
           inputs.nixos-hardware.nixosModules.mechrevo-gm5hg0a
           ./system/init.nix
