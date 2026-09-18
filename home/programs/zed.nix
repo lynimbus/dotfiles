@@ -11,6 +11,11 @@
       vim_mode = true;
       ui_font_size = 16;
       buffer_font_size = 16;
+      buffer_font_family = "Intel One Mono";
+      buffer_font_fallbacks = [
+        "Maple Mono NF CN"
+        "Noto Sans CJK SC"
+      ];
       theme = {
         mode = "dark";
         light = "One Light";
