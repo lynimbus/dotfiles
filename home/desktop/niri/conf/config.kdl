@@ -52,15 +52,16 @@ input {
         dwt // disable-when-typing.
         // dwtp // disable-when-trackpointing.
         natural-scroll // inverts the scrolling direction.
+        disabled-on-external-mouse // do not send events while external pointer device is plugged in.
         // accel-speed 0.2
-        // accel-profile "flat"
+        accel-profile "flat"
         // tap-button-map "left-middle-right"
     }
 
     mouse {
         // natural-scroll // inverts the scrolling direction.
         // accel-speed 0.2
-        // accel-profile "flat"
+        accel-profile "flat"
     }
 
     // Uncomment this to make the mouse warp to the center of newly focused windows.
