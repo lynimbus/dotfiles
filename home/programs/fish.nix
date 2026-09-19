@@ -18,6 +18,7 @@
       la = "ls -a";
       lla = "ls -la";
       c = "clear";
+      cd = "z";
     };
 
     functions.jjmsg = ''
