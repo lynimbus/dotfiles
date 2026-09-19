@@ -13,6 +13,7 @@
       packages = [
         "npm:pi-web-access"
         "npm:@juicesharp/rpiv-ask-user-question"
+        "git:github.com/earendil-works/pi-review"
       ];
     };
 
