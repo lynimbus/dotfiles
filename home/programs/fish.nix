@@ -16,6 +16,7 @@
 
     shellAliases = {
       la = "ls -a";
+      lla = "ls -la";
       c = "clear";
     };
 
