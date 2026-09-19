@@ -9,24 +9,25 @@
 
 ## 密钥恢复前提
 
-当前 `secrets/pi-auth.json` 是用现有 SSH 公钥派生出的 age recipient 加密的。对应的明文文件是：
+当前 `secrets/pi-auth.json` 同时加密给两把 key：
+
+- 当前系统的 `~/.ssh/id_ed25519`
+- 密码管理器中的 recovery key，对应本机路径 `~/.ssh/id_ed25519_recovery`
+
+原来的 SSH 私钥也有一份加密备份，保存在 `secrets/ssh-id_ed25519`，同样由这两把 key 保护。新系统可以先用 recovery key 解出原来的 SSH 私钥，再用它继续访问 GitHub 和解密其他 secret。
+
+对应的 Pi 明文文件是：
 
 ```text
 ~/.pi/agent/auth.json
 ```
 
-Home Manager 配置会使用下面这把私钥解密：
-
-```text
-~/.ssh/id_ed25519
-```
-
 这意味着：
 
-- 新系统必须恢复原来的 `~/.ssh/id_ed25519`，新生成的 SSH 私钥不能解密现有 secret
-- 只有 `id_ed25519.pub` 不够，公钥只能加密，不能解密
-- 这把私钥同时用于 GitHub SSH、Jujutsu 签名和 sops-nix 解密
-- 私钥需要能被非交互读取；带口令的私钥不能直接用于当前的自动解密服务
+- 新系统可以恢复原来的 `~/.ssh/id_ed25519`，也可以从密码管理器导出 recovery 私钥到 `~/.ssh/id_ed25519_recovery`
+- 只有 `.pub` 公钥不够，公钥只能加密，不能解密
+- 原来的 SSH 私钥同时用于 GitHub SSH、Jujutsu 签名和 sops-nix 解密
+- sops-nix 的非交互服务要求用于自动解密的 SSH 私钥不带口令
 - 私钥、age 私钥和任何明文 secret 都不能提交到仓库
 
 ## 重装前准备
@@ -42,6 +43,7 @@ flake.lock
 home/init.nix
 home/secrets.nix
 secrets/pi-auth.json
+secrets/ssh-id_ed25519
 ```
 
 恢复时不要重新生成 `flake.lock`，这样可以尽量还原原来的软件版本。
@@ -66,6 +68,60 @@ cp ~/.ssh/id_ed25519.pub /path/to/secure-backup/id_ed25519.pub
 - 如果希望保持这台机器的 SSH 主机身份，备份 `/etc/ssh/ssh_host_*`
 
 不要备份或提交由 sops-nix 生成的明文 `~/.pi/agent/auth.json` 到仓库。它的受控副本是 `secrets/pi-auth.json`。
+
+### 3. 使用密码管理器里的 Ed25519 SSH key
+
+密码管理器中标为 Ed25519 的 key 通常是 SSH key，公钥以 `ssh-ed25519` 开头。只需要导出公钥，不要把私钥发到聊天或提交到仓库。
+
+先把公钥转换成 age recipient：
+
+```fish
+set recovery_ssh_pub 'ssh-ed25519 AAAA... comment'
+set recovery_age_pub (printf '%s\n' "$recovery_ssh_pub" | ssh-to-age)
+echo $recovery_age_pub
+```
+
+把输出的 `age1...` 加入 `.sops.yaml`，例如：
+
+```yaml
+keys:
+  - &lynimbus age1...
+  - &recovery age1...
+
+creation_rules:
+  - path_regex: secrets/.*
+    key_groups:
+      - age:
+          - *lynimbus
+          - *recovery
+```
+
+然后用当前系统的 SSH 私钥重新写入密文的 recipient：
+
+```fish
+set -lx SOPS_AGE_KEY_CMD "ssh-to-age -private-key -i $HOME/.ssh/id_ed25519"
+sops updatekeys secrets/pi-auth.json
+```
+
+仅添加 recovery recipient 就可以让它手工解密 secret。只有 recovery 私钥时，可以临时指定它：
+
+```fish
+set -lx SOPS_AGE_KEY_CMD "ssh-to-age -private-key -i $HOME/.ssh/id_ed25519_recovery"
+sops -d secrets/pi-auth.json >/dev/null
+```
+
+本仓库已经在 `home/secrets.nix` 中配置了备用路径；新系统只需要把恢复用 SSH 私钥导出到这个路径：
+
+```nix
+sops.age.sshKeyPaths = [
+  "${config.home.homeDirectory}/.ssh/id_ed25519"
+  "${config.home.homeDirectory}/.ssh/id_ed25519_recovery"
+];
+```
+
+新系统中把密码管理器导出的私钥放到 `~/.ssh/id_ed25519_recovery`，权限设为 `0600`，再执行系统切换。当前配置会同时尝试两把 key；如果原私钥还在，恢复用 key 不需要常驻磁盘。
+
+如果密码管理器给私钥设置了口令，sops-nix 的非交互服务通常不能直接使用它；这种情况下更适合使用独立的 age recovery key，或只在手工恢复时临时导出并解密。
 
 ## 新系统恢复步骤
 
@@ -97,9 +153,9 @@ sudo nixos-generate-config --show-hardware-config
 
 必要时更新 `system/hardware-configuration.nix`，不要覆盖其他模块中的配置。
 
-### 3. 恢复 SSH 私钥
+### 3. 准备解密密钥
 
-在第一次构建本仓库之前，先恢复旧的 SSH 私钥：
+可以选择恢复旧的 SSH 私钥：
 
 ```fish
 mkdir -p ~/.ssh
@@ -113,24 +169,32 @@ else
 end
 ```
 
-确认公钥派生出的 age recipient 与 `.sops.yaml` 中的 recipient 相同：
+如果旧的 SSH 私钥不可用，也可以从密码管理器导出 recovery 私钥：
 
 ```fish
-nix run nixpkgs#ssh-to-age -- < ~/.ssh/id_ed25519.pub
+mkdir -p ~/.ssh
+install -m 600 /path/to/password-manager/id_ed25519_recovery ~/.ssh/id_ed25519_recovery
 ```
 
-如果这里输出的 recipient 不同，先不要执行系统切换；当前密文仍然不能被这把新私钥解密。
+使用 recovery 私钥时，第一次切换会先解密 `secrets/ssh-id_ed25519`，生成原来的 `~/.ssh/id_ed25519`，再解密 `~/.pi/agent/auth.json`。因此此时可以使用 HTTPS 克隆仓库，不需要先拥有原来的 GitHub SSH 私钥。
 
 ### 4. 克隆仓库
 
-如果已经恢复 SSH 私钥，可以直接使用 SSH 克隆：
+如果已经恢复原来的 SSH 私钥，可以直接使用 SSH 克隆：
 
 ```fish
 git clone git@github.com:lynimbus/dotfiles.git ~/nixos
 cd ~/nixos
 ```
 
-如果暂时没有 SSH 私钥，可以先用 HTTPS 或其他方式把仓库放到 `/home/lynimbus/nixos`，但仍然必须在系统切换前恢复正确的 SSH 私钥。
+如果使用 recovery 私钥，则先用 HTTPS 或其他方式把仓库放到 `/home/lynimbus/nixos`：
+
+```fish
+git clone https://github.com/lynimbus/dotfiles.git ~/nixos
+cd ~/nixos
+```
+
+仓库放置完成后，确保 `~/.ssh/id_ed25519` 或 `~/.ssh/id_ed25519_recovery` 已经存在，再执行系统切换。
 
 ### 5. 第一次切换系统
 
@@ -153,7 +217,8 @@ sudo nixos-rebuild switch \
 - 安装 NixOS 和 Home Manager 配置
 - 安装 `sops`、`age` 和 `ssh-to-age`
 - 启用 sops-nix 用户服务
-- 解密 `secrets/pi-auth.json`
+- 用原 SSH 私钥或 recovery 私钥解密 secrets
+- 将加密备份 `secrets/ssh-id_ed25519` 恢复到 `~/.ssh/id_ed25519`
 - 将 `~/.pi/agent/auth.json` 替换为运行时 secret 的符号链接
 - 恢复 Pi、SSH、Jujutsu、Fish、Niri 和桌面配置
 
@@ -169,6 +234,7 @@ systemctl --user restart sops-nix.service
 然后只验证文件类型和 JSON 格式，不要把 secret 打印到终端：
 
 ```fish
+test -L ~/.ssh/id_ed25519
 test -L ~/.pi/agent/auth.json
 jq -e 'type == "object"' ~/.pi/agent/auth.json >/dev/null
 sops -d secrets/pi-auth.json >/dev/null
@@ -297,4 +363,5 @@ sops updatekeys secrets/pi-auth.json
 2. 确认当前使用的是原来的 `~/.ssh/id_ed25519`，而不是新生成的同名密钥。
 3. 检查私钥权限是否为 `0600`。
 4. 用 `ssh-keygen -y` 重新生成公钥，再用 `ssh-to-age` 检查 recipient。
-5. 如果所有解密密钥都丢失，撤销旧的 API token，生成新的 `auth.json`，再用新 recipient 重新加密。
+5. 如果旧 SSH 私钥丢失，将密码管理器中的 recovery 私钥导出到 `~/.ssh/id_ed25519_recovery`，权限设为 `0600`，再重启 `sops-nix.service`。
+6. 如果两把解密私钥都丢失，撤销旧的 API token，生成新的 `auth.json`，再用新 recipient 重新加密。
