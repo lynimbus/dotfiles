@@ -7,8 +7,8 @@
     extraPackages = [ pkgs.nodejs ];
 
     settings = {
-      defaultProvider = "deepseek";
-      defaultModel = "deepseek-flash";
+      defaultProvider = "sol";
+      defaultModel = "gpt-5.6-sol";
       defaultThinkingLevel = "max";
       packages = [
         "npm:pi-web-access"
