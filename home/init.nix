@@ -1,6 +1,7 @@
-{ ... }:
+{ inputs, ... }:
 {
   imports = [
+    ./secrets.nix
     ./core.nix
     ./packages/cli.nix
     ./packages/dev.nix
