@@ -18,6 +18,9 @@
     zoxide
     dig
     shellcheck
+    sops
+    age
+    ssh-to-age
     libxml2
     file
   ];
