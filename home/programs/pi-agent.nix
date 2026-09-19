@@ -14,6 +14,19 @@
         "npm:pi-web-access"
         "npm:@juicesharp/rpiv-ask-user-question"
         "git:github.com/earendil-works/pi-review"
+        {
+          source = "git:github.com/mattpocock/skills";
+          skills = [
+            "+skills/engineering/codebase-design"
+            "+skills/engineering/diagnosing-bugs"
+            "+skills/engineering/domain-modeling"
+            "+skills/engineering/grill-with-docs"
+            "+skills/engineering/tdd"
+            "+skills/productivity/grill-me"
+            "+skills/productivity/grilling"
+            "+skills/productivity/wait-what"
+          ];
+        }
       ];
     };
 
