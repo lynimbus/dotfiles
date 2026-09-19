@@ -11,11 +11,11 @@ boot:
     nh os boot .
 
 update:
-    nix flake update
+    env NIX_CONFIG="access-tokens = github.com=$(gh auth token)" nix flake update
     nh os switch .
 
 update-input input:
-    nix flake update {{input}}
+    env NIX_CONFIG="access-tokens = github.com=$(gh auth token)" nix flake update {{input}}
 
 check:
     nix flake check --no-build
