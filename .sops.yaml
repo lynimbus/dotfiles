@@ -1,8 +1,10 @@
 keys:
   - &lynimbus age1rnffuduwg5u8rm6nxz7rl83ets6vj3mxe95z4dtqyyps6rffzq0qrh9c46
+  - &recovery age1e9x3yllr0rtlu8fgkp2q57j2a6ecrhnehjsw9t50w0p29nudcyfqepv2vh
 
 creation_rules:
   - path_regex: secrets/.*
     key_groups:
       - age:
           - *lynimbus
+          - *recovery
