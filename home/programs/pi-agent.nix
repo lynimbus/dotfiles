@@ -15,6 +15,10 @@
         "npm:@juicesharp/rpiv-ask-user-question"
         "git:github.com/earendil-works/pi-review"
         {
+          source = "git:github.com/shimo4228/search-first";
+          skills = [ "+skills/search-first" ];
+        }
+        {
           source = "git:github.com/mattpocock/skills";
           skills = [
             "+skills/engineering/grill-with-docs"
