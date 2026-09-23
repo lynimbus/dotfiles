@@ -43,12 +43,57 @@
       username = "lynimbus";
       email = "128837704+lynimbus@users.noreply.github.com";
 
-      localOverlay = final: _prev: {
-        zed-editor = final.callPackage ./pkgs/zed-prebuilt.nix { };
-        qingjian = final.callPackage ./pkgs/qingjian/package.nix { };
+      pkgs = nixpkgs.legacyPackages.${system};
+
+      mkLocalPkgs = p: {
+        zed-editor = p.callPackage ./pkgs/zed-prebuilt.nix { };
+        qingjian = p.callPackage ./pkgs/qingjian/package.nix { };
       };
+
+      localOverlay = final: _prev: mkLocalPkgs final;
     in
     {
+      packages.${system} = mkLocalPkgs pkgs;
+
+      apps.${system}.update-pkgs =
+        let
+          script = pkgs.writeShellApplication {
+            name = "update-pkgs";
+            runtimeInputs = [
+              pkgs.nix-update
+              pkgs.git
+              pkgs.nix
+              pkgs.gh
+              pkgs.gnugrep
+            ];
+            text = ''
+              current=$(nix eval --raw .#zed-editor.version)
+              latest=$(gh release view --repo LI-NA/zed-i18n --json tagName --jq '.tagName | sub("^v"; "")')
+              if [ "$current" = "$latest" ]; then
+                echo "zed-editor: already up to date ($current)"
+              else
+                echo "zed-editor: updating $current -> $latest"
+                nix-update --flake --version-regex '^v?(\d+\.\d+\.\d+-i18n\.\d+)$' zed-editor
+              fi
+
+              current=$(nix eval --raw .#qingjian.src.rev)
+              latest=$(gh api repos/qingjian-team/qingjian/commits/HEAD --jq .sha)
+              if [ "$current" = "$latest" ]; then
+                echo "qingjian: already up to date ($current)"
+              else
+                # shellcheck disable=SC2016
+                grep -qF 'version = "0.1.3-unstable-''${lib.substring 0 8 rev}"' pkgs/qingjian/package.nix \
+                  || { echo "qingjian: version no longer derives from rev, refusing to auto-update" >&2; exit 1; }
+                echo "qingjian: updating $current -> $latest"
+                nix-update --flake --version=branch qingjian
+              fi
+            '';
+          };
+        in
+        {
+          type = "app";
+          program = "${script}/bin/update-pkgs";
+        };
       nixosConfigurations.${hostname} = nixpkgs.lib.nixosSystem {
         specialArgs = { inherit inputs hostname username; };
         modules = [
@@ -68,6 +113,6 @@
         ];
       };
 
-      formatter.${system} = nixpkgs.legacyPackages.${system}.nixfmt-tree;
+      formatter.${system} = pkgs.nixfmt-tree;
     };
 }
