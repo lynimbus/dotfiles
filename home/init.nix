@@ -20,6 +20,7 @@
     ./audio/rnnoise.nix
     ./programs/qingjian.nix
     ./programs/pi-agent.nix
+    ./programs/qingjian.nix
     ./desktop/niri/default.nix
     ./desktop/noctalia/default.nix
     ./programs/foot.nix
