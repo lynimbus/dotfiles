@@ -15,8 +15,7 @@ let
             }
             export SOL_API_KEY="''${SOL_API_KEY:-$(read_key sol)}"
             export ASTRA_API_KEY="''${ASTRA_API_KEY:-$(read_key astra)}"
-            export LXIID_API_KEY="''${LXIID_API_KEY:-$(read_key lxiid)}"
-            export LXIIC_API_KEY="''${LXIIC_API_KEY:-$(read_key lxiic)}"
+            export LXII_API_KEY="''${LXII_API_KEY:-$(read_key lxii)}"
           fi
         '
     '';
@@ -36,20 +35,14 @@ let
     effort = "max";
   };
   deepseekModel = {
-    provider = "lxiid";
+    provider = "lxii";
     model = "deepseek-v4.1-flash";
     enable_thinking = true;
     effort = "max";
   };
   kimiModel = {
-    provider = "lxiid";
+    provider = "lxii";
     model = "kimi-k3";
-    enable_thinking = true;
-    effort = "max";
-  };
-  claudeModel = {
-    provider = "lxiic";
-    model = "claude-opus-5-max";
     enable_thinking = true;
     effort = "max";
   };
@@ -105,7 +98,6 @@ in
           astraModel
           deepseekModel
           kimiModel
-          claudeModel
         ];
       };
       language_models = {
@@ -136,7 +128,7 @@ in
               }
             ];
           };
-          lxiid = {
+          lxii = {
             api_url = "https://sub2.lxii.cc/v1";
             available_models = [
               {
@@ -154,27 +146,6 @@ in
                 max_output_tokens = 131072;
                 reasoning_effort = "max";
                 capabilities = chatCompletionsCapabilities;
-              }
-            ];
-          };
-        };
-        anthropic_compatible = {
-          lxiic = {
-            api_url = "https://sub2.lxii.cc";
-            available_models = [
-              {
-                name = "claude-opus-5-max";
-                display_name = "Claude Opus 5 Max";
-                max_tokens = 1000000;
-                max_output_tokens = 128000;
-                mode = {
-                  type = "adaptive";
-                };
-                capabilities = {
-                  tools = true;
-                  images = true;
-                  prompt_caching = false;
-                };
               }
             ];
           };

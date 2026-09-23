@@ -30,7 +30,7 @@
     };
 
     models.providers = {
-      lxiid = {
+      lxii = {
         api = "openai-completions";
         baseUrl = "https://sub2.lxii.cc/v1";
         models = [
@@ -42,16 +42,23 @@
               "text"
               "image"
             ];
-            thinkingLevelMap.max = "max";
             contextWindow = 1000000;
             maxTokens = 384000;
+            thinkingLevelMap = {
+              off = null;
+              minimal = null;
+              low = "low";
+              medium = null;
+              high = "high";
+              xhigh = null;
+              max = "max";
+            };
             compat = {
               supportsStore = false;
               supportsDeveloperRole = false;
               supportsReasoningEffort = true;
               maxTokensField = "max_tokens";
               requiresReasoningContentOnAssistantMessages = true;
-              thinkingFormat = "deepseek";
             };
           }
           {
@@ -62,36 +69,27 @@
               "text"
               "image"
             ];
-            thinkingLevelMap.max = "max";
             contextWindow = 1048576;
             maxTokens = 131072;
+            thinkingLevelMap = {
+              off = "none";
+              minimal = null;
+              low = "low";
+              medium = null;
+              high = "high";
+              xhigh = null;
+              max = "max";
+            };
             compat = {
               supportsStore = false;
               supportsDeveloperRole = false;
               supportsReasoningEffort = true;
               maxTokensField = "max_tokens";
+              supportsStrictMode = false;
               requiresReasoningContentOnAssistantMessages = true;
-              thinkingFormat = "deepseek";
+              supportsMidConvoSystemMessages = true;
+              supportsMidConvoToolAdditions = true;
             };
-          }
-        ];
-      };
-      lxiic = {
-        api = "anthropic-messages";
-        baseUrl = "https://sub2.lxii.cc";
-        models = [
-          {
-            id = "claude-opus-5-max";
-            name = "Claude Opus 5 Max";
-            reasoning = true;
-            input = [
-              "text"
-              "image"
-            ];
-            thinkingLevelMap.max = "max";
-            compat.forceAdaptiveThinking = true;
-            contextWindow = 1000000;
-            maxTokens = 128000;
           }
         ];
       };
