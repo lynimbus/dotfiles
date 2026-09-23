@@ -12,6 +12,7 @@ boot:
 
 update:
     env NIX_CONFIG="access-tokens = github.com=$(gh auth token)" nix flake update
+    nix run .#update-pkgs
     nh os switch .
 
 update-input input:

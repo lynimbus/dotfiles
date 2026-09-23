@@ -15,17 +15,13 @@
   libva,
 }:
 
-let
-  ver = "1.18.0";
-  zipHash = "sha256-G1Jl0/eXyv6zPi7Tywog9eGXogTpCEidZDGgm6JqNPc=";
-in
-stdenv.mkDerivation {
-  pname = "zed-prebuilt";
-  version = ver;
+stdenv.mkDerivation (finalAttrs: {
+  pname = "zed-i18n-prebuilt";
+  version = "1.20.2-i18n.2";
 
   src = fetchzip {
-    url = "https://github.com/zed-industries/zed/releases/download/v${ver}/zed-linux-x86_64.tar.gz";
-    hash = zipHash;
+    url = "https://github.com/LI-NA/zed-i18n/releases/download/v${finalAttrs.version}/zed-i18n-linux-x86_64.tar.gz";
+    hash = "sha256-K4YrP6+TCBdL7TkS7ynHXpJvDhyptby2vzzxe4AAC+g=";
   };
 
   nativeBuildInputs = [ autoPatchelfHook ];
@@ -57,20 +53,16 @@ stdenv.mkDerivation {
   installPhase = ''
     runHook preInstall
     mkdir -p "$out"
-    if [ -d zed-linux-x86_64 ]; then
-      cp -r zed-linux-x86_64/. "$out/"
-    else
-      cp -r . "$out/"
-    fi
+    cp -r . "$out/"
     ln -s "$out/bin/zed" "$out/bin/zeditor"
     runHook postInstall
   '';
 
   meta = {
     mainProgram = "zed";
-    description = "Zed editor (official prebuilt v${ver})";
-    homepage = "https://zed.dev";
+    description = "Zed editor (zed-i18n community-localized prebuilt v${finalAttrs.version})";
+    homepage = "https://github.com/LI-NA/zed-i18n";
     license = lib.licenses.gpl3Only;
     platforms = [ "x86_64-linux" ];
   };
-}
+})

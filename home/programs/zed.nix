@@ -71,6 +71,7 @@ in
         metrics = false;
       };
       vim_mode = true;
+      ui_locale = "zh-CN";
       ui_font_size = 16;
       buffer_font_size = 16;
       buffer_font_family = "Intel One Mono";
