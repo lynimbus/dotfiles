@@ -45,6 +45,7 @@
 
       localOverlay = final: _prev: {
         zed-editor = final.callPackage ./pkgs/zed-prebuilt.nix { };
+        qingjian = final.callPackage ./pkgs/qingjian/package.nix { };
       };
     in
     {

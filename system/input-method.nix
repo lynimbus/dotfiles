@@ -12,6 +12,7 @@
         kdePackages.fcitx5-qt
         kdePackages.fcitx5-chinese-addons
         fcitx5-material-color
+        qingjian
         (fcitx5-rime.override {
           rimeDataPkgs = [ rime-ice ];
         })
