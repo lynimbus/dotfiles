@@ -2,6 +2,7 @@
 {
   imports = [
     inputs.sops-nix.homeManagerModules.sops
+    ../pkgs/qingjian/module.nix
     ./secrets.nix
     ./core.nix
     ./packages/cli.nix
@@ -17,6 +18,7 @@
     ./programs/direnv.nix
     ./programs/zoxide.nix
     ./audio/rnnoise.nix
+    ./programs/qingjian.nix
     ./programs/pi-agent.nix
     ./desktop/niri/default.nix
     ./desktop/noctalia/default.nix
