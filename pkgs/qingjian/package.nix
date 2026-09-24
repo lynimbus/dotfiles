@@ -11,9 +11,9 @@
 }:
 
 let
-  rev = "a99bb3a6b669dbdc794f3d25a2e91a2a6f0962f5";
-  srcHash = "sha256-gZpYOI5ExqcEVb5rOZBWcZpMpXD5a6NSEPkCImti7YA=";
-  cargoHash = "sha256-rUxdLC7zmEJZYmdeej8Ec0Lgl60GlwsDnlOP81z1R+M=";
+  rev = "c08ae57cb88b6a4a46f4a5e9c1d6d11c5e69222e";
+  srcHash = "sha256-OulZ8oizG1XzDGX4FCZxlS5Qe3ss73isoyXPgGQIeKY=";
+  cargoHash = "sha256-sLU+ReJ/gbekiW+fa8ilQbVZ17KMyla5sc1EKy7OuaA=";
   dataTag = "data-v2";
   dataHash = "sha256-TVn9s/goCXNr7r4jtCzsKD/9h/ao8CQ7lSkcRg8fDKo=";
   modelHash = "sha256-7tW9C9oMe9i0PRrLLcRnjUu+KVvUeysNTurOCvna/00=";

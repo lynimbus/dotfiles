@@ -17,11 +17,11 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "zed-i18n-prebuilt";
-  version = "1.20.2-i18n.2";
+  version = "1.21.0-i18n.1";
 
   src = fetchzip {
     url = "https://github.com/LI-NA/zed-i18n/releases/download/v${finalAttrs.version}/zed-i18n-linux-x86_64.tar.gz";
-    hash = "sha256-K4YrP6+TCBdL7TkS7ynHXpJvDhyptby2vzzxe4AAC+g=";
+    hash = "sha256-aWRPBhCrLEbOuRKM4nu+bD6wwiI2Ae2kimO9JtNxkVo=";
   };
 
   nativeBuildInputs = [ autoPatchelfHook ];
