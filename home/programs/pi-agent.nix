@@ -1,29 +1,36 @@
-{ pkgs, ... }:
+{ pkgs, inputs, ... }:
 
 {
   programs.pi-coding-agent = {
     enable = true;
     context = ../pi-agent/AGENTS.md;
-    extraPackages = [ pkgs.nodejs ];
+    extraPackages = [
+      pkgs.nodejs
+      inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.qmd
+    ];
 
     settings = {
       defaultProvider = "chatGPT";
       defaultModel = "gpt-6-sol";
       defaultThinkingLevel = "max";
+      theme = "github-dark-pro";
       packages = [
+        "npm:pi-compact-tools"
         "npm:pi-web-access"
+        "npm:pi-memory"
         "npm:@juicesharp/rpiv-ask-user-question"
-        "git:github.com/earendil-works/pi-review"
+        "npm:@bacnh85/pi-init"
+        "npm:@inobit/pi-retry"
         {
           source = "git:github.com/shimo4228/search-first";
-          skills = [ "+skills/search-first" ];
+          skills = [ "skills/search-first" ];
         }
         {
           source = "git:github.com/mattpocock/skills";
           skills = [
-            "+skills/engineering/grill-with-docs"
-            "+skills/productivity/grilling"
-            "+skills/productivity/wait-what"
+            "skills/engineering/grill-with-docs"
+            "skills/productivity/grilling"
+            "skills/productivity/wait-what"
           ];
         }
       ];
