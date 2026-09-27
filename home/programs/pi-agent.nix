@@ -7,8 +7,8 @@
     extraPackages = [ pkgs.nodejs ];
 
     settings = {
-      defaultProvider = "sol";
-      defaultModel = "gpt-5.6-sol";
+      defaultProvider = "chatGPT";
+      defaultModel = "gpt-6-sol";
       defaultThinkingLevel = "max";
       packages = [
         "npm:pi-web-access"
@@ -93,20 +93,18 @@
           }
         ];
       };
-      sol = {
+      chatGPT = {
         api = "openai-responses";
         baseUrl = "https://api.like-ai.cc/v1";
         models = [
           {
-            id = "gpt-5.6-sol";
-            name = "GPT-5.6 Sol";
+            id = "gpt-6-sol";
+            name = "GPT-6 Sol";
             reasoning = true;
             input = [
               "text"
               "image"
             ];
-            contextWindow = 272000;
-            maxTokens = 128000;
             thinkingLevelMap = {
               off = "none";
               minimal = null;
@@ -116,6 +114,36 @@
               xhigh = "xhigh";
               max = "max";
             };
+            contextWindow = 272000;
+            maxTokens = 128000;
+            compat = {
+              supportsStrictMode = true;
+              supportsOpenAIGrammarTools = true;
+              supportsAdditionalTools = true;
+              supportsToolSearch = true;
+              supportsMidConvoSystemMessages = true;
+              supportsExplicitPromptCacheMode = true;
+            };
+          }
+          {
+            id = "gpt-6-astra";
+            name = "GPT-6 Astra";
+            reasoning = true;
+            input = [
+              "text"
+              "image"
+            ];
+            thinkingLevelMap = {
+              off = null;
+              minimal = null;
+              low = "low";
+              medium = "medium";
+              high = "high";
+              xhigh = "xhigh";
+              max = "max";
+            };
+            contextWindow = 272000;
+            maxTokens = 128000;
             compat = {
               supportsStrictMode = true;
               supportsOpenAIGrammarTools = true;
@@ -127,20 +155,18 @@
           }
         ];
       };
-      astra = {
-        api = "openai-responses";
-        baseUrl = "https://api.like-ai.cc/v1";
+      claude = {
+        api = "anthropic-messages";
+        baseUrl = "https://api.like-ai.cc";
         models = [
           {
-            id = "gpt-6-astra";
-            name = "GPT-6 Astra";
+            id = "claude-opus-5-5";
+            name = "Claude Opus 5.5";
             reasoning = true;
             input = [
               "text"
               "image"
             ];
-            contextWindow = 272000;
-            maxTokens = 128000;
             thinkingLevelMap = {
               off = null;
               minimal = null;
@@ -150,13 +176,15 @@
               xhigh = "xhigh";
               max = "max";
             };
+            contextWindow = 1000000;
+            maxTokens = 128000;
             compat = {
-              supportsStrictMode = true;
-              supportsOpenAIGrammarTools = true;
-              supportsAdditionalTools = true;
-              supportsToolSearch = true;
+              supportsMidConvoEffort = true;
               supportsMidConvoSystemMessages = true;
-              supportsExplicitPromptCacheMode = true;
+              supportsMidConvoToolChanges = true;
+              forceAdaptiveThinking = true;
+              supportsTemperature = false;
+              supportsStrictTools = true;
             };
           }
         ];

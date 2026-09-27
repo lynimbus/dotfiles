@@ -13,8 +13,9 @@ let
             read_key() {
               ${pkgs.jq}/bin/jq -r ".$1.key // empty" "$auth"
             }
-            export SOL_API_KEY="''${SOL_API_KEY:-$(read_key sol)}"
-            export ASTRA_API_KEY="''${ASTRA_API_KEY:-$(read_key astra)}"
+            export CHAT_GPT_API_KEY="''${CHAT_GPT_API_KEY:-$(read_key chatGPT)}"
+            export CLAUDE_API_KEY="''${CLAUDE_API_KEY:-$(read_key claude)}"
+            export DEEPSEEK_API_KEY="''${DEEPSEEK_API_KEY:-$(read_key deepseek)}"
             export LXII_API_KEY="''${LXII_API_KEY:-$(read_key lxii)}"
           fi
         '
@@ -22,14 +23,14 @@ let
     meta = pkgs.zed-editor.meta;
   };
 
-  solModel = {
-    provider = "sol";
-    model = "gpt-5.6-sol";
+  chatGPTSolModel = {
+    provider = "chatGPT";
+    model = "gpt-6-sol";
     enable_thinking = true;
     effort = "max";
   };
-  astraModel = {
-    provider = "astra";
+  chatGPTAstraModel = {
+    provider = "chatGPT";
     model = "gpt-6-astra";
     enable_thinking = true;
     effort = "max";
@@ -43,6 +44,24 @@ let
   kimiModel = {
     provider = "lxii";
     model = "kimi-k3";
+    enable_thinking = true;
+    effort = "max";
+  };
+  claudeModel = {
+    provider = "claude";
+    model = "claude-opus-5-5";
+    enable_thinking = true;
+    effort = "max";
+  };
+  deepseekOfficialFlashModel = {
+    provider = "deepseek";
+    model = "deepseek-flash";
+    enable_thinking = true;
+    effort = "max";
+  };
+  deepseekOfficialProModel = {
+    provider = "deepseek";
+    model = "deepseek-v4-pro";
     enable_thinking = true;
     effort = "max";
   };
@@ -87,38 +106,36 @@ in
       remove_trailing_whitespace_on_save = false;
       ensure_final_newline_on_save = true;
       agent = {
-        default_model = solModel;
-        subagent_model = solModel;
-        inline_assistant_model = solModel;
-        commit_message_model = solModel;
-        thread_summary_model = solModel;
-        compaction_model = solModel;
+        default_model = chatGPTSolModel;
+        subagent_model = chatGPTSolModel;
+        inline_assistant_model = chatGPTSolModel;
+        commit_message_model = chatGPTSolModel;
+        thread_summary_model = chatGPTSolModel;
+        compaction_model = chatGPTSolModel;
         inline_assistant_use_streaming_tools = true;
         favorite_models = [
-          solModel
-          astraModel
+          chatGPTSolModel
+          chatGPTAstraModel
+          claudeModel
+          deepseekOfficialFlashModel
+          deepseekOfficialProModel
           deepseekModel
           kimiModel
         ];
       };
       language_models = {
         openai_compatible = {
-          sol = {
+          chatGPT = {
             api_url = "https://api.like-ai.cc/v1";
             available_models = [
               {
-                name = "gpt-5.6-sol";
-                display_name = "GPT-5.6 Sol";
+                name = "gpt-6-sol";
+                display_name = "GPT-6 Sol";
                 max_tokens = 272000;
                 max_output_tokens = 128000;
                 reasoning_effort = "max";
                 capabilities = openAiCompatibleCapabilities;
               }
-            ];
-          };
-          astra = {
-            api_url = "https://api.like-ai.cc/v1";
-            available_models = [
               {
                 name = "gpt-6-astra";
                 display_name = "GPT-6 Astra";
@@ -126,6 +143,29 @@ in
                 max_output_tokens = 128000;
                 reasoning_effort = "max";
                 capabilities = openAiCompatibleCapabilities;
+              }
+            ];
+          };
+          deepseek = {
+            api_url = "https://api.deepseek.com";
+            available_models = [
+              {
+                name = "deepseek-flash";
+                display_name = "DeepSeek Flash";
+                max_tokens = 1000000;
+                max_output_tokens = 384000;
+                reasoning_effort = "max";
+                capabilities = chatCompletionsCapabilities;
+              }
+              {
+                name = "deepseek-v4-pro";
+                display_name = "DeepSeek V4 Pro";
+                max_tokens = 1000000;
+                max_output_tokens = 384000;
+                reasoning_effort = "max";
+                capabilities = chatCompletionsCapabilities // {
+                  images = false;
+                };
               }
             ];
           };
@@ -147,6 +187,27 @@ in
                 max_output_tokens = 131072;
                 reasoning_effort = "max";
                 capabilities = chatCompletionsCapabilities;
+              }
+            ];
+          };
+        };
+        anthropic_compatible = {
+          claude = {
+            api_url = "https://api.like-ai.cc";
+            available_models = [
+              {
+                name = "claude-opus-5-5";
+                display_name = "Claude Opus 5.5";
+                max_tokens = 1000000;
+                max_output_tokens = 128000;
+                mode = {
+                  type = "adaptive";
+                };
+                capabilities = {
+                  tools = true;
+                  images = true;
+                  prompt_caching = false;
+                };
               }
             ];
           };
