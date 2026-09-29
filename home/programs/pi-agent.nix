@@ -3,6 +3,7 @@
 {
   programs.pi-coding-agent = {
     enable = true;
+    package = pkgs.pi-coding-agent;
     context = ../pi-agent/AGENTS.md;
     extraPackages = [
       pkgs.nodejs
