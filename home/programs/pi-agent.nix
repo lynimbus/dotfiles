@@ -15,6 +15,9 @@
       defaultModel = "gpt-6-sol";
       defaultThinkingLevel = "max";
       defaultTools = [ "+codemode" ];
+      codemode = {
+        mode = "only";
+      };
       theme = "github-dark-pro";
       packages = [
         "npm:pi-compact-tools"
