@@ -14,6 +14,7 @@
       defaultProvider = "chatGPT";
       defaultModel = "gpt-6-sol";
       defaultThinkingLevel = "max";
+      defaultTools = [ "+codemode" ];
       theme = "github-dark-pro";
       packages = [
         "npm:pi-compact-tools"
