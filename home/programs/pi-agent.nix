@@ -12,7 +12,7 @@
 
     settings = {
       defaultProvider = "chatGPT";
-      defaultModel = "gpt-6-sol";
+      defaultModel = "gpt-6.1-sol";
       defaultThinkingLevel = "max";
       defaultTools = [ "+codemode" ];
       codemode = {
@@ -110,8 +110,8 @@
         baseUrl = "https://api.like-ai.cc/v1";
         models = [
           {
-            id = "gpt-6-sol";
-            name = "GPT-6 Sol";
+            id = "gpt-6.1-sol";
+            name = "GPT-6.1 Sol";
             reasoning = true;
             input = [
               "text"
@@ -119,34 +119,6 @@
             ];
             thinkingLevelMap = {
               off = "none";
-              minimal = null;
-              low = "low";
-              medium = "medium";
-              high = "high";
-              xhigh = "xhigh";
-              max = "max";
-            };
-            contextWindow = 272000;
-            maxTokens = 128000;
-            compat = {
-              supportsStrictMode = true;
-              supportsOpenAIGrammarTools = true;
-              supportsAdditionalTools = true;
-              supportsToolSearch = true;
-              supportsMidConvoSystemMessages = true;
-              supportsExplicitPromptCacheMode = true;
-            };
-          }
-          {
-            id = "gpt-6-astra";
-            name = "GPT-6 Astra";
-            reasoning = true;
-            input = [
-              "text"
-              "image"
-            ];
-            thinkingLevelMap = {
-              off = null;
               minimal = null;
               low = "low";
               medium = "medium";
