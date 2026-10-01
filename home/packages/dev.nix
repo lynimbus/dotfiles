@@ -7,6 +7,7 @@
     go
     android-tools
     python3
+    nodejs
     nil
     nixd
   ];
