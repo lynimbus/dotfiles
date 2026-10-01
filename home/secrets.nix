@@ -1,7 +1,6 @@
 { config, ... }:
 
 {
-  sops.defaultSopsFile = ../secrets/pi-auth.json;
   sops.age.sshKeyPaths = [
     "${config.home.homeDirectory}/.ssh/id_ed25519"
     "${config.home.homeDirectory}/.ssh/id_ed25519_recovery"
@@ -16,11 +15,4 @@
       message = "sops-nix secrets must not overwrite SSH decryption keys.";
     }
   ];
-
-  sops.secrets."pi-auth" = {
-    format = "json";
-    key = "";
-    path = "${config.home.homeDirectory}/.pi/agent/auth.json";
-    mode = "0600";
-  };
 }

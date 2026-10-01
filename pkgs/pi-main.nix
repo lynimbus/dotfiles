@@ -11,9 +11,9 @@
 }:
 
 let
-  rev = "8ce69e9d2b171d173fe4b6b2b6256f1f4411e69d";
-  srcHash = "sha256-b5MCr8kLKJ8uHWWU1UfPsa3CrISNnhepSFZYTadqNfc=";
-  modelHash = "sha256-Cz34eRtIghbzCdkIeJKUp0S7Ybuq0SPZQJjlbflTjSU=";
+  rev = "a276dabe57911253350bffb93cb7d7aff6a73261";
+  srcHash = "sha256-MxAbwskoPqVqcm93WHTLygwSIo+eaC7WTUFMR38wot0=";
+  modelHash = "sha256-85uZwpuFmPF1sQhA5dKoGYPnwM5crk19+DoQB0R9LCs=";
 
   src = fetchFromGitHub {
     owner = "earendil-works";
@@ -34,7 +34,7 @@ buildNpmPackage (finalAttrs: {
   inherit version src modelData;
 
   npmWorkspace = "packages/coding-agent";
-  npmDepsHash = "sha256-eKghIpCAKawZm0Uf2iG6y1fz21Z5jNnMiAFJ5Quj3GI=";
+  npmDepsHash = "sha256-tKEPjULYjz5uKJDiXXpnfHAVs9q68ovj/4R4aeIOBQ0=";
   npmFlags = [ "--legacy-peer-deps" ];
   npmRebuildFlags = [ "--ignore-scripts" ];
   makeCacheWritable = true;

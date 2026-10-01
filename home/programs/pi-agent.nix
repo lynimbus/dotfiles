@@ -1,5 +1,10 @@
-{ pkgs, inputs, ... }:
-
+{
+  pkgs,
+  inputs,
+  lib,
+  config,
+  ...
+}:
 {
   programs.pi-coding-agent = {
     enable = true;
@@ -9,170 +14,60 @@
       pkgs.nodejs
       inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.qmd
     ];
-
-    settings = {
-      defaultProvider = "chatGPT";
-      defaultModel = "gpt-6.1-sol";
-      defaultThinkingLevel = "max";
-      defaultTools = [ "+codemode" ];
-      codemode = {
-        mode = "only";
-      };
-      theme = "github-dark-pro";
-      packages = [
-        "npm:pi-compact-tools"
-        "npm:pi-web-access"
-        "npm:pi-memory"
-        "npm:@juicesharp/rpiv-ask-user-question"
-        "npm:@bacnh85/pi-init"
-        "npm:@inobit/pi-retry"
-        {
-          source = "git:github.com/shimo4228/search-first";
-          skills = [ "skills/search-first" ];
-        }
-        {
-          source = "git:github.com/mattpocock/skills";
-          skills = [
-            "skills/engineering/grill-with-docs"
-            "skills/productivity/grilling"
-            "skills/productivity/wait-what"
-          ];
-        }
-      ];
-    };
-
-    models.providers = {
-      lxii = {
-        api = "openai-completions";
-        baseUrl = "https://sub2.lxii.cc/v1";
-        models = [
-          {
-            id = "deepseek-v4.1-flash";
-            name = "DeepSeek V4.1 Flash";
-            reasoning = true;
-            input = [
-              "text"
-              "image"
-            ];
-            contextWindow = 1000000;
-            maxTokens = 384000;
-            thinkingLevelMap = {
-              off = null;
-              minimal = null;
-              low = "low";
-              medium = null;
-              high = "high";
-              xhigh = null;
-              max = "max";
-            };
-            compat = {
-              supportsStore = false;
-              supportsDeveloperRole = false;
-              supportsReasoningEffort = true;
-              maxTokensField = "max_tokens";
-              requiresReasoningContentOnAssistantMessages = true;
-            };
-          }
-          {
-            id = "kimi-k3";
-            name = "Kimi K3";
-            reasoning = true;
-            input = [
-              "text"
-              "image"
-            ];
-            contextWindow = 1048576;
-            maxTokens = 131072;
-            thinkingLevelMap = {
-              off = "none";
-              minimal = null;
-              low = "low";
-              medium = null;
-              high = "high";
-              xhigh = null;
-              max = "max";
-            };
-            compat = {
-              supportsStore = false;
-              supportsDeveloperRole = false;
-              supportsReasoningEffort = true;
-              maxTokensField = "max_tokens";
-              supportsStrictMode = false;
-              requiresReasoningContentOnAssistantMessages = true;
-              supportsMidConvoSystemMessages = true;
-              supportsMidConvoToolAdditions = true;
-            };
-          }
-        ];
-      };
-      chatGPT = {
-        api = "openai-responses";
-        baseUrl = "https://api.like-ai.cc/v1";
-        models = [
-          {
-            id = "gpt-6.1-sol";
-            name = "GPT-6.1 Sol";
-            reasoning = true;
-            input = [
-              "text"
-              "image"
-            ];
-            thinkingLevelMap = {
-              off = "none";
-              minimal = null;
-              low = "low";
-              medium = "medium";
-              high = "high";
-              xhigh = "xhigh";
-              max = "max";
-            };
-            contextWindow = 272000;
-            maxTokens = 128000;
-            compat = {
-              supportsStrictMode = true;
-              supportsOpenAIGrammarTools = true;
-              supportsAdditionalTools = true;
-              supportsToolSearch = true;
-              supportsMidConvoSystemMessages = true;
-              supportsExplicitPromptCacheMode = true;
-            };
-          }
-        ];
-      };
-      claude = {
-        api = "anthropic-messages";
-        baseUrl = "https://api.like-ai.cc";
-        models = [
-          {
-            id = "claude-opus-5-5";
-            name = "Claude Opus 5.5";
-            reasoning = true;
-            input = [
-              "text"
-              "image"
-            ];
-            thinkingLevelMap = {
-              off = null;
-              minimal = null;
-              low = "low";
-              medium = "medium";
-              high = "high";
-              xhigh = "xhigh";
-              max = "max";
-            };
-            contextWindow = 1000000;
-            maxTokens = 128000;
-            compat = {
-              supportsMidConvoEffort = true;
-              supportsMidConvoSystemMessages = true;
-              supportsMidConvoToolChanges = true;
-              forceAdaptiveThinking = true;
-              supportsTemperature = false;
-              supportsStrictTools = true;
-            };
-          }
-        ];
-      };
-    };
+    # Magpie owns the writable provider catalog and model selection.
+    settings = { };
+    models = { };
   };
+  home.packages = [ pkgs.magpie ];
+
+  # Keep a stable, user-writable entry point for Magpie's own updater and
+  # autostart record. The actual binary lives under XDG_DATA_HOME and is
+  # seeded by the FHS launcher on first use.
+  home.file.".local/bin/magpie".source = "${pkgs.magpie}/bin/magpie";
+  home.file.".local/share/applications/magpie.desktop".text = ''
+    [Desktop Entry]
+    Type=Application
+    Name=Magpie
+    Comment=Every agent's model. One place.
+    Exec=${config.home.homeDirectory}/.local/bin/magpie %u
+    Icon=applications-development
+    Categories=Development;Utility;
+    MimeType=x-scheme-handler/magpie;
+    Terminal=false
+  '';
+
+  # Magpie owns its GUI, gateway and XDG autostart entry. Migrate the old
+  # Nix-managed gateway once, then leave the app's startup preference alone.
+  # systemd's XDG autostart generator turns that file into a user service.
+  home.activation.magpieAutostart = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    marker="$HOME/.local/state/magpie/nix-autostart-initialized"
+    if [ ! -e "$marker" ]; then
+      systemctl --user disable --now magpie-gateway.service >/dev/null 2>&1 || true
+      if [ ! -e "$HOME/.config/autostart/magpie.desktop" ]; then
+        run ${pkgs.magpie}/bin/magpie autostart on
+      fi
+      run mkdir -p "$(dirname "$marker")"
+      run touch "$marker"
+    fi
+  '';
+  # Detach before linkGeneration removes obsolete Home Manager links.
+  # Preserve non-model preferences and never touch auth.json.
+  home.activation.detachPiMagpieConfig =
+    lib.hm.dag.entryBetween [ "linkGeneration" ] [ "writeBoundary" ]
+      ''
+        pi_dir="$HOME/.pi/agent"
+        run mkdir -p "$pi_dir"
+        for file in settings.json models.json; do
+          path="$pi_dir/$file"
+          if [ -L "$path" ]; then
+            tmp="$path.tmp.$$"
+            case "$(readlink "$path")" in
+              /nix/store/*)
+                run install -m 0600 "$path" "$tmp"
+                run mv -T "$tmp" "$path"
+                ;;
+            esac
+          fi
+        done
+      '';
 }

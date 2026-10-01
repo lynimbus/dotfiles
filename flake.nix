@@ -51,6 +51,7 @@
         zed-editor = p.callPackage ./pkgs/zed-prebuilt.nix { };
         qingjian = p.callPackage ./pkgs/qingjian/package.nix { };
         pi-coding-agent = p.callPackage ./pkgs/pi-main.nix { };
+        magpie = p.callPackage ./pkgs/magpie.nix { };
       };
 
       localOverlay = final: _prev: mkLocalPkgs final;
@@ -60,10 +61,28 @@
 
       apps.${system}.update-pkgs =
         let
+          # `nix-update` evaluates packages with `nix-instantiate --eval`, which
+          # implies `--readonly-mode`: derivations are not written to the store,
+          # so import-from-derivation cannot instantiate its sources and aborts
+          # with: error: path '<hash>-source.drv' is not valid
+          # pkgs/pi-main.nix reads its version from the fetched source, so give
+          # nix-update a nix whose nix-instantiate evaluates read-write.
+          nix-read-write = pkgs.symlinkJoin {
+            name = "nix-read-write";
+            paths = [ pkgs.nix ];
+            nativeBuildInputs = [ pkgs.makeWrapper ];
+            postBuild = ''
+              rm -f $out/bin/nix-instantiate
+              makeWrapper ${pkgs.lib.getExe' pkgs.nix "nix-instantiate"} \
+                $out/bin/nix-instantiate --add-flags --read-write-mode
+            '';
+          };
+          nix-update = pkgs.nix-update.override { nix = nix-read-write; };
+
           script = pkgs.writeShellApplication {
             name = "update-pkgs";
             runtimeInputs = [
-              pkgs.nix-update
+              nix-update
               pkgs.git
               pkgs.nix
             ];
@@ -80,6 +99,7 @@
               nix-update --flake --version=branch \
                 --custom-dep data \
                 qingjian
+
             '';
           };
         in
