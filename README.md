@@ -47,7 +47,7 @@ secrets/pi-auth.json
 secrets/ssh-id_ed25519
 ```
 
-恢复时不要重新生成 `flake.lock`，这样可以尽量还原原来的软件版本。
+恢复时不要重新生成 `flake.lock`，并保留 `pkgs/*.nix` 中记录的版本和 hash，这样可以尽量还原原来的软件版本。
 
 ### 2. 备份 SSH 私钥
 
@@ -296,6 +296,24 @@ ssh -T git@github.com
 如果只是更新软件或 Nix 配置，不要重新生成硬件配置，也不要修改两个 `stateVersion`。如果只是恢复同一台机器，保留现有的 `flake.lock`。
 
 ## 日常使用
+
+本地包的版本、上游源码和固定输出 hash 统一维护在 `pkgs/*.nix` 中；`nix flake update` 只更新 flake 输入。日常完整更新后只检查，不直接切换系统：
+
+```fish
+just update
+```
+
+确认后再手动切换：
+
+```fish
+just switch
+```
+
+如果仍想沿用以前“更新并立即切换”的行为，可以显式运行：
+
+```fish
+just update-switch
+```
 
 修改普通配置后：
 

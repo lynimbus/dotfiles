@@ -14,9 +14,8 @@ let
   rev = "c08ae57cb88b6a4a46f4a5e9c1d6d11c5e69222e";
   srcHash = "sha256-OulZ8oizG1XzDGX4FCZxlS5Qe3ss73isoyXPgGQIeKY=";
   cargoHash = "sha256-sLU+ReJ/gbekiW+fa8ilQbVZ17KMyla5sc1EKy7OuaA=";
-  dataTag = "data-v2";
-  dataHash = "sha256-TVn9s/goCXNr7r4jtCzsKD/9h/ao8CQ7lSkcRg8fDKo=";
-  modelHash = "sha256-7tW9C9oMe9i0PRrLLcRnjUu+KVvUeysNTurOCvna/00=";
+  dataTag = "data-v3";
+  dataHash = "sha256-Qq0I+y/p9JfAqxkcEg8FOG9q3MnXE8MoMgCq7WkOYvM=";
 
   src = fetchFromGitHub {
     owner = "qingjian-team";
@@ -29,17 +28,16 @@ let
     url = "https://github.com/qingjian-team/qingjian/releases/download/${dataTag}/qingjian-data.tar.gz";
     hash = dataHash;
   };
-
-  model = fetchurl {
-    url = "https://github.com/qingjian-team/qingjian/releases/download/${dataTag}/model.qjm";
-    hash = modelHash;
-  };
 in
 rustPlatform.buildRustPackage {
   pname = "qingjian";
   version = "0.1.3-unstable-${lib.substring 0 8 rev}";
 
-  inherit src cargoHash;
+  inherit
+    src
+    cargoHash
+    data
+    ;
 
   cargoBuildFlags = [
     "-p"
@@ -75,9 +73,8 @@ rustPlatform.buildRustPackage {
     install -Dm644 assets/icon/logo.png $out/share/icons/hicolor/128x128/apps/qingjian.png
 
     res=$out/share/qingjian/resources
-    mkdir -p $res/data/generated $res/data/model $res/assets
-    tar -xzf ${data} -C $res/data/generated --exclude='._*'
-    install -Dm644 ${model} $res/data/model/model.qjm
+    mkdir -p $res $res/assets
+    tar -xzf ${data} -C $res --exclude='._*'
     cp -r assets/emoji assets/levels assets/glossary assets/sample $res/assets/
 
     runHook postInstall

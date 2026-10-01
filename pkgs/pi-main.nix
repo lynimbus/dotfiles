@@ -1,31 +1,43 @@
 {
   lib,
   buildNpmPackage,
+  fetchFromGitHub,
   fetchurl,
   fd,
   makeBinaryWrapper,
   ripgrep,
-  src,
   writableTmpDirAsHomeHook,
   versionCheckHook,
 }:
+
 let
+  rev = "8ce69e9d2b171d173fe4b6b2b6256f1f4411e69d";
+  srcHash = "sha256-b5MCr8kLKJ8uHWWU1UfPsa3CrISNnhepSFZYTadqNfc=";
+  modelHash = "sha256-Cz34eRtIghbzCdkIeJKUp0S7Ybuq0SPZQJjlbflTjSU=";
+
+  src = fetchFromGitHub {
+    owner = "earendil-works";
+    repo = "pi";
+    inherit rev;
+    hash = srcHash;
+  };
+
   version = (lib.importJSON "${src}/packages/coding-agent/package.json").version;
+
+  modelData = fetchurl {
+    url = "https://registry.npmjs.org/@earendil-works/pi-ai/-/pi-ai-${version}.tgz";
+    hash = modelHash;
+  };
 in
 buildNpmPackage (finalAttrs: {
   pname = "pi-coding-agent";
-  inherit version src;
+  inherit version src modelData;
 
   npmWorkspace = "packages/coding-agent";
   npmDepsHash = "sha256-eKghIpCAKawZm0Uf2iG6y1fz21Z5jNnMiAFJ5Quj3GI=";
   npmFlags = [ "--legacy-peer-deps" ];
   npmRebuildFlags = [ "--ignore-scripts" ];
   makeCacheWritable = true;
-
-  modelData = fetchurl {
-    url = "https://registry.npmjs.org/@earendil-works/pi-ai/-/pi-ai-${version}.tgz";
-    hash = "sha256-Cz34eRtIghbzCdkIeJKUp0S7Ybuq0SPZQJjlbflTjSU=";
-  };
 
   preConfigure = ''
     mkdir -p packages/ai/src/providers/data
