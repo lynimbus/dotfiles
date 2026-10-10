@@ -1,6 +1,18 @@
-{ email, username, ... }:
+{
+  config,
+  email,
+  username,
+  pkgs,
+  ...
+}:
 
 {
+  home.packages = with pkgs; [
+    meld
+    difftastic
+    delta
+  ];
+
   programs.jujutsu = {
     enable = true;
     settings = {
@@ -13,7 +25,16 @@
       ui = {
         default-command = "log";
         editor = "nvim";
+        diff-formatter = "difft";
+        diff-editor = ":builtin";
+        merge-editor = "meld";
       };
+      aliases.delta = [
+        "diff"
+        "--git"
+        "--config"
+        "ui.pager=[\"delta\", \"--navigate\"]"
+      ];
       revset-aliases = {
         "immutable_heads()" = "untracked_remote_bookmarks()";
       };
