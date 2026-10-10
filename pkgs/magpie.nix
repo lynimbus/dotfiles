@@ -20,9 +20,9 @@
   # the binary, and `just bump magpie` (nix-update) moves the version, the
   # asset hash and the tree hash in lockstep (`--custom-dep upstream`
   # handles the tree).
-  version ? "0.1.2226",
-  hash ? "sha256-lYuu5Uu+c7FrQAqWc7lPs482uiEeNIspHDZzBb6dn3Y=",
-  upstreamHash ? "sha256-S62PUuyj2087Ex41ZHcxIM9haXrcaxUd9vazGByvFyY=",
+  version ? "0.1.2433",
+  hash ? "sha256-aU9RS3m+SVupChR4PnyYI80oWkIkIfs3y5bU0766hQE=",
+  upstreamHash ? "sha256-sn3M5FMVXHFKkabP6t43P8frdZ9XBkPBaeUZBPHdxxc=",
 }:
 
 let
