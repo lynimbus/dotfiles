@@ -29,6 +29,16 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    sing-box-flake = {
+      url = "github:rxda/sing-box-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    sing-box-reF1nd-flake = {
+      url = "github:lynimbus/sing-box-reF1nd-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     mac-style-plymouth = {
       url = "github:SergioRibera/s4rchiso-plymouth-theme";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -50,6 +60,23 @@
 
       localOverlay = final: _prev: {
         zed-editor = final.callPackage ./pkgs/zed-prebuilt.nix { };
+
+        strata = final.callPackage ./pkgs/strata.nix { };
+        strata-portal = final.callPackage ./pkgs/strata-portal.nix { };
+        strata-file-manager = final.callPackage ./pkgs/strata-file-manager.nix { };
+
+        sing-box-reF1nd =
+          let
+            pkg = inputs.sing-box-reF1nd-flake.packages.${system}.default;
+          in
+          final.symlinkJoin {
+            name = "sing-box-reF1nd";
+            paths = [ pkg ];
+            postBuild = ''
+              mv "$out/bin/sing-box" "$out/bin/sing-box-reF1nd"
+              rm -rf "$out/share" "$out/lib/systemd"
+            '';
+          };
       };
     in
     {
