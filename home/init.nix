@@ -20,6 +20,5 @@
     ./desktop/niri/default.nix
     ./desktop/noctalia/default.nix
     ./programs/ghostty.nix
-    ./desktop/hypridle.nix
   ];
 }
