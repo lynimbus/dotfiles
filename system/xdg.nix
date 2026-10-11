@@ -24,6 +24,7 @@
 
   systemd.user.services.xdg-desktop-portal = {
     overrideStrategy = "asDropin";
+    enableDefaultPath = false;
     after = [
       "xdg-desktop-portal-gtk.service"
       "xdg-desktop-portal-gnome.service"
