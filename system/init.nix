@@ -13,8 +13,6 @@
     ./users.nix
     ./nix.nix
     ./packages.nix
-    ./desktop-plasma.nix
-    ./desktop-sddm.nix
     ./desktop-niri.nix
     ./xdg.nix
   ];
