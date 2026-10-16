@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ inputs, pkgs, ... }:
 
 {
   home.packages = with pkgs; [
@@ -15,5 +15,6 @@
     libnotify
     gvfs
     strata
+    inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-desktop
   ];
 }
