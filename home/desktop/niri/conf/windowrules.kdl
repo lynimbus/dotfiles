@@ -2,9 +2,23 @@
 // Find more information on the wiki:
 // https://yalter.github.io/niri/Configuration:-Window-Rules
 
+// Floating terminal (Mod+Shift+Return) - opens on the active workspace
+window-rule {
+    match app-id="^com[.]mitchellh[.]ghostty[.]float$"
+    open-floating true
+    open-maximized false
+    default-floating-position x=0 y=60 relative-to="top"
+    default-column-width { fixed 800; }
+    default-window-height { fixed 520; }
+    background-effect {
+        blur true
+    }
+}
+
 // Terminal applications - open in workspace 1, with blur
 window-rule {
     match app-id="com.mitchellh.ghostty"
+    exclude app-id="[.]float$"
     open-on-workspace "1terminal"
     open-maximized true
     background-effect {
