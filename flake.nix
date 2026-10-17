@@ -66,6 +66,10 @@
       localOverlay = final: _prev: {
         zed-editor = final.callPackage ./pkgs/zed-prebuilt.nix { };
 
+        claude-desktop-zh = final.callPackage ./pkgs/claude-desktop-zh.nix {
+          claude-desktop = inputs.llm-agents.packages.${system}.claude-desktop;
+        };
+
         strata = final.callPackage ./pkgs/strata.nix { };
         strata-portal = final.callPackage ./pkgs/strata-portal.nix { };
         strata-file-manager = final.callPackage ./pkgs/strata-file-manager.nix { };
