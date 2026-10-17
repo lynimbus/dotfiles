@@ -18,5 +18,6 @@
     wechat-uos
     strata
     claude-desktop-zh
+    folia-major
   ];
 }
