@@ -48,6 +48,21 @@
       url = "github:SergioRibera/s4rchiso-plymouth-theme";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    zed-bin = {
+      url = "https://zed.dev/api/releases/preview/latest/zed-linux-x86_64.tar.gz";
+      flake = false;
+    };
+
+    strata-release = {
+      url = "https://github.com/lgse/strata/releases/latest/download/strata-update-manifest.json";
+      flake = false;
+    };
+
+    claude-desktop-zh-src = {
+      url = "github:javaht/claude-desktop-zh-cn";
+      flake = false;
+    };
   };
 
   outputs =
@@ -64,13 +79,18 @@
       email = "128837704+lynimbus@users.noreply.github.com";
 
       localOverlay = final: _prev: {
-        zed-editor = final.callPackage ./pkgs/zed-prebuilt.nix { };
+        zed-editor = final.callPackage ./pkgs/zed-prebuilt.nix {
+          src = inputs.zed-bin;
+        };
 
         claude-desktop-zh = final.callPackage ./pkgs/claude-desktop-zh.nix {
           claude-desktop = inputs.llm-agents.packages.${system}.claude-desktop;
+          translations = inputs.claude-desktop-zh-src;
         };
 
-        strata = final.callPackage ./pkgs/strata.nix { };
+        strata = final.callPackage ./pkgs/strata.nix {
+          release = inputs.strata-release;
+        };
         strata-portal = final.callPackage ./pkgs/strata-portal.nix { };
         strata-file-manager = final.callPackage ./pkgs/strata-file-manager.nix { };
 
