@@ -17,5 +17,6 @@
     strata
     claude-desktop-zh
     folia-major
+    obs-studio
   ];
 }
