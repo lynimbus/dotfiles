@@ -16,5 +16,6 @@
     gvfs
     strata
     claude-desktop-zh
+    folia-major
   ];
 }
