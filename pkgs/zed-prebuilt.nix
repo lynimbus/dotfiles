@@ -1,7 +1,6 @@
 {
   lib,
   stdenv,
-  fetchzip,
   autoPatchelfHook,
   libgcc,
   alsa-lib,
@@ -13,20 +12,22 @@
   mesa,
   libxrandr,
   libva,
+  src,
 }:
 
 let
-  ver = "1.24.1-pre";
-  zipHash = "sha256-7rUqGxOcNYmqJ2IU7U98dL8gAAB0qdjLaKTcC9Er984=";
+  # The bundle carries no version metadata, so derive it from what `nix flake
+  # update` locked. The URL is a rolling "preview/latest" redirect, so several
+  # builds can share a day; minute precision keeps them distinguishable.
+  version =
+    let
+      stamp = src.lastModifiedDate or (toString (src.lastModified or 0));
+    in
+    "preview-${builtins.substring 0 12 stamp}";
 in
 stdenv.mkDerivation {
   pname = "zed-prebuilt";
-  version = ver;
-
-  src = fetchzip {
-    url = "https://github.com/zed-industries/zed/releases/download/v${ver}/zed-linux-x86_64.tar.gz";
-    hash = zipHash;
-  };
+  inherit version src;
 
   nativeBuildInputs = [ autoPatchelfHook ];
 
@@ -57,18 +58,13 @@ stdenv.mkDerivation {
   installPhase = ''
     runHook preInstall
     mkdir -p "$out"
-    if [ -d zed-linux-x86_64 ]; then
-      cp -r zed-linux-x86_64/. "$out/"
-    else
-      cp -r . "$out/"
-    fi
-    ln -s "$out/bin/zed" "$out/bin/zeditor"
+    cp -r . "$out/"
     runHook postInstall
   '';
 
   meta = {
     mainProgram = "zed";
-    description = "Zed editor (official prebuilt v${ver})";
+    description = "Zed editor (official preview build)";
     homepage = "https://zed.dev";
     license = lib.licenses.gpl3Only;
     platforms = [ "x86_64-linux" ];
