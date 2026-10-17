@@ -17,6 +17,6 @@
     qq
     wechat-uos
     strata
-    inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-desktop
+    claude-desktop-zh
   ];
 }
