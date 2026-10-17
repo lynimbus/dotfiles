@@ -1,7 +1,6 @@
 {
   lib,
   rustPlatform,
-  fetchFromGitHub,
   pkg-config,
   wrapGAppsHook4,
   glib,
@@ -21,10 +20,11 @@
   imagemagick,
   squashfsTools,
   runCommand,
+  src,
 }:
 
 let
-  version = "1.0.0";
+  version = (builtins.fromTOML (builtins.readFile "${src}/Cargo.toml")).package.version;
 
   sandboxTools = [
     bash
@@ -55,17 +55,13 @@ rustPlatform.buildRustPackage (finalAttrs: {
   pname = "strata";
   version = version;
 
-  src = fetchFromGitHub {
-    owner = "lgse";
-    repo = "strata";
-    rev = "0a086aa3bdb251842a1e8413e2a6b35970d0b409";
-    hash = "sha256-dFNsFCnkeZs0VwmYRyu+6Jh8XxJzv+agUlP70Fdxa5Q=";
-  };
+  inherit src;
 
-  cargoHash = "sha256-vuhHierqb4WsMdg890NpkaztYnfsnck2FxMz5cPMwCQ=";
+  # The lockfile ships no git dependencies, so vendoring needs no outputHashes.
+  cargoLock.lockFile = "${src}/Cargo.lock";
 
   env = {
-    STRATA_BUILD_COMMIT = finalAttrs.src.rev;
+    STRATA_BUILD_COMMIT = finalAttrs.src.rev or "";
     STRATA_RELEASE_TAG = "v${version}";
     STRATA_BUILD_KIND = "stable";
     STRATA_SANDBOX_ROOT = "/nix/store";
