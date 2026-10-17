@@ -63,6 +63,8 @@
       url = "github:javaht/claude-desktop-zh-cn";
       flake = false;
     };
+
+    noctalia.url = "github:noctalia-dev/noctalia/cachix";
   };
 
   outputs =
