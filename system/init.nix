@@ -10,6 +10,7 @@
     ./input-method.nix
     ./audio.nix
     ./hardware.nix
+    ./ollama.nix
     ./users.nix
     ./nix.nix
     ./packages.nix
