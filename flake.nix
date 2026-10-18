@@ -69,6 +69,11 @@
       flake = false;
     };
 
+    rtk-release = {
+      url = "https://api.github.com/repos/rtk-ai/rtk/releases/latest";
+      flake = false;
+    };
+
     mangowm = {
       url = "github:mangowm/mango";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -102,6 +107,10 @@
 
         pi-agent-desktop = final.callPackage ./pkgs/pi-agent-desktop.nix {
           releaseManifest = inputs.pi-agent-release;
+        };
+
+        rtk = final.callPackage ./pkgs/rtk.nix {
+          releaseManifest = inputs.rtk-release;
         };
 
         pi-coding-agent = final.callPackage ./pkgs/pi-coding-agent.nix { };
