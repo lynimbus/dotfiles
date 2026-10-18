@@ -148,6 +148,9 @@ mode = "dark"
 source = "wallpaper"
 wallpaper_scheme = "m3-content"
 
+[theme.templates]
+builtin_ids = ["mango"]
+
 [theme.templates.user.nyxniri_gtk3]
 index = 3
 input_path = "$XDG_CONFIG_HOME/noctalia/templates/gtk-3.0.css"
