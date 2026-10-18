@@ -95,6 +95,10 @@
           translations = inputs.claude-desktop-zh-src;
         };
 
+        magpie = final.callPackage ./pkgs/magpie.nix {
+          upstream = inputs.magpie-flake.packages.${system}.magpie;
+        };
+
         strata = final.callPackage ./pkgs/strata.nix {
           release = inputs.strata-release;
         };
