@@ -64,6 +64,11 @@
       flake = false;
     };
 
+    mangowm = {
+      url = "github:mangowm/mango";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     noctalia.url = "github:noctalia-dev/noctalia/cachix";
   };
 
@@ -118,6 +123,7 @@
             nixpkgs.overlays = [ localOverlay ];
           }
           inputs.nixos-hardware.nixosModules.mechrevo-gm5hg0a
+          inputs.mangowm.nixosModules.mango
           ./system/init.nix
           home-manager.nixosModules.home-manager
           {

@@ -17,6 +17,7 @@
     ./audio/rnnoise.nix
     ./programs/pi-agent.nix
     ./desktop/niri/default.nix
+    ./desktop/mango/default.nix
     ./desktop/noctalia/default.nix
     ./programs/ghostty.nix
   ];
