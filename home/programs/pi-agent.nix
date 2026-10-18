@@ -23,10 +23,7 @@ in
 {
   programs.pi-coding-agent = {
     enable = true;
-    extraPackages = with pkgs; [
-      nodejs
-      rtk
-    ];
+    package = pkgs.pi-coding-agent;
   };
 
   home.activation.piSettingsMerge = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
