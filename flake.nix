@@ -104,6 +104,8 @@
           releaseManifest = inputs.pi-agent-release;
         };
 
+        pi-coding-agent = final.callPackage ./pkgs/pi-coding-agent.nix { };
+
         magpie = final.callPackage ./pkgs/magpie.nix {
           upstream = inputs.magpie-flake.packages.${system}.magpie;
         };
