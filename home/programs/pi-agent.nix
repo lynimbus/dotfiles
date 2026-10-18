@@ -26,6 +26,8 @@ in
     package = pkgs.pi-coding-agent;
   };
 
+  home.file.".pi/agent/skills/commit-style/SKILL.md".source = ../../docs/skills/commit-style.md;
+
   home.activation.piSettingsMerge = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     target="$HOME/.pi/agent/settings.json"
     if [ -f "$target" ]; then
