@@ -1,4 +1,3 @@
-{ inputs, ... }:
 {
   imports = [
     ./secrets.nix
@@ -16,6 +15,7 @@
     ./programs/zoxide.nix
     ./audio/rnnoise.nix
     ./programs/pi-agent.nix
+    ./programs/magpie.nix
     ./desktop/niri/default.nix
     ./desktop/mango/default.nix
     ./desktop/noctalia/default.nix
