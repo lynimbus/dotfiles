@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# git commit-msg 钩子：把提交信息交给 docs/lint-commit-message.sh 校验。
+# 安装: just lint-hook    移除: rm .git/hooks/commit-msg
+
+set -u
+
+if ! command -v jj >/dev/null 2>&1; then
+	exec "$(dirname "$0")/../../docs/lint-commit-message.sh" "$1"
+fi
+
+# jj describe 直接写 change，不经过 git 钩子，这里只是尽力而为；真正的把关靠 just lint-msg。
+if [ -d "$(git rev-parse --git-dir)/../.jj" ]; then
+	printf '提示：本仓库由 jj 驱动，jj describe 绕开 git 钩子，请用 just lint-msg 校验\n' >&2
+fi
+
+exec "$(dirname "$0")/../../docs/lint-commit-message.sh" "$1"
