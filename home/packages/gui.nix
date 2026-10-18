@@ -18,6 +18,7 @@
     wechat-uos
     strata
     claude-desktop-zh
+    pi-agent-desktop
     folia-major
     obs-studio
   ];
