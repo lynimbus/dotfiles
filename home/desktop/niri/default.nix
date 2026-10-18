@@ -32,10 +32,10 @@ in
   systemd.user.services.pyclipsync = {
     Unit = {
       Description = "Wayland <-> X11 clipboard sync (pyclipsync)";
-      After = [ "graphical-session.target" ];
+      After = [ "niri.service" ];
       PartOf = [ "graphical-session.target" ];
     };
-    Install.WantedBy = [ "graphical-session.target" ];
+    Install.WantedBy = [ "niri.service" ];
     Service = {
       ExecStart = "${
         inputs.pyclipsync.packages.${pkgs.stdenv.hostPlatform.system}.pyclipsync

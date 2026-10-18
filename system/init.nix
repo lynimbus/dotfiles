@@ -15,6 +15,7 @@
     ./nix.nix
     ./packages.nix
     ./desktop-niri.nix
+    ./desktop-mango.nix
     ./xdg.nix
   ];
 
