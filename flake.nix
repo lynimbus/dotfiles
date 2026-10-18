@@ -161,5 +161,18 @@
       };
 
       formatter.${system} = nixpkgs.legacyPackages.${system}.nixfmt-tree;
+
+      checks.${system}.commit-style =
+        nixpkgs.legacyPackages.${system}.runCommandLocal "commit-style"
+          {
+            nativeBuildInputs = [ nixpkgs.legacyPackages.${system}.bash ];
+          }
+          ''
+            export HOME=$TMPDIR
+            cp -r ${./docs} docs
+            chmod +x docs/lint-commit-message.sh docs/lint-commit-message.test.sh
+            bash docs/lint-commit-message.test.sh
+            touch $out
+          '';
     };
 }
