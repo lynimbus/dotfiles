@@ -13,6 +13,7 @@
     ./programs/ssh.nix
     ./programs/direnv.nix
     ./programs/zoxide.nix
+    ./programs/hourly-chime.nix
     ./audio/rnnoise.nix
     ./programs/pi-agent.nix
     ./programs/magpie.nix
