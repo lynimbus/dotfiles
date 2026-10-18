@@ -64,6 +64,11 @@
       flake = false;
     };
 
+    pi-agent-release = {
+      url = "https://api.github.com/repos/abcwyc/pi-agent-desktop/releases/latest";
+      flake = false;
+    };
+
     mangowm = {
       url = "github:mangowm/mango";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -93,6 +98,10 @@
         claude-desktop-zh = final.callPackage ./pkgs/claude-desktop-zh.nix {
           claude-desktop = inputs.llm-agents.packages.${system}.claude-desktop;
           translations = inputs.claude-desktop-zh-src;
+        };
+
+        pi-agent-desktop = final.callPackage ./pkgs/pi-agent-desktop.nix {
+          releaseManifest = inputs.pi-agent-release;
         };
 
         magpie = final.callPackage ./pkgs/magpie.nix {
