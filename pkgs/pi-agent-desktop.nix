@@ -11,6 +11,7 @@
   libsoup_3,
   webkitgtk_4_1,
   releaseManifest,
+  rtk,
 }:
 
 let
@@ -59,6 +60,10 @@ stdenv.mkDerivation {
 
   dontConfigure = true;
   dontBuild = true;
+
+  preFixup = ''
+    gappsWrapperArgs+=(--prefix PATH : ${lib.makeBinPath [ rtk ]})
+  '';
 
   installPhase = ''
     runHook preInstall
