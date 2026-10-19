@@ -27,8 +27,6 @@ in
   wayland.windowManager.mango.enable = true;
 
   xdg.configFile = {
-    "mango/screenshot.sh".source = repoFile "screenshot.sh";
-
     "systemd/user/mango-session.target.wants/xdg-desktop-autostart.target".source =
       mkSymlink "/etc/systemd/user/xdg-desktop-autostart.target";
   }
