@@ -5,6 +5,9 @@
   jq,
   perl,
   qemu,
+  bubblewrap,
+  socat,
+  ripgrep,
   claude-desktop,
   translations,
 }:
@@ -82,7 +85,17 @@ let
         # against, not the pkgs the FHS shell sees, so a second nixpkgs
         # instance never gets pulled in, and keep it inside the FHS
         # environment so the host stays free of an unused copy.
-        ++ [ qemu ];
+        #
+        # The sandbox resolves its other dependencies the same way: bwrap
+        # creates the namespace, socat bridges the network proxy it
+        # installs, and ripgrep backs file search. All three have to sit on
+        # the PATH the app hands to the tools that run code.
+        ++ [
+          qemu
+          bubblewrap
+          socat
+          ripgrep
+        ];
       extraInstallCommands = lib.replaceStrings [ "${claude-desktop.unwrapped}" ] [ "${patched}" ] (
         upstreamArgs.extraInstallCommands or ""
       );
