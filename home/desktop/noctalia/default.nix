@@ -1,8 +1,23 @@
-{ inputs, config, ... }:
+{
+  inputs,
+  config,
+  repoRoot,
+  ...
+}:
 
 let
-  repoPath = "${config.home.homeDirectory}/nixos/home/desktop/noctalia";
   mkSymlink = config.lib.file.mkOutOfStoreSymlink;
+
+  repoFile = path: mkSymlink "${repoRoot}/home/desktop/noctalia/${path}";
+
+  linkFiles =
+    dir: files:
+    builtins.listToAttrs (
+      map (file: {
+        name = "noctalia/${dir}/${file}";
+        value.source = repoFile "${dir}/${file}";
+      }) files
+    );
 in
 {
   imports = [
@@ -14,10 +29,10 @@ in
     settings = ./config.toml;
   };
 
-  xdg.configFile = {
-    "noctalia/templates/gtk-3.0.css".source = mkSymlink "${repoPath}/templates/gtk-3.0.css";
-    "noctalia/templates/gtk-4.0.css".source = mkSymlink "${repoPath}/templates/gtk-4.0.css";
-    "noctalia/templates/mango.conf".source = mkSymlink "${repoPath}/templates/mango.conf";
-    "noctalia/templates/fcitx5".source = mkSymlink "${repoPath}/templates/fcitx5";
-  };
+  xdg.configFile = linkFiles "templates" [
+    "gtk-3.0.css"
+    "gtk-4.0.css"
+    "mango.conf"
+    "fcitx5"
+  ];
 }

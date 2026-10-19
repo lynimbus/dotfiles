@@ -1,8 +1,8 @@
-{ username, ... }:
+{ username, homeDirectory, ... }:
 
 {
   home.username = username;
-  home.homeDirectory = "/home/${username}";
+  home.homeDirectory = homeDirectory;
   home.stateVersion = "26.05";
 
   services.polkit-gnome.enable = true;
