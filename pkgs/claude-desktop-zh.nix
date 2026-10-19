@@ -4,6 +4,7 @@
   runCommandLocal,
   jq,
   perl,
+  qemu,
   claude-desktop,
   translations,
 }:
@@ -76,7 +77,12 @@ let
       inherit (claude-desktop) pname version meta;
       targetPkgs =
         pkgs:
-        map (pkg: if pkg == claude-desktop.unwrapped then patched else pkg) (upstreamArgs.targetPkgs pkgs);
+        map (pkg: if pkg == claude-desktop.unwrapped then patched else pkg) (upstreamArgs.targetPkgs pkgs)
+        # Cowork locates qemu on PATH. Use the qemu this package was built
+        # against, not the pkgs the FHS shell sees, so a second nixpkgs
+        # instance never gets pulled in, and keep it inside the FHS
+        # environment so the host stays free of an unused copy.
+        ++ [ qemu ];
       extraInstallCommands = lib.replaceStrings [ "${claude-desktop.unwrapped}" ] [ "${patched}" ] (
         upstreamArgs.extraInstallCommands or ""
       );
