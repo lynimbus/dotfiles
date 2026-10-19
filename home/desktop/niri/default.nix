@@ -21,15 +21,6 @@ let
     );
 in
 {
-  home.packages = with pkgs; [
-    xwayland-satellite
-    slurp
-    grim
-    satty
-    wl-clipboard
-    xdg-user-dirs
-  ];
-
   xdg.configFile = {
     "niri/reorder-workspaces.sh".source = repoFile "reorder-workspaces.sh";
   }

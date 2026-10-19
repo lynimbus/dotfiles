@@ -2,14 +2,10 @@
 
 {
   home.packages = with pkgs; [
-    ladspaPlugins
-    rnnoise-plugin
-    brightnessctl
     ddcutil
     wlsunset
     wl-clipboard
     tmux
-    libnotify
     gvfs
     xwayland-satellite
     ungoogled-chromium
