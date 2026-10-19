@@ -1,8 +1,8 @@
 {
-  config,
   email,
   username,
   pkgs,
+  sshKey,
   ...
 }:
 
@@ -40,7 +40,7 @@
       };
       signing = {
         backend = "ssh";
-        key = "${config.home.homeDirectory}/.ssh/id_ed25519";
+        key = sshKey;
       };
     };
   };

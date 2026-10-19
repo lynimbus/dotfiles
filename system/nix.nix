@@ -1,7 +1,7 @@
 {
   inputs,
   lib,
-  username,
+  repoRoot,
   ...
 }:
 
@@ -14,7 +14,7 @@
 
   programs.nh = {
     enable = true;
-    flake = "/home/${username}/nixos";
+    flake = repoRoot;
   };
 
   nix.settings = {

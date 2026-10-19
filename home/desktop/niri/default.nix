@@ -2,12 +2,23 @@
   config,
   inputs,
   pkgs,
+  repoRoot,
   ...
 }:
 
 let
-  repoPath = "${config.home.homeDirectory}/nixos/home/desktop/niri";
   mkSymlink = config.lib.file.mkOutOfStoreSymlink;
+
+  repoFile = path: mkSymlink "${repoRoot}/home/desktop/niri/${path}";
+
+  linkFiles =
+    dir: files:
+    builtins.listToAttrs (
+      map (file: {
+        name = "niri/${file}";
+        value.source = repoFile "${dir}/${file}";
+      }) files
+    );
 in
 {
   home.packages = with pkgs; [
@@ -20,14 +31,16 @@ in
   ];
 
   xdg.configFile = {
-    "niri/config.kdl".source = mkSymlink "${repoPath}/conf/config.kdl";
-    "niri/keybindings.kdl".source = mkSymlink "${repoPath}/conf/keybindings.kdl";
-    "niri/niri-hardware.kdl".source = mkSymlink "${repoPath}/conf/niri-hardware.kdl";
-    "niri/noctalia-shell.kdl".source = mkSymlink "${repoPath}/conf/noctalia-shell.kdl";
-    "niri/spawn-at-startup.kdl".source = mkSymlink "${repoPath}/conf/spawn-at-startup.kdl";
-    "niri/windowrules.kdl".source = mkSymlink "${repoPath}/conf/windowrules.kdl";
-    "niri/reorder-workspaces.sh".source = mkSymlink "${repoPath}/reorder-workspaces.sh";
-  };
+    "niri/reorder-workspaces.sh".source = repoFile "reorder-workspaces.sh";
+  }
+  // linkFiles "conf" [
+    "config.kdl"
+    "keybindings.kdl"
+    "niri-hardware.kdl"
+    "noctalia-shell.kdl"
+    "spawn-at-startup.kdl"
+    "windowrules.kdl"
+  ];
 
   systemd.user.services.pyclipsync = {
     Unit = {
