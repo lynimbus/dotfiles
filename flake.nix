@@ -95,6 +95,11 @@
       username = "lynimbus";
       email = "128837704+lynimbus@users.noreply.github.com";
 
+      homeDirectory = "/home/${username}";
+      repoRoot = "${homeDirectory}/dotfiles";
+
+      sshKey = "${homeDirectory}/.ssh/id_ed25519";
+
       localOverlay = final: _prev: {
         zed-editor = final.callPackage ./pkgs/zed-prebuilt.nix {
           src = inputs.zed-bin;
@@ -121,6 +126,7 @@
 
         strata = final.callPackage ./pkgs/strata.nix {
           release = inputs.strata-release;
+          inherit repoRoot;
         };
         strata-portal = final.callPackage ./pkgs/strata-portal.nix { };
         strata-file-manager = final.callPackage ./pkgs/strata-file-manager.nix { };
@@ -141,7 +147,15 @@
     in
     {
       nixosConfigurations.${hostname} = nixpkgs.lib.nixosSystem {
-        specialArgs = { inherit inputs hostname username; };
+        specialArgs = {
+          inherit
+            inputs
+            hostname
+            username
+            homeDirectory
+            repoRoot
+            ;
+        };
         modules = [
           {
             nixpkgs.overlays = [ localOverlay ];
@@ -153,7 +167,16 @@
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.extraSpecialArgs = { inherit inputs username email; };
+            home-manager.extraSpecialArgs = {
+              inherit
+                inputs
+                username
+                email
+                homeDirectory
+                repoRoot
+                sshKey
+                ;
+            };
             home-manager.users.${username} = ./home/init.nix;
             home-manager.backupFileExtension = "old";
           }

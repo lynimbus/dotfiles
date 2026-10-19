@@ -1,9 +1,15 @@
-{ pkgs, username, ... }:
+{
+  pkgs,
+  username,
+  homeDirectory,
+  ...
+}:
 
 {
   users.users.${username} = {
     isNormalUser = true;
-    description = "lynimbus";
+    description = username;
+    home = homeDirectory;
     extraGroups = [
       "networkmanager"
       "wheel"

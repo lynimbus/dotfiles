@@ -1,12 +1,23 @@
 {
   config,
   inputs,
+  repoRoot,
   ...
 }:
 
 let
-  repoPath = "${config.home.homeDirectory}/nixos/home/desktop/mango";
   mkSymlink = config.lib.file.mkOutOfStoreSymlink;
+
+  repoFile = path: mkSymlink "${repoRoot}/home/desktop/mango/${path}";
+
+  linkFiles =
+    dir: files:
+    builtins.listToAttrs (
+      map (file: {
+        name = "mango/${file}";
+        value.source = repoFile "${dir}/${file}";
+      }) files
+    );
 in
 {
   imports = [
@@ -16,13 +27,15 @@ in
   wayland.windowManager.mango.enable = true;
 
   xdg.configFile = {
-    "mango/config.conf".source = mkSymlink "${repoPath}/conf/config.conf";
-    "mango/binds.conf".source = mkSymlink "${repoPath}/conf/binds.conf";
-    "mango/rules.conf".source = mkSymlink "${repoPath}/conf/rules.conf";
-    "mango/mango-hardware.conf".source = mkSymlink "${repoPath}/conf/mango-hardware.conf";
-    "mango/screenshot.sh".source = mkSymlink "${repoPath}/screenshot.sh";
+    "mango/screenshot.sh".source = repoFile "screenshot.sh";
 
     "systemd/user/mango-session.target.wants/xdg-desktop-autostart.target".source =
-      config.lib.file.mkOutOfStoreSymlink "/etc/systemd/user/xdg-desktop-autostart.target";
-  };
+      mkSymlink "/etc/systemd/user/xdg-desktop-autostart.target";
+  }
+  // linkFiles "conf" [
+    "config.conf"
+    "binds.conf"
+    "rules.conf"
+    "mango-hardware.conf"
+  ];
 }
