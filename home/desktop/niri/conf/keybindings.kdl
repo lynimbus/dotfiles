@@ -67,8 +67,8 @@ binds {
     XF86MonBrightnessDown allow-when-locked=true { spawn "noctalia" "msg" "brightness-down"; }
 
     // keyboard backlight
-    XF86KbdBrightnessUp allow-when-locked=true { spawn "brightnessctl" "--device=kbd_backlight" "set" "10%+"; }
-    XF86KbdBrightnessDown allow-when-locked=true { spawn "brightnessctl" "--device=kbd_backlight" "set" "10%-"; }
+    XF86KbdBrightnessUp allow-when-locked=true { spawn "kbd-backlight" "10%+"; }
+    XF86KbdBrightnessDown allow-when-locked=true { spawn "kbd-backlight" "10%-"; }
 
     // Open/close the Overview: a zoomed-out view of workspaces and windows.
     // You can also move the mouse into the top-left hot corner,
@@ -228,7 +228,7 @@ binds {
     // Mod+Shift+Space { switch-layout "prev"; }
 
     // Screenshot Annotation via satty
-    Print { spawn-sh "set -e; grim -t ppm -g \"$(slurp -o -d -F monospace)\" - | satty --filename - --copy-command=wl-copy --annotation-size-factor 2.0 --output-filename=\"$(xdg-user-dir PICTURES)/Screenshots/Screenshot from %Y-%m-%d %H:%M:%S.png\" --actions-on-enter=\"save-to-clipboard,exit\" --brush-smooth-history-size=5 --disable-notifications"; }
+    Print { spawn "screenshot"; }
     Ctrl+Print { screenshot-screen; }
     Alt+Print { screenshot-window; }
 
