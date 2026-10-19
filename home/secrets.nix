@@ -1,14 +1,19 @@
-{ config, inputs, ... }:
+{
+  config,
+  inputs,
+  sshKey,
+  ...
+}:
 
 {
   imports = [ inputs.sops-nix.homeManagerModules.sops ];
 
   sops.defaultSopsFile = ../secrets/pi-auth.json;
   sops.age.sshKeyPaths = [
-    "${config.home.homeDirectory}/.ssh/id_ed25519"
-    "${config.home.homeDirectory}/.ssh/id_ed25519_recovery"
+    sshKey
+    "${sshKey}_recovery"
   ];
-  home.sessionVariables.SOPS_AGE_KEY_CMD = "ssh-to-age -private-key -i ${config.home.homeDirectory}/.ssh/id_ed25519";
+  home.sessionVariables.SOPS_AGE_KEY_CMD = "ssh-to-age -private-key -i ${sshKey}";
 
   assertions = [
     {

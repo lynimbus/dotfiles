@@ -33,6 +33,7 @@
   xdg-terminal-exec,
   xdg-utils,
   release,
+  repoRoot,
 }:
 
 let
@@ -170,7 +171,7 @@ buildFHSEnv {
     manager = "Nix"
     package = "strata"
     channel = "stable"
-    update_command = "just update && nh os switch ~/nixos"
+    update_command = "cd ${lib.escapeShellArg repoRoot} && just update && nh os switch ${lib.escapeShellArg repoRoot}"
     MARKER
 
     install -Dm644 "$documents/LICENSE" "$out/share/licenses/strata/LICENSE"
