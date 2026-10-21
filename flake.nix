@@ -29,11 +29,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    magpie-flake = {
-      url = "github:mtul0729/magpie-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     sing-box-flake = {
       url = "github:rxda/sing-box-flake";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -71,6 +66,16 @@
 
     rtk-release = {
       url = "https://api.github.com/repos/rtk-ai/rtk/releases/latest";
+      flake = false;
+    };
+
+    magpie-release = {
+      url = "https://api.github.com/repos/yetone/magpie/releases/latest";
+      flake = false;
+    };
+
+    magpie-src = {
+      url = "github:yetone/magpie";
       flake = false;
     };
 
