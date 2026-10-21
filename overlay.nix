@@ -23,8 +23,13 @@ final: _prev: {
 
   pi-coding-agent = final.callPackage ./pkgs/pi-coding-agent.nix { };
 
-  magpie = final.callPackage ./pkgs/magpie.nix {
-    upstream = inputs.magpie-flake.packages.${system}.magpie;
+  magpie-unwrapped = final.callPackage ./pkgs/magpie {
+    src = inputs.magpie-src;
+    releaseManifest = inputs.magpie-release;
+  };
+
+  magpie = final.callPackage ./pkgs/magpie-rtk.nix {
+    magpie = final.magpie-unwrapped;
   };
 
   strata = final.callPackage ./pkgs/strata.nix {
