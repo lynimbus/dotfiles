@@ -61,6 +61,8 @@ stdenv.mkDerivation {
   dontConfigure = true;
   dontBuild = true;
 
+  patchelfFlags = [ "--no-sort" ];
+
   preFixup = ''
     gappsWrapperArgs+=(--prefix PATH : ${lib.makeBinPath [ rtk ]})
   '';
