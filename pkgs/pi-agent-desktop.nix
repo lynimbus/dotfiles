@@ -64,7 +64,11 @@ stdenv.mkDerivation {
   patchelfFlags = [ "--no-sort" ];
 
   preFixup = ''
-    gappsWrapperArgs+=(--prefix PATH : ${lib.makeBinPath [ rtk ]})
+    gappsWrapperArgs+=(
+      --prefix PATH : ${lib.makeBinPath [ rtk ]}
+      --prefix NODE_OPTIONS " " --use-openssl-ca
+      --set-default SSL_CERT_FILE /etc/ssl/certs/ca-certificates.crt
+    )
   '';
 
   installPhase = ''
