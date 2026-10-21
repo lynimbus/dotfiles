@@ -1,6 +1,7 @@
 {
   imports = [
     ./secrets.nix
+    ./modules/magpie.nix
     ./core.nix
     ./packages/cli.nix
     ./packages/dev.nix
