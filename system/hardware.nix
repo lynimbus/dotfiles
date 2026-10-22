@@ -5,6 +5,16 @@
 
   zramSwap.enable = true;
 
+  fileSystems."/mnt/data" = {
+    device = "/dev/disk/by-uuid/466A71B2AC3E8697";
+    fsType = "ntfs3";
+    options = [
+      "uid=1000"
+      "gid=100"
+      "windows_names"
+    ];
+  };
+
   services.tuned = {
     enable = true;
     settings.dynamic_tuning = true;
