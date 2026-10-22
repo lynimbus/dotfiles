@@ -1,6 +1,8 @@
 { pkgs, ... }:
 
 {
+  services.gvfs.enable = true;
+
   xdg.terminal-exec = {
     enable = true;
     package = pkgs.xdg-terminal-exec;
