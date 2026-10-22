@@ -6,7 +6,6 @@
     wlsunset
     wl-clipboard
     tmux
-    gvfs
     xwayland-satellite
     ungoogled-chromium
     ayugram-desktop
