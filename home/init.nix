@@ -8,7 +8,7 @@
     ./packages/archive.nix
     ./packages/gui.nix
     ./programs/fish.nix
-    ./programs/zed.nix
+    ./programs/gram.nix
     ./programs/jujutsu.nix
     ./programs/git.nix
     ./programs/ssh.nix

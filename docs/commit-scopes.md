@@ -32,7 +32,7 @@
 | `jujutsu` | — | `home/programs/jujutsu.nix` |
 | `direnv` | — | `home/programs/direnv.nix` |
 | `zoxide` | — | `home/programs/zoxide.nix` |
-| `zed` | — | `home/programs/zed.nix`、`pkgs/zed-*.nix` |
+| `gram` | zed | `home/programs/gram.nix` |
 | `ollama` | — | `system/ollama.nix` |
 | `secrets` | — | `home/secrets.nix`、`.sops.yaml`、`secrets/` |
 | `just` | — | `justfile` |
