@@ -64,6 +64,11 @@
       flake = false;
     };
 
+    deepseek-bot-release = {
+      url = "https://api.github.com/repos/Fei2411/DeepSeek-Bot/releases/latest";
+      flake = false;
+    };
+
     rtk-release = {
       url = "https://api.github.com/repos/rtk-ai/rtk/releases/latest";
       flake = false;
