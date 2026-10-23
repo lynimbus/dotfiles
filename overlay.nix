@@ -4,10 +4,6 @@
   repoRoot,
 }:
 final: _prev: {
-  zed-editor = final.callPackage ./pkgs/zed-prebuilt.nix {
-    src = inputs.zed-bin;
-  };
-
   claude-desktop-zh = final.callPackage ./pkgs/claude-desktop-zh.nix {
     claude-desktop = inputs.llm-agents.packages.${system}.claude-desktop;
     translations = inputs.claude-desktop-zh-src;

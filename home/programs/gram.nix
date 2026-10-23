@@ -1,13 +1,10 @@
 { ... }:
 
 {
-  programs.zed-editor = {
+  programs.gram = {
     enable = true;
-    userSettings = {
-      telemetry = {
-        diagnostics = false;
-        metrics = false;
-      };
+
+    settings = {
       vim_mode = true;
       ui_font_size = 16;
       buffer_font_size = 16;
@@ -23,6 +20,7 @@
       };
       remove_trailing_whitespace_on_save = false;
       ensure_final_newline_on_save = true;
+      base_keymap = "VSCode";
     };
   };
 }
