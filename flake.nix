@@ -44,11 +44,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    zed-bin = {
-      url = "https://zed.dev/api/releases/preview/latest/zed-linux-x86_64.tar.gz";
-      flake = false;
-    };
-
     strata-release = {
       url = "https://github.com/lgse/strata/releases/latest/download/strata-update-manifest.json";
       flake = false;
