@@ -17,6 +17,10 @@ final: _prev: {
     releaseManifest = inputs.pi-agent-release;
   };
 
+  deepseek-bot = final.callPackage ./pkgs/deepseek-bot.nix {
+    releaseManifest = inputs.deepseek-bot-release;
+  };
+
   rtk = final.callPackage ./pkgs/rtk.nix {
     releaseManifest = inputs.rtk-release;
   };

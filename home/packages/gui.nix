@@ -14,6 +14,7 @@
     strata
     claude-desktop-zh
     pi-agent-desktop
+    deepseek-bot
     folia-major
     obs-studio
   ];
