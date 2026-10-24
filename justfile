@@ -7,8 +7,9 @@ switch:
 build:
     nh os build .
 
+# 更新 flake.lock；变更永远落在 jj 栈顶的独立提交里
 update:
-    env NIX_CONFIG="access-tokens = github.com=$(gh auth token)" nix flake update
+    docs/update-flake-lock.sh
 
 check:
     nix flake check --no-build
