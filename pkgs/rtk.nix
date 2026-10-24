@@ -2,32 +2,29 @@
   lib,
   stdenv,
   fetchurl,
+  releaseLib,
   releaseManifest,
   archiveSuffix ? "x86_64-unknown-linux-musl",
 }:
 
 let
-  release = builtins.fromJSON (builtins.readFile releaseManifest);
-
-  version = lib.removePrefix "v" release.tag_name;
+  release = releaseLib.githubRelease {
+    pname = "rtk";
+    manifest = releaseManifest;
+  };
 
   archive = "rtk-${archiveSuffix}.tar.gz";
 
-  asset = lib.findFirst (
-    entry: entry.name == archive
-  ) (throw "rtk: release ${version} has no ${archive} asset") release.assets;
+  asset = release.asset archive;
+
+  version = release.version;
 in
 stdenv.mkDerivation {
   pname = "rtk";
   inherit version;
 
   src = fetchurl {
-    url = asset.browser_download_url;
-    hash = builtins.convertHash {
-      hash = lib.removePrefix "sha256:" asset.digest;
-      hashAlgo = "sha256";
-      toHashFormat = "sri";
-    };
+    inherit (asset) url hash;
   };
 
   sourceRoot = ".";
