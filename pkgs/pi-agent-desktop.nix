@@ -10,30 +10,27 @@
   gtk3,
   libsoup_3,
   webkitgtk_4_1,
+  releaseLib,
   releaseManifest,
   rtk,
 }:
 
 let
-  release = builtins.fromJSON (builtins.readFile releaseManifest);
+  release = releaseLib.githubRelease {
+    pname = "pi-agent-desktop";
+    manifest = releaseManifest;
+  };
 
-  version = lib.removePrefix "v" release.tag_name;
+  asset = release.asset "Pi.Agent_${release.version}_amd64.deb";
 
-  releaseAsset = lib.findFirst (
-    asset: asset.name == "Pi.Agent_${version}_amd64.deb"
-  ) (throw "pi-agent-desktop: release ${version} has no amd64 deb asset") release.assets;
+  version = release.version;
 in
 stdenv.mkDerivation {
   pname = "pi-agent-desktop";
   inherit version;
 
   src = fetchurl {
-    url = releaseAsset.browser_download_url;
-    hash = builtins.convertHash {
-      hash = lib.removePrefix "sha256:" releaseAsset.digest;
-      hashAlgo = "sha256";
-      toHashFormat = "sri";
-    };
+    inherit (asset) url hash;
   };
 
   nativeBuildInputs = [
