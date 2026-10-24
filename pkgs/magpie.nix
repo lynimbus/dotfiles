@@ -69,6 +69,7 @@ stdenv.mkDerivation {
         ]
       }
       --set MAGPIE_BUN ${lib.getExe bun}
+      --set-default MAGPIE_NO_STATS 1
     )
   '';
 
