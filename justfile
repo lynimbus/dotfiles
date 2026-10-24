@@ -14,6 +14,29 @@ update:
 check:
     nix flake check --no-build
 
+# 用 nix-init 在临时目录里生成包骨架（不写进仓库），版本可省略
+#   just scaffold https://github.com/owner/repo 1.2.3
+scaffold url version="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    # nix-init 解析 rev 时先跑 nix flake prefetch，自己又直接调 GitHub API，
+    # 两条路都是匿名 60 次/小时/IP；把 gh keyring 里的 token 交给 nix。
+    if token="$(gh auth token 2>/dev/null)"; then
+        export NIX_CONFIG="access-tokens = github.com=$token"
+    fi
+    extra=()
+    if [[ -n "{{version}}" ]]; then
+        extra+=(-V "{{version}}")
+    fi
+    work="$(mktemp -d)"
+    nix-init -u "{{url}}" "${extra[@]}" "$work/package.nix" || {
+        echo "生成失败，目录保留：$work" >&2
+        exit 1
+    }
+    echo
+    echo "骨架：$work/package.nix"
+    echo "移植进 pkgs/ 时去掉写死的 sha256 和 nix-update-script，改走 release manifest"
+
 lint-msg file="":
     #!/usr/bin/env bash
     set -uo pipefail
