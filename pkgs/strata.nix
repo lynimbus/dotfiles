@@ -32,12 +32,13 @@
   util-linux,
   xdg-terminal-exec,
   xdg-utils,
-  release,
+  releaseLib,
+  releaseManifest,
   repoRoot,
 }:
 
 let
-  manifest = builtins.fromJSON (builtins.readFile "${release}");
+  manifest = releaseLib.readManifest releaseManifest;
 
   version = lib.removePrefix "v" manifest.tag;
 
@@ -49,11 +50,7 @@ let
 
   src = fetchurl {
     url = "https://github.com/lgse/strata/releases/download/v${version}/${archive}";
-    hash = builtins.convertHash {
-      hash = artifact.sha256;
-      hashAlgo = "sha256";
-      toHashFormat = "sri";
-    };
+    hash = releaseLib.sri artifact.sha256;
   };
 
   runtimeTools = [

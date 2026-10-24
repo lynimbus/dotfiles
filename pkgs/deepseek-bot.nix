@@ -40,29 +40,26 @@
   systemd,
   vips,
   vulkan-loader,
+  releaseLib,
   releaseManifest,
 }:
 
 let
-  release = builtins.fromJSON (builtins.readFile releaseManifest);
+  release = releaseLib.githubRelease {
+    pname = "deepseek-bot";
+    manifest = releaseManifest;
+  };
 
-  version = lib.removePrefix "v" release.tag_name;
+  asset = release.asset "DeepSeek-Bot-${release.version}-linux-amd64.deb";
 
-  releaseAsset = lib.findFirst (
-    asset: asset.name == "DeepSeek-Bot-${version}-linux-amd64.deb"
-  ) (throw "deepseek-bot: release ${version} has no amd64 deb asset") release.assets;
+  version = release.version;
 in
 stdenv.mkDerivation {
   pname = "deepseek-bot";
   inherit version;
 
   src = fetchurl {
-    url = releaseAsset.browser_download_url;
-    hash = builtins.convertHash {
-      hash = lib.removePrefix "sha256:" releaseAsset.digest;
-      hashAlgo = "sha256";
-      toHashFormat = "sri";
-    };
+    inherit (asset) url hash;
   };
 
   nativeBuildInputs = [

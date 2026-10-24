@@ -9,7 +9,7 @@
   socat,
   ripgrep,
   claude-desktop,
-  translations,
+  src,
 }:
 
 let
@@ -38,7 +38,7 @@ let
 
         app="$out/lib/claude-desktop/resources"
         i18n="$app/ion-dist/i18n"
-        resources=${translations}/resources
+        resources=${src}/resources
 
         perl ${scripts}/retarget.pl "$out" ${claude-desktop.unwrapped}
 
