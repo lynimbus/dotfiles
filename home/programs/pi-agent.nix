@@ -13,11 +13,14 @@ let
       "npm:pi-cached-compaction"
     ];
     defaultTools = [
+      "codemode"
       "read"
       "bash"
       "edit"
       "write"
     ];
+    codemode.mode = "only";
+    codemode.inlineBudget = 6000;
   };
 in
 {
