@@ -12,7 +12,7 @@
 | `mango` | — | `home/desktop/mango/` |
 | `noctalia` | — | `home/desktop/noctalia/` |
 | `ghostty` | — | `home/programs/ghostty.nix` |
-| `pi-agent` | pi-agent-desktop | `home/programs/pi-agent.nix`、`pkgs/pi-*-agent*.nix` |
+| `pig` | pi-agent, pi-agent-desktop | `home/programs/pig.nix`、`pkgs/pig.nix` |
 | `system` | — | `system/` 下无更细归属的服务 |
 | `hardware` | — | `system/hardware*.nix` |
 | `boot` | plymouth | `system/boot.nix`、开机主题 |
