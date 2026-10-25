@@ -24,12 +24,10 @@ in
     upstream = inputs.magpie-src;
   };
 
-  pi-agent-desktop = final.callPackage ./pkgs/pi-agent-desktop.nix {
+  pig = final.callPackage ./pkgs/pig.nix {
     inherit releaseLib;
-    releaseManifest = inputs.pi-agent-release;
+    releaseManifest = inputs.pig-release;
   };
-
-  pi-coding-agent = final.callPackage ./pkgs/pi-coding-agent.nix { };
 
   rtk = final.callPackage ./pkgs/rtk.nix {
     inherit releaseLib;

@@ -54,8 +54,8 @@
       flake = false;
     };
 
-    pi-agent-release = {
-      url = "https://api.github.com/repos/abcwyc/pi-agent-desktop/releases/latest";
+    pig-release = {
+      url = "https://api.github.com/repos/MichaelKinsy/PiG/releases/latest";
       flake = false;
     };
 
