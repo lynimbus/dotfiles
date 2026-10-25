@@ -16,7 +16,7 @@
     ./programs/zoxide.nix
     ./programs/hourly-chime.nix
     ./audio/rnnoise.nix
-    ./programs/pi-agent.nix
+    ./programs/pig.nix
     ./programs/magpie.nix
     ./desktop/screenshot.nix
     ./desktop/niri/default.nix
