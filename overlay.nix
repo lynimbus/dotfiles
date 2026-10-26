@@ -29,6 +29,11 @@ in
     upstream = inputs.magpie-src;
   };
 
+  mygo = final.callPackage ./pkgs/mygo.nix {
+    inherit releaseLib;
+    releaseManifest = inputs.mygo-release;
+  };
+
   pig = final.callPackage ./pkgs/pig.nix {
     inherit releaseLib;
     releaseManifest = inputs.pig-release;
