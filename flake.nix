@@ -64,6 +64,11 @@
       flake = false;
     };
 
+    kero-release = {
+      url = "https://api.github.com/repos/egoist/kero/releases/latest";
+      flake = false;
+    };
+
     rtk-release = {
       url = "https://api.github.com/repos/rtk-ai/rtk/releases/latest";
       flake = false;

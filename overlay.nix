@@ -18,6 +18,11 @@ in
     releaseManifest = inputs.deepseek-bot-release;
   };
 
+  kero = final.callPackage ./pkgs/kero.nix {
+    inherit releaseLib;
+    releaseManifest = inputs.kero-release;
+  };
+
   magpie = final.callPackage ./pkgs/magpie.nix {
     inherit releaseLib;
     releaseManifest = inputs.magpie-release;
