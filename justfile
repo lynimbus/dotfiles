@@ -29,7 +29,9 @@ scaffold url version="":
         extra+=(-V "{{version}}")
     fi
     work="$(mktemp -d)"
-    nix-init -u "{{url}}" "${extra[@]}" "$work/package.nix" || {
+    # 生成的是手稿、本就无需选择；而 nix-init 的 tag 选择提问在没有 TTY 的
+    # 运行方（agent、CI）里读到 EOF 直接退出，所以永远走 --headless。
+    nix-init --headless -u "{{url}}" "${extra[@]}" "$work/package.nix" || {
         echo "生成失败，目录保留：$work" >&2
         exit 1
     }
