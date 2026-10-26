@@ -14,6 +14,7 @@
     ./users.nix
     ./nix.nix
     ./packages.nix
+    ./linuxqq-wayland-fix.nix
     ./desktop-niri.nix
     ./desktop-mango.nix
     ./xdg.nix

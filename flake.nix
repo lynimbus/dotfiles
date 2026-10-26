@@ -39,6 +39,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    linuxqq-wayland-fix = {
+      url = "github:SHORiN-KiWATA/linuxqq-wayland-fix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     mac-style-plymouth = {
       url = "github:SergioRibera/s4rchiso-plymouth-theme";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -134,6 +139,7 @@
           }
           inputs.nixos-hardware.nixosModules.mechrevo-gm5hg0a
           inputs.mangowm.nixosModules.mango
+          inputs.linuxqq-wayland-fix.nixosModules.default
           ./system/init.nix
           home-manager.nixosModules.home-manager
           {

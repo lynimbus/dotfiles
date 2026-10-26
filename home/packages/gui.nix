@@ -9,7 +9,6 @@
     xwayland-satellite
     ungoogled-chromium
     ayugram-desktop
-    qq
     wechat-uos
     strata
     claude-desktop-zh
