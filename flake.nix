@@ -69,6 +69,11 @@
       flake = false;
     };
 
+    mygo-release = {
+      url = "https://api.github.com/repos/egoist/mygo/releases/latest";
+      flake = false;
+    };
+
     rtk-release = {
       url = "https://api.github.com/repos/rtk-ai/rtk/releases/latest";
       flake = false;

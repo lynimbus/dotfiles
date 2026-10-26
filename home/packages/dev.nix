@@ -14,6 +14,7 @@ in
     zig
     koka
     go
+    mygo
     android-tools
     payload-dumper-go
     python3
