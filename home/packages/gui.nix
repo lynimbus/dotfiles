@@ -14,6 +14,7 @@
     strata
     claude-desktop-zh
     deepseek-bot
+    kero
     folia-major
     obs-studio
   ];
