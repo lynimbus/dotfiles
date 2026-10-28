@@ -18,6 +18,7 @@
     ./desktop-niri.nix
     ./desktop-mango.nix
     ./xdg.nix
+    ./magisk.nix
   ];
 
   system.stateVersion = "26.05";
