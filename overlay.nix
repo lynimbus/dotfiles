@@ -4,13 +4,6 @@
   repoRoot,
 }:
 final: _prev: {
-  claude-desktop-zh = final.callPackage ./pkgs/claude-desktop-zh.nix {
-    claude-desktop = inputs.llm-agents.packages.${system}.claude-desktop;
-    src = inputs.claude-desktop-zh-src;
-  };
-
-  deepseek-bot = final.callPackage ./pkgs/deepseek-bot.nix { };
-
   kero = final.callPackage ./pkgs/kero.nix { };
 
   magpie = final.callPackage ./pkgs/magpie.nix { };
