@@ -34,10 +34,17 @@ in
     releaseManifest = inputs.mygo-release;
   };
 
+  opengrep = final.callPackage ./pkgs/opengrep.nix {
+    inherit releaseLib;
+    releaseManifest = inputs.opengrep-release;
+  };
+
   pig = final.callPackage ./pkgs/pig.nix {
     inherit releaseLib;
     releaseManifest = inputs.pig-release;
   };
+
+  r8 = final.callPackage ./pkgs/r8.nix { };
 
   rtk = final.callPackage ./pkgs/rtk.nix {
     inherit releaseLib;
