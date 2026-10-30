@@ -21,6 +21,30 @@ in
     nodejs
     nil
     nixd
+    # Java: the Eclipse JDT language server (nixpkgs wraps it with its own
+    # JDK, so `jdtls` runs standalone and pi-lens stops reporting "java
+    # analysis unavailable") plus a plain JDK 17 for javac/java work and the
+    # r8 wrapper below.
+    jdt-language-server
+    openjdk17
+    # Diagnostic runners pi-lens resolves from PATH. With opengrep found
+    # there the lens never falls back to its own installer, which would
+    # fetch the GitHub binary unpatched for NixOS.
+    ast-grep
+    typos
+    opengrep
+    # Reverse-engineering toolchain for shipped Android artefacts: ELF
+    # inspection, dex/apk decompiling, and the EROFS images modern Android
+    # ships its system partitions in.
+    binutils
+    llvm
+    jadx
+    apktool
+    erofs-utils
+    # d8/r8 dexer from Google Maven (overlay) — the one piece of the Android
+    # build chain nixpkgs does not carry, so Java can be compiled to dex
+    # instead of hand-writing smali.
+    r8
   ];
 
   # Scaffolding only: generate into a scratch directory, then port the result
