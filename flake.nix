@@ -79,6 +79,11 @@
       flake = false;
     };
 
+    opengrep-release = {
+      url = "https://api.github.com/repos/opengrep/opengrep/releases/latest";
+      flake = false;
+    };
+
     rtk-release = {
       url = "https://api.github.com/repos/rtk-ai/rtk/releases/latest";
       flake = false;
