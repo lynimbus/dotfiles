@@ -11,8 +11,6 @@
     ayugram-desktop
     wechat-uos
     strata
-    claude-desktop-zh
-    deepseek-bot
     kero
     folia-major
     obs-studio
