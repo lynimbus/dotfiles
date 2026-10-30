@@ -49,11 +49,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    claude-desktop-zh-src = {
-      url = "github:javaht/claude-desktop-zh-cn";
-      flake = false;
-    };
-
     mangowm = {
       url = "github:mangowm/mango";
       inputs.nixpkgs.follows = "nixpkgs";
