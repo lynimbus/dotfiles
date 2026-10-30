@@ -13,6 +13,7 @@
     ./ollama.nix
     ./users.nix
     ./nix.nix
+    ./nix-ld.nix
     ./packages.nix
     ./linuxqq-wayland-fix.nix
     ./desktop-niri.nix
