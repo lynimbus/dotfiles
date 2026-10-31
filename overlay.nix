@@ -20,9 +20,7 @@ final: _prev: {
 
   rtk = final.callPackage ./pkgs/rtk.nix { };
 
-  sing-box-reF1nd = final.callPackage ./pkgs/sing-box-reF1nd.nix {
-    package = inputs.sing-box-reF1nd-flake.packages.${system}.default;
-  };
+  sing-box = final.callPackage ./pkgs/sing-box.nix { };
 
   strata = final.callPackage ./pkgs/strata.nix {
     inherit repoRoot;
