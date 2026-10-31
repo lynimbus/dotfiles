@@ -1,6 +1,5 @@
 {
   lib,
-  fetchurl,
   fetchFromGitHub,
   buildGoModule,
   go_1_27,
@@ -31,34 +30,32 @@
   pango,
   shared-mime-info,
   webkitgtk_4_1,
-  releaseLib,
-  releaseManifest,
+  fetchurl,
+  # The release archive is the only source of the fonts, the icons,
+  # kero.desktop and libghostty-vt.so the app loads at run time, so it is a
+  # fetchurl of its own beside the Go source. The version, the archive hash
+  # and the source hash are functions of the release tag alone: `just bump
+  # kero` (nix-update) moves them in lockstep, and the archive is the
+  # `--custom-dep tarball` of that run.
+  version ? "2.1.27",
+  hash ? "sha256-ZIiNzjrHaVkeiwZqbFYyj5iXMuPegqvvkSBWO4+5egk=",
   archiveSuffix ? "linux-amd64",
+  archiveHash ? "sha256-nzd8OAz7eyDeVLmWiVhYzwQybciBD8AkGbs2V9TRfMU=",
+  vendorHash ? "sha256-JnimLgTf8Mo57beaZ5HhDE3f+u8UXZ00qQrf05fL4+c=",
 }:
 
 let
-  release = releaseLib.githubRelease {
-    pname = "kero";
-    manifest = releaseManifest;
-  };
-
-  # The release archive is the only source of the fonts, the icon and
-  # libghostty-vt.so the app loads at run time, and the manifest is the
-  # only source of its hash.
-  asset = release.asset "kero-${release.version}-${archiveSuffix}.tar.gz";
-
   tarball = fetchurl {
-    inherit (asset) url hash;
+    url = "https://github.com/egoist/kero/releases/download/v${version}/kero-${version}-${archiveSuffix}.tar.gz";
+    hash = archiveHash;
   };
 
-  # The Go code is built from the same tag the manifest names, so this hash
-  # and vendorHash below are functions of the version alone: bump the
-  # release, and the build names the new hashes in its error.
+  # The Go code is fetched from the release tag.
   src = fetchFromGitHub {
     owner = "egoist";
     repo = "kero";
-    tag = "v${release.version}";
-    hash = "sha256-ZIiNzjrHaVkeiwZqbFYyj5iXMuPegqvvkSBWO4+5egk=";
+    tag = "v${version}";
+    inherit hash;
   };
 
   # kero reaches every one of these through dlopen, so the binary names none
@@ -92,7 +89,7 @@ let
 in
 (buildGoModule.override { go = go_1_27; }) {
   pname = "kero";
-  inherit (release) version;
+  inherit version;
 
   inherit src;
 
@@ -111,11 +108,11 @@ in
     "-w"
     "-X github.com/egoist/mygo.production=1"
     "-X github.com/egoist/mygo.packageName=Kero"
-    "-X github.com/egoist/mygo.packageVersion=${release.version}"
+    "-X github.com/egoist/mygo.packageVersion=${version}"
     "-X github.com/egoist/mygo.packageIdentifier=sh.kero"
   ];
 
-  vendorHash = "sha256-JnimLgTf8Mo57beaZ5HhDE3f+u8UXZ00qQrf05fL4+c=";
+  inherit vendorHash;
 
   # Kero's tests want the release's libghostty-vt.so and fonts beside the
   # binary they run, and the build tree has neither: the checks stay off,
@@ -174,13 +171,15 @@ in
   nativeInstallCheckInputs = [ versionCheckHook ];
 
   passthru = {
-    inherit archiveSuffix;
+    # nix-update's --custom-dep tarball rewrites the archive hash beside the
+    # source hash in the same file, so one bump moves the whole release.
+    inherit tarball;
   };
 
   meta = {
     description = "Native terminal for coding agents, whose sessions outlive the window";
     homepage = "https://github.com/egoist/kero";
-    changelog = "https://github.com/egoist/kero/releases/tag/v${release.version}";
+    changelog = "https://github.com/egoist/kero/releases/tag/v${version}";
     license = lib.licenses.mit;
     mainProgram = "kero";
     platforms = [ "x86_64-linux" ];

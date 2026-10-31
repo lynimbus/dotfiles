@@ -6,19 +6,15 @@
   patchelf,
   versionCheckHook,
   zlib,
-  releaseLib,
-  releaseManifest,
+  # The Nuitka onefile launcher is the only source: `just bump opengrep`
+  # (nix-update) moves the version and its hash to the latest release
+  # together.
+  version ? "1.33.1",
+  hash ? "sha256-RugTPMSQ+fUFGAYVkM4va+WgivrtoDRHHAztpLOJmAg=",
   archiveSuffix ? "manylinux_x86",
 }:
 
 let
-  release = releaseLib.githubRelease {
-    pname = "opengrep";
-    manifest = releaseManifest;
-  };
-
-  version = release.version;
-
   # The "single binary" is a Nuitka onefile launcher: on first run it unpacks a
   # whole python world (~240 MB: the compiled CLI `opengrep.bin`, the C
   # extension modules and the vendored .so libraries) into a fixed directory
@@ -39,8 +35,6 @@ let
   #
   # The musllinux asset needs a musl interpreter and buys nothing here, so
   # the glibc (manylinux) asset is the one pinned.
-  asset = release.asset "opengrep_${archiveSuffix}";
-
   payloadRoot = "share/opengrep";
 in
 stdenv.mkDerivation {
@@ -48,7 +42,8 @@ stdenv.mkDerivation {
   inherit version;
 
   src = fetchurl {
-    inherit (asset) url hash;
+    url = "https://github.com/opengrep/opengrep/releases/download/v${version}/opengrep_${archiveSuffix}";
+    inherit hash;
   };
 
   dontUnpack = true;

@@ -11,6 +11,13 @@ build:
 update:
     docs/update-flake-lock.sh
 
+# 把滚动发布的自建包升到上游最新 release（nix-update 改写包文件里的
+# version/hash/vendorHash 字面量；不带参数就全部包各跑一遍）
+#   just bump            # 全部
+#   just bump pig kero   # 指定包
+bump *pkgs:
+    docs/bump-packages.sh {{pkgs}}
+
 check:
     nix flake check --no-build
 
@@ -37,7 +44,7 @@ scaffold url version="":
     }
     echo
     echo "骨架：$work/package.nix"
-    echo "移植进 pkgs/ 时去掉写死的 sha256 和 nix-update-script，改走 release manifest"
+    echo "移植进 pkgs/ 时去掉写死的 sha256 和 nix-update-script，把 version/hash 留作参数默认值"
 
 lint-msg file="":
     #!/usr/bin/env bash
