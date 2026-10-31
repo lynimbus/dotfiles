@@ -14,15 +14,24 @@
   rtk,
   versionCheckHook,
   xdg-utils,
-  releaseLib,
-  releaseManifest,
-  upstream,
+  fetchFromGitHub,
+  # The icons and the licence are files of the source tree, not of the
+  # release archive: the tagged tree is a fetchFromGitHub of its own beside
+  # the binary, and `just bump magpie` (nix-update) moves the version, the
+  # asset hash and the tree hash in lockstep (`--custom-dep upstream`
+  # handles the tree).
+  version ? "0.1.2226",
+  hash ? "sha256-lYuu5Uu+c7FrQAqWc7lPs482uiEeNIspHDZzBb6dn3Y=",
+  upstreamHash ? "sha256-S62PUuyj2087Ex41ZHcxIM9haXrcaxUd9vazGByvFyY=",
 }:
 
 let
-  release = releaseLib.githubRelease {
-    pname = "magpie";
-    manifest = releaseManifest;
+  # The source tree of the same tag the binary release names.
+  upstream = fetchFromGitHub {
+    owner = "yetone";
+    repo = "magpie";
+    tag = "v${version}";
+    hash = upstreamHash;
   };
 
   runtimeLibs = [
@@ -35,9 +44,12 @@ let
 in
 stdenv.mkDerivation {
   pname = "magpie";
-  inherit (release) version;
+  inherit version;
 
-  src = fetchurl (release.asset "magpie-linux-amd64");
+  src = fetchurl {
+    url = "https://github.com/yetone/magpie/releases/download/v${version}/magpie-linux-amd64";
+    inherit hash;
+  };
 
   nativeBuildInputs = [
     autoPatchelfHook
@@ -109,10 +121,16 @@ stdenv.mkDerivation {
   doInstallCheck = true;
   nativeInstallCheckInputs = [ versionCheckHook ];
 
+  passthru = {
+    # nix-update's --custom-dep upstream rewrites the tree hash beside the
+    # asset hash in the same file, so one bump moves the whole release.
+    inherit upstream;
+  };
+
   meta = {
     description = "Local gateway that picks the model for each AI coding agent";
     homepage = "https://usemagpie.ai/";
-    changelog = "https://github.com/yetone/magpie/releases/tag/v${release.version}";
+    changelog = "https://github.com/yetone/magpie/releases/tag/v${version}";
     license = lib.licenses.mit;
     mainProgram = "magpie";
     platforms = [ "x86_64-linux" ];

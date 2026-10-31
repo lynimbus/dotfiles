@@ -3,61 +3,34 @@
   system,
   repoRoot,
 }:
-final: _prev:
-let
-  releaseLib = import ./pkgs/lib/release.nix { inherit (final) lib; };
-in
-{
+final: _prev: {
   claude-desktop-zh = final.callPackage ./pkgs/claude-desktop-zh.nix {
     claude-desktop = inputs.llm-agents.packages.${system}.claude-desktop;
     src = inputs.claude-desktop-zh-src;
   };
 
-  deepseek-bot = final.callPackage ./pkgs/deepseek-bot.nix {
-    inherit releaseLib;
-    releaseManifest = inputs.deepseek-bot-release;
-  };
+  deepseek-bot = final.callPackage ./pkgs/deepseek-bot.nix { };
 
-  kero = final.callPackage ./pkgs/kero.nix {
-    inherit releaseLib;
-    releaseManifest = inputs.kero-release;
-  };
+  kero = final.callPackage ./pkgs/kero.nix { };
 
-  magpie = final.callPackage ./pkgs/magpie.nix {
-    inherit releaseLib;
-    releaseManifest = inputs.magpie-release;
-    upstream = inputs.magpie-src;
-  };
+  magpie = final.callPackage ./pkgs/magpie.nix { };
 
-  mygo = final.callPackage ./pkgs/mygo.nix {
-    inherit releaseLib;
-    releaseManifest = inputs.mygo-release;
-  };
+  mygo = final.callPackage ./pkgs/mygo.nix { };
 
-  opengrep = final.callPackage ./pkgs/opengrep.nix {
-    inherit releaseLib;
-    releaseManifest = inputs.opengrep-release;
-  };
+  opengrep = final.callPackage ./pkgs/opengrep.nix { };
 
-  pig = final.callPackage ./pkgs/pig.nix {
-    inherit releaseLib;
-    releaseManifest = inputs.pig-release;
-  };
+  pig = final.callPackage ./pkgs/pig.nix { };
 
   r8 = final.callPackage ./pkgs/r8.nix { };
 
-  rtk = final.callPackage ./pkgs/rtk.nix {
-    inherit releaseLib;
-    releaseManifest = inputs.rtk-release;
-  };
+  rtk = final.callPackage ./pkgs/rtk.nix { };
 
   sing-box-reF1nd = final.callPackage ./pkgs/sing-box-reF1nd.nix {
     package = inputs.sing-box-reF1nd-flake.packages.${system}.default;
   };
 
   strata = final.callPackage ./pkgs/strata.nix {
-    inherit releaseLib repoRoot;
-    releaseManifest = inputs.strata-release;
+    inherit repoRoot;
   };
 
   strata-file-manager = final.callPackage ./pkgs/strata-file-manager.nix { };
