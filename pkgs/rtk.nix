@@ -2,29 +2,23 @@
   lib,
   stdenv,
   fetchurl,
-  releaseLib,
-  releaseManifest,
+  # The release tarball is the only source: `just bump rtk` (nix-update)
+  # moves the version and its hash to the latest release together.
+  version ? "1.1.0",
+  hash ? "sha256-lFStG5SJ2qV6sKn06+L6r03IK4oPJsnlE1FRq9fJN40=",
   archiveSuffix ? "x86_64-unknown-linux-musl",
 }:
 
 let
-  release = releaseLib.githubRelease {
-    pname = "rtk";
-    manifest = releaseManifest;
-  };
-
   archive = "rtk-${archiveSuffix}.tar.gz";
-
-  asset = release.asset archive;
-
-  version = release.version;
 in
 stdenv.mkDerivation {
   pname = "rtk";
   inherit version;
 
   src = fetchurl {
-    inherit (asset) url hash;
+    url = "https://github.com/rtk-ai/rtk/releases/download/v${version}/${archive}";
+    inherit hash;
   };
 
   sourceRoot = ".";

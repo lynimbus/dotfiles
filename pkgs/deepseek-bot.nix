@@ -40,26 +40,20 @@
   systemd,
   vips,
   vulkan-loader,
-  releaseLib,
-  releaseManifest,
+  # The release deb is the only source: `just bump deepseek-bot`
+  # (nix-update) moves the version and its hash to the latest release
+  # together.
+  version ? "0.2.4",
+  hash ? "sha256-DmQGGHtYJOtNXZIWtEJi5nTCxNMfNYszYi7BlQKtMYw=",
 }:
 
-let
-  release = releaseLib.githubRelease {
-    pname = "deepseek-bot";
-    manifest = releaseManifest;
-  };
-
-  asset = release.asset "DeepSeek-Bot-${release.version}-linux-amd64.deb";
-
-  version = release.version;
-in
 stdenv.mkDerivation {
   pname = "deepseek-bot";
   inherit version;
 
   src = fetchurl {
-    inherit (asset) url hash;
+    url = "https://github.com/Fei2411/DS-Bot/releases/download/v${version}/DeepSeek-Bot-${version}-linux-amd64.deb";
+    inherit hash;
   };
 
   nativeBuildInputs = [
