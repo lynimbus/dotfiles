@@ -29,16 +29,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    sing-box-flake = {
-      url = "github:rxda/sing-box-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    sing-box-reF1nd-flake = {
-      url = "github:lynimbus/sing-box-reF1nd-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     linuxqq-wayland-fix = {
       url = "github:SHORiN-KiWATA/linuxqq-wayland-fix";
       inputs.nixpkgs.follows = "nixpkgs";
