@@ -14,5 +14,6 @@
     kero
     folia-major
     obs-studio
+    grok-bot
   ];
 }

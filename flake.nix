@@ -55,6 +55,11 @@
     };
 
     noctalia.url = "github:noctalia-dev/noctalia/cachix";
+
+    grok-bot = {
+      url = "github:aijorgenson/grokbot-nixos";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
