@@ -24,7 +24,7 @@
       };
       ui = {
         default-command = "log";
-        editor = "nvim";
+        editor = "hx";
         diff-formatter = "difft";
         diff-editor = ":builtin";
         merge-editor = "meld";
