@@ -28,6 +28,16 @@ declare -A CUSTOM=(
   [magpie]="upstream"
 )
 
+# 属性名 -> 额外的 nix-update 参数（用 read -ra 拆开，不做 glob 展开）。
+# sing-box 跟上游 unstable 渠道（GitHub prerelease）：默认的 stable 偏好会
+# 把 alpha/beta/rc 全部跳过，--version=unstable 放行；--version-regex 的
+# 捕获组只匹配 prerelease tag 并顺带剥掉 v 前缀，稳定版全部筛掉，两者一起
+# 才能把渠道钉死在 unstable 上。atom feed 只给最近 10 个 release，上游连
+# 发多个稳定版时可能一个 prerelease 都不在里面，那会直接报错重跑即可。
+declare -A EXTRA=(
+  [sing-box]='--version=unstable --version-regex=v?(\d+\.\d+\.\d+-(?:alpha|beta|rc)\.\d+)'
+)
+
 # 属性名 -> 不走默认的 releases.atom 而走 GitHub Releases API 的包：
 # atom feed 把「推了 tag 还没发 release」也当新版（magpie 就这样），
 # API 只认真 release。
@@ -35,7 +45,7 @@ declare -A RELEASE_API_ONLY=(
   [magpie]=1
 )
 
-ALL=(pig kero mygo opengrep rtk magpie strata)
+ALL=(pig kero mygo opengrep rtk magpie strata sing-box)
 if [[ $# -gt 0 ]]; then
   pkgs=("$@")
 else
@@ -47,6 +57,10 @@ for p in "${pkgs[@]}"; do
   args=()
   if [[ -n "${CUSTOM[$p]:-}" ]]; then
     args+=(--custom-dep "${CUSTOM[$p]}")
+  fi
+  if [[ -n "${EXTRA[$p]:-}" ]]; then
+    read -r -a extra <<< "${EXTRA[$p]}"
+    args+=("${extra[@]}")
   fi
   if [[ -n "${RELEASE_API_ONLY[$p]:-}" ]]; then
     args+=(--use-github-releases)

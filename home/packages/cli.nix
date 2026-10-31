@@ -1,4 +1,4 @@
-{ inputs, pkgs, ... }:
+{ pkgs, ... }:
 
 {
   home.packages = with pkgs; [
@@ -24,7 +24,6 @@
     ssh-to-age
     libxml2
     file
-    inputs.sing-box-flake.packages.${pkgs.stdenv.hostPlatform.system}.default
-    sing-box-reF1nd
+    sing-box
   ];
 }
