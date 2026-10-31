@@ -23,5 +23,6 @@
     libxml2
     file
     sing-box
+    lody-pi
   ];
 }
