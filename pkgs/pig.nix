@@ -7,21 +7,15 @@
   fd,
   ripgrep,
   rtk,
-  releaseLib,
-  releaseManifest,
+  # The release tarball is the only source: the version and its hash name it
+  # both, and `just bump pig` (nix-update) moves the two literals to the
+  # latest release together.
+  version ? "0.5.3",
+  hash ? "sha256-HkXl5ZGgbQh1h9XwnSttYWc6HiYssmCeYYne//1a5+w=",
   archiveSuffix ? "linux-amd64",
 }:
 
 let
-  release = releaseLib.githubRelease {
-    pname = "pig";
-    manifest = releaseManifest;
-  };
-
-  asset = release.asset "pig-${release.version}-${archiveSuffix}.tar.gz";
-
-  version = release.version;
-
   runtimePath = lib.makeBinPath [
     nodejs_22
     fd
@@ -34,7 +28,8 @@ stdenv.mkDerivation {
   inherit version;
 
   src = fetchurl {
-    inherit (asset) url hash;
+    url = "https://github.com/MichaelKinsy/PiG/releases/download/v${version}/pig-${version}-${archiveSuffix}.tar.gz";
+    inherit hash;
   };
 
   sourceRoot = "pig-${version}-${archiveSuffix}";

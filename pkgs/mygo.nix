@@ -6,31 +6,27 @@
   makeWrapper,
   versionCheckHook,
   bun,
-  releaseLib,
-  releaseManifest,
+  # The CLI's version is a const of the tagged source itself, which the npm
+  # manifests hold to the same value (scripts/version.ts), so the release
+  # tag is the only version there is to track. `just bump mygo`
+  # (nix-update) moves the version, the source hash and vendorHash in
+  # lockstep.
+  version ? "0.7.3",
+  hash ? "sha256-l4hjFUQMSSM9sNEzWikrn6eqJ3bO3FpBT5TaYGSKbiA=",
+  vendorHash ? "sha256-XM/Wi62946L/p6tNAWza1sZPx+2NKAI5bM3+2t580t0=",
 }:
 
 let
-  release = releaseLib.githubRelease {
-    pname = "mygo";
-    manifest = releaseManifest;
-  };
-
-  # The CLI's version is a const of the tagged source itself, which the npm
-  # manifests hold to the same value (scripts/version.ts), so the tag the
-  # manifest names is the only version there is to track. This hash and
-  # vendorHash below change with it, and the build names the new ones in its
-  # error.
   src = fetchFromGitHub {
     owner = "egoist";
     repo = "mygo";
-    tag = "v${release.version}";
-    hash = "sha256-l4hjFUQMSSM9sNEzWikrn6eqJ3bO3FpBT5TaYGSKbiA=";
+    tag = "v${version}";
+    inherit hash;
   };
 in
 (buildGoModule.override { go = go_1_27; }) {
   pname = "mygo";
-  inherit (release) version;
+  inherit version;
 
   inherit src;
 
@@ -42,7 +38,7 @@ in
     "-w"
   ];
 
-  vendorHash = "sha256-XM/Wi62946L/p6tNAWza1sZPx+2NKAI5bM3+2t580t0=";
+  inherit vendorHash;
 
   # The tests drive the go tool and bun as subprocesses (dev, build, doctor),
   # which the build sandbox has neither complete nor networked; the version
@@ -76,7 +72,7 @@ in
   meta = {
     description = "CLI that scaffolds, develops and packages MyGo desktop apps";
     homepage = "https://github.com/egoist/mygo";
-    changelog = "https://github.com/egoist/mygo/releases/tag/v${release.version}";
+    changelog = "https://github.com/egoist/mygo/releases/tag/v${version}";
     license = lib.licenses.mit;
     mainProgram = "mygo";
     platforms = [ "x86_64-linux" ];

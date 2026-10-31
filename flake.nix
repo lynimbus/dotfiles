@@ -49,53 +49,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    strata-release = {
-      url = "https://github.com/lgse/strata/releases/latest/download/strata-update-manifest.json";
-      flake = false;
-    };
-
     claude-desktop-zh-src = {
       url = "github:javaht/claude-desktop-zh-cn";
-      flake = false;
-    };
-
-    pig-release = {
-      url = "https://api.github.com/repos/MichaelKinsy/PiG/releases/latest";
-      flake = false;
-    };
-
-    deepseek-bot-release = {
-      url = "https://api.github.com/repos/Fei2411/DeepSeek-Bot/releases/latest";
-      flake = false;
-    };
-
-    kero-release = {
-      url = "https://api.github.com/repos/egoist/kero/releases/latest";
-      flake = false;
-    };
-
-    mygo-release = {
-      url = "https://api.github.com/repos/egoist/mygo/releases/latest";
-      flake = false;
-    };
-
-    opengrep-release = {
-      url = "https://api.github.com/repos/opengrep/opengrep/releases/latest";
-      flake = false;
-    };
-
-    rtk-release = {
-      url = "https://api.github.com/repos/rtk-ai/rtk/releases/latest";
-      flake = false;
-    };
-
-    magpie-release = {
-      url = "https://api.github.com/repos/yetone/magpie/releases/latest";
-      flake = false;
-    };
-
-    magpie-src = {
-      url = "github:yetone/magpie";
       flake = false;
     };
 
@@ -128,6 +83,17 @@
       localOverlay = import ./overlay.nix { inherit inputs system repoRoot; };
     in
     {
+      # 自建包在这里暴露给属性路径求值：nix-update 按它找到要改写的包文件，
+      # `nix build .#legacyPackages.${system}.<pkg>` 也能直接单包构建。
+      # 不复用 nixosConfigurations 的那套 pkgs（它绑着 home-manager 等模块的
+      # 求值路径，逐包求值既慢又绕），但 allowUnfree 与 system/nix.nix 对齐，
+      # 否则 rtk/strata 这些 BSL 包在这里过不了 checkMeta。
+      legacyPackages.${system} = import nixpkgs {
+        inherit system;
+        config.allowUnfree = true;
+        overlays = [ localOverlay ];
+      };
+
       nixosConfigurations.${hostname} = nixpkgs.lib.nixosSystem {
         specialArgs = {
           inherit

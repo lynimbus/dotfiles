@@ -32,25 +32,20 @@
   util-linux,
   xdg-terminal-exec,
   xdg-utils,
-  releaseLib,
-  releaseManifest,
   repoRoot,
+  # The release tarball is the only source: the version and its hash name it
+  # both, and `just bump strata` (nix-update) moves the two literals to
+  # the latest release together.
+  version ? "1.1.1",
+  hash ? "sha256-4FUuB3L83tE6gohHR7KPCzIiCjKTHNpuVfg1dbvlBzQ=",
 }:
 
 let
-  manifest = releaseLib.readManifest releaseManifest;
-
-  version = lib.removePrefix "v" manifest.tag;
-
   archive = "strata-${version}-x86_64-unknown-linux-gnu.tar.gz";
-
-  artifact = lib.findFirst (
-    entry: entry.name == archive
-  ) (throw "strata: ${archive} is missing from the update manifest") manifest.artifacts;
 
   src = fetchurl {
     url = "https://github.com/lgse/strata/releases/download/v${version}/${archive}";
-    hash = releaseLib.sri artifact.sha256;
+    inherit hash;
   };
 
   runtimeTools = [
@@ -177,7 +172,7 @@ buildFHSEnv {
   '';
 
   passthru = {
-    inherit app version;
+    inherit app version src;
     unwrapped = app;
   };
 
