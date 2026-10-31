@@ -4,6 +4,8 @@
   repoRoot,
 }:
 final: _prev: {
+  grok-bot = inputs.grok-bot.packages.${system}.default;
+
   kero = final.callPackage ./pkgs/kero.nix { };
 
   magpie = final.callPackage ./pkgs/magpie.nix { };
