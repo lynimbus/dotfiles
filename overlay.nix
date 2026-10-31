@@ -8,6 +8,8 @@ final: _prev: {
 
   kero = final.callPackage ./pkgs/kero.nix { };
 
+  lody-mygo = final.callPackage ./pkgs/lody-mygo.nix { };
+
   magpie = final.callPackage ./pkgs/magpie.nix { };
 
   mygo = final.callPackage ./pkgs/mygo.nix { };

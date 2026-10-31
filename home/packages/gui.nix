@@ -12,6 +12,7 @@
     wechat-uos
     strata
     kero
+    lody-mygo
     folia-major
     obs-studio
     grok-bot

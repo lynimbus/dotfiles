@@ -45,7 +45,7 @@ declare -A RELEASE_API_ONLY=(
   [magpie]=1
 )
 
-ALL=(pig kero mygo opengrep rtk magpie strata sing-box)
+ALL=(pig kero mygo lody-mygo opengrep rtk magpie strata sing-box)
 if [[ $# -gt 0 ]]; then
   pkgs=("$@")
 else
