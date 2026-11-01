@@ -53,13 +53,17 @@ NEXT STEPS (manual, in this order):
 1. Commit the new public key:
        git add cosign.pub && git commit -m "feat(signing): add image signing public key"
 
-2. Store the PRIVATE key as the GitHub Actions secret SIGNING_SECRET:
+2. Store the PRIVATE key and its PASSPHRASE as GitHub Actions secrets:
        GitHub → your repo → Settings → Secrets and variables → Actions
-       → "New repository secret"
-         Name:  SIGNING_SECRET
-         Value: the full contents of cosign.key (including the BEGIN/END lines)
+       → "New repository secret" (create BOTH of these)
+         Name:  SIGNING_SECRET     Value: the full contents of cosign.key (including the BEGIN/END lines)
+         Name:  SIGNING_PASSWORD   Value: the passphrase you entered above
+       (CI needs both: the key is passphrase-protected, and build.yml feeds
+       SIGNING_PASSWORD to cosign as COSIGN_PASSWORD when signing.)
 
-   (or, with the gh CLI:  gh secret set SIGNING_SECRET < cosign.key)
+   (or, with the gh CLI:
+        gh secret set SIGNING_SECRET   < cosign.key
+        gh secret set SIGNING_PASSWORD      # then type the passphrase)
 
 3. Keep cosign.key + its passphrase somewhere safe (password manager).
    Losing it means you cannot sign future images with the same identity.

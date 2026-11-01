@@ -1,12 +1,4 @@
------BEGIN ATOMIC-WORKSTATION PLACEHOLDER-----
-This is NOT a real key yet.
-
-Generate the real key pair and replace this file:
-
-    ./scripts/init-signing.sh
-
-cosign.pub (this file) is committed to git and stays PUBLIC.
-cosign.key (the private key) NEVER goes into git — the script above
-creates it locally and you store it as the GitHub Actions repository
-secret SIGNING_SECRET. See docs/security.md and docs/installation.md.
------END ATOMIC-WORKSTATION PLACEHOLDER-----
+-----BEGIN PUBLIC KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEof+HeuYnAzYO4GFNIXOB4jCAVv7+
+ffCQEVK+wzNJ5hj18MM2M1pm8O1vIvqNO7ja2b4rYPsqKtx4F/T276Ldvg==
+-----END PUBLIC KEY-----

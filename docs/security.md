@@ -34,9 +34,13 @@ defaults to a much smaller path set.
   ```bash
   cosign verify --key cosign.pub ghcr.io/<owner>/atomic-workstation:latest
   ```
-* `cosign.key` — PRIVATE key, **local only** (gitignored). Stored as the
-  GitHub Actions repository secret `SIGNING_SECRET` (you create it in the
-  GitHub UI — `scripts/init-signing.sh` prints the exact steps).
+* `cosign.key` — PRIVATE key, **local only** (gitignored), protected by a
+  passphrase. Stored in GitHub Actions as TWO repository secrets:
+  `SIGNING_SECRET` (the key itself) and `SIGNING_PASSWORD` (its passphrase).
+  Unlike the upstream ublue-os template — which requires a passwordless key
+  (`COSIGN_PASSWORD="" cosign generate-key-pair`) — this repo keeps the key
+  encrypted, so build.yml passes `COSIGN_PASSWORD` from `SIGNING_PASSWORD`
+  when signing. `scripts/init-signing.sh` prints the exact setup steps.
 * CI (build.yml) refuses to build/publish when the secret is missing or the
   public key is still the placeholder — an unsigned image is never pushed.
 * The workflow pins every third-party action to a commit SHA (same pins as

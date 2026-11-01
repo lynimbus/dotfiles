@@ -80,9 +80,14 @@ jobs:
         if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
         env:
           HAS_SIGNING_SECRET: ${{ secrets.SIGNING_SECRET != '' && 'true' || 'false' }}
+          HAS_SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD != '' && 'true' || 'false' }}
         run: |
           if [[ "${HAS_SIGNING_SECRET}" != "true" ]]; then
             echo "::error::SIGNING_SECRET is not set (repo Settings → Secrets and variables → Actions). Run scripts/init-signing.sh locally first — see docs/security.md"
+            exit 1
+          fi
+          if [[ "${HAS_SIGNING_PASSWORD}" != "true" ]]; then
+            echo "::error::SIGNING_PASSWORD is not set (the passphrase protecting cosign.key — CI needs it to use the encrypted key). Run scripts/init-signing.sh locally first — see docs/security.md"
             exit 1
           fi
           if ! head -n1 cosign.pub | grep -q 'BEGIN PUBLIC KEY'; then
@@ -161,6 +166,7 @@ jobs:
         env:
           COSIGN_EXPERIMENTAL: false
           COSIGN_PRIVATE_KEY: ${{ secrets.SIGNING_SECRET }}
+          COSIGN_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
           DIGEST: ${{ steps.push-image.outputs.digest }}
         run: |
           # https://github.com/containers/container-libs/issues/388
