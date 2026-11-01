@@ -1,0 +1,19 @@
+[Unit]
+Description=atomic-workstation: capture software inventory into the git repo
+Documentation=https://github.com/lynimbus/dotfiles/blob/main/docs/software-management.md
+# The timer runs this; it can also be started manually:
+#   systemctl --user start atomic-workstation-inventory.service
+# Journal: journalctl --user -u atomic-workstation-inventory.service
+
+[Service]
+Type=oneshot
+# Runs as the user, no root needed. Capture only touches inventory JSON files.
+ExecStart=%h/dotfiles/scripts/inventory.sh capture
+# Never push from the timer — pushing is manual (scripts/sync.sh --push)
+Environment=NO_COLOR=1
+# Failure logging: everything lands in the journal
+StandardOutput=journal
+StandardError=journal
+SuccessExitStatus=0
+Nice=10
+IOSchedulingClass=idle

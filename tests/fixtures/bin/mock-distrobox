@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# mock-distrobox — test double (surface used by containers/*).
+# State: $MOCK_STATE/distrobox/containers.tsv — name<TAB>image
+# Supports: --version, list [--no-color], assemble create --file F,
+#           enter NAME -- CMD
+set -euo pipefail
+
+STATE="${MOCK_STATE:?MOCK_STATE must be set}/distrobox"
+mkdir -p "$STATE"
+BOXES="$STATE/containers.tsv"
+touch "$BOXES"
+
+cmd="${1:-}"; shift || true
+case "$cmd" in
+    --version)
+        echo "distrobox: 1.8.2 (mock)"
+        ;;
+    list)
+        echo " ID | NAME | STATUS | IMAGE"
+        awk -F'\t' '{ printf " %-12s | %-20s | %-18s | %s\n", "id" NR, $1, "Exited", $2 }' "$BOXES"
+        ;;
+    assemble)
+        subcmd=""; file=""; replace=0
+        while [[ $# -gt 0 ]]; do
+            case "$1" in
+                create) subcmd="create"; shift ;;
+                --file) file="${2:?}"; shift 2 ;;
+                --replace) replace=1; shift ;;
+                *) shift ;;
+            esac
+        done
+        [[ "$subcmd" == "create" ]] || { echo "mock-distrobox: only assemble create" >&2; exit 1; }
+        # parse ini sections: [name] and image=... lines
+        name=""
+        while IFS= read -r line || [[ -n "$line" ]]; do
+            line="${line%%#*}"
+            case "$line" in
+                \[*\]) name="${line//[ \[\]]/}" ;;
+                image=*) 
+                    image="${line#image=}"
+                    [[ -z "$name" ]] && continue
+                    if awk -F'\t' -v n="$name" '$1 == n { f = 1 } END { exit !f }' "$BOXES"; then
+                        if [[ $replace -eq 1 ]]; then
+                            awk -F'\t' -v n="$name" -v i="$image" '$1 != n { print } END { print n"\t"i }' "$BOXES" > "$BOXES.tmp"
+                            mv "$BOXES.tmp" "$BOXES"
+                            echo "Replaced $name"
+                        else
+                            echo "Skipping existing container $name"
+                        fi
+                    else
+                        printf '%s\t%s\n' "$name" "$image" >> "$BOXES"
+                        echo "Created $name"
+                    fi
+                    ;;
+            esac
+        done < "$file"
+        ;;
+    enter)
+        name="${1:?enter needs a name}"; shift 2 || true
+        if ! awk -F'\t' -v n="$name" '$1 == n { f = 1 } END { exit !f }' "$BOXES"; then
+            echo "error: container $name not found" >&2
+            exit 1
+        fi
+        exec bash "$@"
+        ;;
+    *)
+        echo "mock-distrobox: unsupported command: $cmd $*" >&2
+        exit 1
+        ;;
+esac

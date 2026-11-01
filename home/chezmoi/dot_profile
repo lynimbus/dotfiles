@@ -1,0 +1,24 @@
+# ~/.profile — atomic-workstation
+#
+# Managed by chezmoi. Login-shell environment. Works on the host and in
+# distrobox containers.
+
+# Homebrew (installed by Bazzite's ujust setup or restore.sh)
+if [ -d "${HOME}/.linuxbrew" ]; then
+    eval "$(${HOME}/.linuxbrew/bin/brew shellenv)"
+fi
+
+# ~/.local/bin (pipx, cargo, pip --user, etc.)
+if [ -d "${HOME}/.local/bin" ]; then
+    case ":${PATH}:" in
+        *":${HOME}/.local/bin:"*) ;;
+        *) export PATH="${HOME}/.local/bin:${PATH}" ;;
+    esac
+fi
+
+# Wayland: make CLI apps use the session's compositor
+if [ -n "${WAYLAND_DISPLAY:-}" ]; then
+    export MOZ_ENABLE_WAYLAND=1
+fi
+
+# Flatpak user apps in PATH is handled by the session; no extra setup needed.

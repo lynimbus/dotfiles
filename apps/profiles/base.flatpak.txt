@@ -1,0 +1,8 @@
+# base.flatpak.txt — first-boot seed list (one flatpak ID per line).
+# Install:  xargs -a apps/profiles/base.flatpak.txt flatpak install --user --noninteractive flathub
+# Adjust to taste; your REAL inventory is captured afterwards.
+org.mozilla.firefox
+com.visualstudio.code
+org.videolan.VLC
+org.gimp.GIMP
+com.spotify.Client

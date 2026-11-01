@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+# mock-flatpak — test double for the flatpak CLI (see tests/README.md).
+# State: $MOCK_STATE/flatpak/{user,system}/{apps,remotes}.tsv
+#   apps stored as:    application<TAB>origin<TAB>branch<TAB>arch
+#   list output adds:  installation (from the --user/--system flag) — 5 columns
+#   remotes stored/output as: name<TAB>url<TAB>options
+set -euo pipefail
+
+STATE="${MOCK_STATE:?MOCK_STATE must be set}/flatpak"
+SCOPE="user"
+ARGS=()
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --user) SCOPE="user"; shift ;;
+        --system) SCOPE="system"; shift ;;
+        *) ARGS+=("$1"); shift ;;
+    esac
+done
+set -- "${ARGS[@]}"
+mkdir -p "$STATE/$SCOPE"
+APPS="$STATE/$SCOPE/apps.tsv"
+REMOTES="$STATE/$SCOPE/remotes.tsv"
+touch "$APPS" "$REMOTES"
+
+positional() {
+    local a
+    for a in "$@"; do
+        [[ "$a" == -* ]] && continue
+        printf '%s\n' "$a"
+    done
+}
+
+cmd="${1:-}"
+[[ $# -gt 0 ]] && shift || true
+case "$cmd" in
+    --version)
+        echo "Flatpak 1.14.10 (mock)"
+        ;;
+    list)
+        awk -F'\t' -v s="$SCOPE" '{ printf "%s\t%s\t%s\t%s\t%s\n", $1, $2, s, $3, $4 }' "$APPS"
+        ;;
+    remotes)
+        cat "$REMOTES"
+        ;;
+    remote-add)
+        name="$(positional "$@" | sed -n '1p')"
+        url="$(positional "$@" | sed -n '2p')"
+        if awk -F'\t' -v n="$name" '$1 == n { f = 1 } END { exit !f }' "$REMOTES"; then
+            exit 0
+        fi
+        printf '%s\t%s\t\n' "$name" "$url" >> "$REMOTES"
+        ;;
+    install)
+        origin="$(positional "$@" | sed -n '1p')"
+        ref="$(positional "$@" | sed -n '2p')"
+        if [[ -z "$origin" || -z "$ref" ]]; then
+            echo "mock-flatpak: install needs ORIGIN REF" >&2
+            exit 1
+        fi
+        if ! awk -F'\t' -v n="$origin" '$1 == n { f = 1 } END { exit !f }' "$REMOTES"; then
+            echo "error: Remote \"$origin\" not found" >&2
+            exit 1
+        fi
+        app_id="${ref%%//*}"
+        branch="stable"
+        if [[ "$ref" == *//* ]]; then branch="${ref##*//}"; fi
+        if awk -F'\t' -v n="$app_id" '$1 == n { f = 1 } END { exit !f }' "$APPS"; then
+            exit 0
+        fi
+        printf '%s\t%s\t%s\t%s\n' "$app_id" "$origin" "$branch" "x86_64" >> "$APPS"
+        ;;
+    uninstall)
+        ref="$(positional "$@" | sed -n '1p')"
+        app_id="${ref%%//*}"
+        if ! awk -F'\t' -v n="$app_id" '$1 == n { f = 1 } END { exit !f }' "$APPS"; then
+            echo "error: \"$app_id\" is not installed" >&2
+            exit 1
+        fi
+        awk -F'\t' -v n="$app_id" '$1 != n' "$APPS" > "$APPS.tmp" && mv "$APPS.tmp" "$APPS"
+        ;;
+    *)
+        echo "mock-flatpak: unsupported command: $cmd $*" >&2
+        exit 1
+        ;;
+esac

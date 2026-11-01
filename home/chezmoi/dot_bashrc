@@ -1,0 +1,41 @@
+# ~/.bashrc — atomic-workstation
+#
+# Managed by chezmoi. Interactive, POSIX-friendly bash setup that works on
+# the host (Bazzite) and inside distrobox containers alike.
+# The user's daily driver shell is fish (kept per-machine, not managed here);
+# this file is the portable fallback for bash sessions.
+
+# ── chezmoi / repo helpers ──────────────────────────────────────────
+export ATOMIC_WORKSTATION_DIR="${ATOMIC_WORKSTATION_DIR:-$HOME/dotfiles}"
+export WORKSTATION_PROFILE="${WORKSTATION_PROFILE:-}"
+
+# ── history ─────────────────────────────────────────────────────────
+HISTSIZE=10000
+HISTFILESIZE=20000
+HISTCONTROL=ignoreboth:erasedups
+shopt -s histappend checkwinsize
+
+# ── prompt (starship, if installed via Homebrew) ────────────────────
+if command -v starship >/dev/null 2>&1; then
+    eval "$(starship init bash)"
+else
+    PS1='[\u@\h \w]\$ '
+fi
+
+# ── sensible aliases (subset of the fish aliases) ───────────────────
+alias la='ls -a'
+alias lla='ls -la'
+alias c='clear'
+alias grep='grep --color=auto'
+
+# ── Homebrew (CLI apps on Bazzite) ──────────────────────────────────
+if [ -d "${HOME}/.linuxbrew" ]; then
+    eval "$(${HOME}/.linuxbrew/bin/brew shellenv)"
+fi
+
+# ── editor ──────────────────────────────────────────────────────────
+export EDITOR="${EDITOR:-hx}"
+export VISUAL="${VISUAL:-hx}"
+
+# ── machine-local overrides (not managed by chezmoi) ────────────────
+[ -f ~/.bashrc.local ] && . ~/.bashrc.local

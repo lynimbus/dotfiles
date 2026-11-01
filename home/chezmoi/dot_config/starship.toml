@@ -1,0 +1,52 @@
+# ~/.config/starship.toml — atomic-workstation
+#
+# Managed by chezmoi. Minimal two-line prompt that works in bash and any
+# distrobox container (starship is installed via Homebrew on the host and in
+# the dev container bootstrap). Lines commented out are opt-in extras.
+
+# Left prompt: directory + git
+format = """
+$directory$git_branch$git_status$python$nodejs$rust$golang$cmd_duration
+$character"""
+
+add_newline = true
+
+[directory]
+truncation_length = 3
+truncate_to_repo = true
+style = "bold #89b4fa"
+
+[git_branch]
+symbol = " "
+style = "bold #f9e2af"
+
+[git_status]
+style = "bold #f38ba8"
+
+[character]
+success_symbol = "[❯](bold #a6e3a1)"
+error_symbol = "[❯](bold #f38ba8)"
+
+[cmd_duration]
+min_time = 2000
+format = "took [$duration]($style) "
+style = "yellow"
+
+[python]
+symbol = " "
+format = "via [${symbol}${pyenv}(${version})]($style) "
+
+[nodejs]
+symbol = " "
+
+[rust]
+symbol = " "
+
+[golang]
+symbol = " "
+
+# hostname — useful on multi-machine setups:
+[hostname]
+ssh_only = true
+format = "[$hostname](bold #94e2d5) "
+disabled = false

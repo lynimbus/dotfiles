@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+# mock-brew — test double for Homebrew (surface used by apps/brew/*).
+# State: $MOCK_STATE/brew/{formulae,leaves,casks}.txt (one package per line)
+# Supports: --version, leaves, list [--formula|--cask],
+#           bundle dump --file F --force, bundle --file F
+set -euo pipefail
+
+STATE="${MOCK_STATE:?MOCK_STATE must be set}/brew"
+mkdir -p "$STATE"
+FORMULAE="$STATE/formulae.txt"
+LEAVES="$STATE/leaves.txt"
+CASKS="$STATE/casks.txt"
+touch "$FORMULAE" "$LEAVES" "$CASKS"
+
+# extract package names (2nd quoted field) from Brewfile lines: brew "name"
+formula_names() { awk -F'"' '/^brew /{ print $2 }' "$1"; }
+
+cmd="${1:-}"
+shift || true
+case "$cmd" in
+    --version)
+        echo "Homebrew 4.6.9 (mock)"
+        ;;
+    leaves)
+        cat "$LEAVES"
+        ;;
+    list)
+        want_cask=0
+        for a in "$@"; do
+            [[ "$a" == "--cask" ]] && want_cask=1
+        done
+        if [[ $want_cask -eq 1 ]]; then cat "$CASKS"; else cat "$FORMULAE"; fi
+        ;;
+    bundle)
+        subcmd=""
+        file=""
+        while [[ $# -gt 0 ]]; do
+            case "$1" in
+                dump) subcmd="dump"; shift ;;
+                --file) file="${2:?--file needs a value}"; shift 2 ;;
+                --force | verbose) shift ;;
+                *) shift ;;
+            esac
+        done
+        if [[ -z "$file" ]]; then
+            echo "mock-brew: bundle needs --file" >&2
+            exit 1
+        fi
+        case "$subcmd" in
+            dump)
+                {
+                    echo 'tap "homebrew/core"'
+                    echo 'tap "homebrew/services"'
+                    while IFS= read -r f; do
+                        [[ -z "$f" ]] && continue
+                        echo "brew \"$f\""
+                    done < "$FORMULAE"
+                } > "$file"
+                ;;
+            "")
+                status=0
+                while IFS= read -r f; do
+                    [[ -z "$f" ]] && continue
+                    case "$f" in
+                        failme*) echo "Error: formula \"$f\" not found" >&2; status=1; continue ;;
+                    esac
+                    if ! grep -qx "$f" "$FORMULAE"; then
+                        echo "Installed $f"
+                        echo "$f" >> "$FORMULAE"
+                    fi
+                done < <(formula_names "$file")
+                exit $status
+                ;;
+            *)
+                echo "mock-brew: unsupported bundle subcommand: $subcmd" >&2
+                exit 1
+                ;;
+        esac
+        ;;
+    *)
+        echo "mock-brew: unsupported command: $cmd $*" >&2
+        exit 1
+        ;;
+esac

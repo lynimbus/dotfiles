@@ -1,0 +1,15 @@
+[Unit]
+Description=atomic-workstation: periodic software inventory scan (every hour)
+
+[Timer]
+# Default cadence: hourly. Override per-machine WITHOUT touching the repo:
+#   systemctl --user edit atomic-workstation-inventory.timer
+#   [Timer]
+#   OnUnitActiveSec=30m
+OnBootSec=15min
+OnUnitActiveSec=1h
+# Catch up if the machine was asleep/off at the scheduled time
+Persistent=true
+
+[Install]
+WantedBy=timers.target

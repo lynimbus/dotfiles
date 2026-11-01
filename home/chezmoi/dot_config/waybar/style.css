@@ -1,0 +1,65 @@
+/* ~/.config/waybar/style.css — atomic-workstation
+ *
+ * Managed by chezmoi. Dark scheme matching the solid-colour wallpaper in
+ * ~/.config/sway/config (#1e1e2e).
+ */
+* {
+    font-family: "Maple Mono NF CN", "Noto Sans", sans-serif;
+    font-size: 13px;
+    min-height: 0;
+}
+
+window#waybar {
+    background-color: rgba(30, 30, 46, 0.9);
+    color: #cdd6f4;
+    border-bottom: 1px solid #45475a;
+}
+
+#workspaces button {
+    padding: 0 8px;
+    background: transparent;
+    color: #cdd6f4;
+    border: none;
+    border-bottom: 2px solid transparent;
+}
+#workspaces button.focused {
+    border-bottom: 2px solid #89b4fa;
+}
+#workspaces button:hover {
+    background: rgba(137, 180, 250, 0.15);
+    border: none;
+    border-bottom: 2px solid #89b4fa;
+}
+
+#mode {
+    padding: 0 10px;
+    background: #f38ba8;
+    color: #1e1e2e;
+    border-radius: 3px;
+}
+
+#clock,
+#battery,
+#pulseaudio,
+#backlight,
+#tray,
+#idle_inhibitor {
+    padding: 0 10px;
+    margin: 0 2px;
+}
+
+#battery.warning {
+    color: #f9e2af;
+}
+#battery.critical {
+    color: #f38ba8;
+    animation: blink 1s alternate infinite;
+}
+@keyframes blink {
+    to { opacity: 0.5; }
+}
+
+#tray menu {
+    background: #313244;
+    color: #cdd6f4;
+}

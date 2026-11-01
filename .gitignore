@@ -1,0 +1,43 @@
+tmp/
+result*
+__pycache__/
+
+# ─────────────────────────────── atomic-workstation ───────────────────────────────
+# Never commit secrets. See docs/security.md.
+
+# image signing: the private key never enters git (public cosign.pub is tracked)
+cosign.key
+*.key
+
+# local environment / secrets
+.env
+.env.*
+!.env.example
+*.secret
+
+# secrets/ in this repo holds sops+age ENCRYPTED files only (see .sops.yaml).
+# Plain-text files dropped here are ignored; encrypted .json/.yaml pass through.
+secrets/*
+!secrets/*.json
+!secrets/*.yaml
+!secrets/*.yml
+
+# key / certificate material
+*.pem
+*.p12
+*.pfx
+
+# image build artifacts (see justfile recipe image-clean)
+output/
+previous.manifest.json
+changelog.md
+output.env
+*_build*/
+
+# misc
+*.log
+.DS_Store
+# tool caches
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/

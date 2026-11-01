@@ -1,0 +1,169 @@
+---
+name: Build container image
+
+on:
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '05 10 * * *'  # 10:05am UTC everyday — picks up fresh Bazzite builds
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**/README.md'
+      - 'docs/**'
+      - 'home/**'
+      - 'apps/**'
+      - 'containers/**'
+      - 'scripts/**'
+      - 'tests/**'
+  workflow_dispatch:
+
+env:
+  IMAGE_REGISTRY: "ghcr.io/${{ github.repository_owner }}"  # do not edit
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  build_push:
+    name: Build and push image
+    runs-on: ubuntu-26.04
+
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    steps:
+      # These stage versions are pinned by https://github.com/renovatebot/renovate
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Maximize build space
+        uses: ublue-os/remove-unwanted-software@695eb75bc387dbcd9685a8e72d23439d8686cba6
+
+      - name: Install just
+        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 #v4.0.0
+
+      - name: Check Just Syntax
+        shell: bash
+        run: |
+          just image-check
+
+      - name: Image Name
+        id: image-name
+        run: |
+          IMAGE_NAME=$(just image-name)
+
+          echo "IMAGE_NAME=${IMAGE_NAME}" >> $GITHUB_ENV
+
+      - name: Default Tag
+        id: gen-default-tag
+        run: |
+          DEFAULT_TAG=$(just image-generate-default-tag)
+
+          echo "DEFAULT_TAG=${DEFAULT_TAG}" >> $GITHUB_ENV
+
+      - name: Prepare environment
+        run: |
+          # Lowercase the image uri https://github.com/macbre/push-to-ghcr/issues/12
+          echo "IMAGE_REGISTRY=${IMAGE_REGISTRY,,}" >> ${GITHUB_ENV}
+          echo "IMAGE_NAME=${IMAGE_NAME,,}" >> ${GITHUB_ENV}
+
+      # Fail fast: never build-and-publish when signing is misconfigured.
+      # (The official template fails after the push; failing here keeps an
+      # unsigned image from ever being published.)
+      - name: Verify signing prerequisites
+        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        env:
+          HAS_SIGNING_SECRET: ${{ secrets.SIGNING_SECRET != '' && 'true' || 'false' }}
+        run: |
+          if [[ "${HAS_SIGNING_SECRET}" != "true" ]]; then
+            echo "::error::SIGNING_SECRET is not set (repo Settings → Secrets and variables → Actions). Run scripts/init-signing.sh locally first — see docs/security.md"
+            exit 1
+          fi
+          if ! head -n1 cosign.pub | grep -q 'BEGIN PUBLIC KEY'; then
+            echo "::error::cosign.pub is still the committed placeholder. Run scripts/init-signing.sh locally and commit the real public key."
+            exit 1
+          fi
+
+      # This actually builds the container image
+      - name: Build Image
+        id: build-image
+        run: |
+          just image-build \
+            ${IMAGE_NAME} \
+            ${DEFAULT_TAG}
+
+      # This provides smaller delta updates
+      - name: Rechunk with rpm-ostree
+        id: rechunk
+        run: |
+          just image-ostree-rechunk \
+            ${IMAGE_NAME} \
+            ${DEFAULT_TAG}
+
+      - name: Generate Build Tags
+        id: gen-build-tags
+        run: |
+          alias_tags="$(just image-generate-build-tags \
+                        ${IMAGE_NAME} \
+                        ${DEFAULT_TAG})"
+
+          echo "Tags for this Action..."
+          echo "${alias_tags}"
+          echo "alias_tags=${alias_tags}" >> $GITHUB_OUTPUT
+
+      - name: Tag Images
+        id: tag-images
+        env:
+          ALIAS_TAGS: ${{ steps.gen-build-tags.outputs.alias_tags }}
+        run: |
+          just image-tag-images \
+            "${IMAGE_NAME}" \
+            "${DEFAULT_TAG}" \
+            "${ALIAS_TAGS}"
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
+        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push To GitHub Container Registry
+        id: push-image
+        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        shell: bash
+        run: |
+          for tag in $(echo "$DEFAULT_TAG $ALIAS_TAGS" | tr ' ' '\n'); do
+            podman push ${IMAGE_REGISTRY}/${IMAGE_NAME}:${tag} --digestfile /tmp/digestfile
+            digest=$(< /tmp/digestfile)
+            echo "digest=${digest}" >> $GITHUB_OUTPUT
+          done
+
+      # Sign the image with the private key stored as the SIGNING_SECRET
+      # repository secret. The matching public key is cosign.pub in this repo.
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        with:
+          # be careful when upgrading major versions
+          cosign-release: 'v3.1.2'
+
+      - name: Sign container image
+        id: sign-image
+        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        env:
+          COSIGN_EXPERIMENTAL: false
+          COSIGN_PRIVATE_KEY: ${{ secrets.SIGNING_SECRET }}
+          DIGEST: ${{ steps.push-image.outputs.digest }}
+        run: |
+          # https://github.com/containers/container-libs/issues/388
+          # https://github.com/coreos/rpm-ostree/issues/5509
+          # use old bundle format, so we can use newer cosign 3.X.X instead of 2.X.X
+          cosign sign -y --new-bundle-format=false --use-signing-config=false --key env://COSIGN_PRIVATE_KEY ${IMAGE_REGISTRY}/${IMAGE_NAME}@${DIGEST}
