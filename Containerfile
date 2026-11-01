@@ -6,11 +6,6 @@
 # User configuration is NOT baked in here — it is managed by chezmoi from
 # home/chezmoi/. See docs/installation.md.
 
-# Allow build scripts to be referenced without being copied into the final image
-FROM scratch AS ctx
-COPY build_files /
-COPY system_files /system_files
-
 # Base image — configurable at build time:
 #   just image-build                    (default from image-template.env)
 #   BASE_IMAGE=ghcr.io/ublue-os/bazzite-nvidia:stable just image-build
@@ -20,7 +15,17 @@ COPY system_files /system_files
 #   NVIDIA proprietary:    ghcr.io/ublue-os/bazzite-nvidia:stable
 #   Steam Deck / HTPC:     ghcr.io/ublue-os/bazzite-deck:stable
 #   GNOME flavour:         ghcr.io/ublue-os/bazzite-gnome:stable
+#
+# The ARG must stay BEFORE the first FROM: an ARG declared inside a stage is
+# invisible to later stages, leaving FROM ${BASE_IMAGE} empty ("no FROM
+# statement found").
 ARG BASE_IMAGE="ghcr.io/ublue-os/bazzite:stable"
+
+# Allow build scripts to be referenced without being copied into the final image
+FROM scratch AS ctx
+COPY build_files /
+COPY system_files /system_files
+
 FROM ${BASE_IMAGE}
 
 ## Other possible base images include:
