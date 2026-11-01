@@ -143,13 +143,16 @@ jobs:
       - name: Push To GitHub Container Registry
         id: push-image
         if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
-        shell: bash
+        env:
+          ALIAS_TAGS: ${{ steps.gen-build-tags.outputs.alias_tags }}
         run: |
-          for tag in $(echo "$DEFAULT_TAG $ALIAS_TAGS" | tr ' ' '\n'); do
-            podman push ${IMAGE_REGISTRY}/${IMAGE_NAME}:${tag} --digestfile /tmp/digestfile
-            digest=$(< /tmp/digestfile)
-            echo "digest=${digest}" >> $GITHUB_OUTPUT
+          set -euo pipefail
+          for tag in ${ALIAS_TAGS}; do
+            podman push --digestfile=/tmp/digestfile ${IMAGE_NAME}:${tag} ${IMAGE_REGISTRY}/${IMAGE_NAME}:${tag}
           done
+
+          digest=$(< /tmp/digestfile)
+          echo "digest=${digest}" >> $GITHUB_OUTPUT
 
       # Sign the image with the private key stored as the SIGNING_SECRET
       # repository secret. The matching public key is cosign.pub in this repo.
