@@ -99,37 +99,42 @@ sudo systemctl reboot
 
 After the reboot, at the SDDM login screen:
 
-1. Click the session selector (bottom-left) → **Sway** (next to the default
+1. Click the session selector (bottom-left) → **niri** (next to the default
    KDE Plasma session, which remains as fallback).
-2. Log in. You should see: solid dark wallpaper, waybar on top,    foot terminal via `Super+Enter`, wofi launcher via `Super+D`.
+2. Log in. You should see: the noctalia bar/shell, kero terminal via
+   `Super+Enter`, the noctalia launcher via `Super+D`/`Super+Space` — the
+   same keymap as the NixOS setup this session was ported from
+   (docs/nixos-port-map.md).
 
-If Sway fails to start (driver regression, config error): log out, pick the
+If niri fails to start (driver regression, config error): log out, pick the
 KDE session at SDDM, fix, retry. That is exactly why the KDE session is
 kept. See troubleshooting below.
 
-### What the image contains (all from Fedora repos, verified 2026-10)
+### What the image contains
 
-sway (+ sway-config-upstream which ships `/usr/share/wayland-sessions/sway.desktop`
-— that is what makes SDDM offer Sway), swayidle, swaylock, swaybg, waybar,
-foot, mako, wofi, kanshi, grim, slurp, wl-clipboard, brightnessctl,
-playerctl, xdg-desktop-portal-wlr, xdg-desktop-portal-gtk.
+Fedora packages (verified 2026-11): niri (ships
+`/usr/share/wayland-sessions/niri.desktop` — that is what makes SDDM offer
+niri), noctalia, foot (fallback terminal), swaylock, xwayland-satellite,
+xdg-desktop-portal-gnome/gtk (screen sharing), xdg-terminal-exec, grim,
+slurp, swappy, wl-clipboard, brightnessctl, playerctl, ddcutil, wlsunset,
+fish, tmux, just, fcitx5 (+ chinese-addons/rime/gtk/qt/configtool), the
+font set (Noto CJK/emoji, JetBrains Mono, Fira Code, Intel One Mono),
+ladspa-swh-plugins, ollama, openssh-server, tuned.
+
+Release tarballs pinned by sha256 in `build_files/build.sh`: kero (terminal,
+Mod+Return), strata (file manager + FileChooser portal), Maple Mono NF CN
+and JetBrainsMono Nerd Font (the two fonts Fedora does not package).
 
 Polkit agent: the KDE one already in Bazzite
-(`/usr/libexec/polkit-kde-authentication-agent-1`), started from the sway
-config. PipeWire/WirePlumber: already in the Bazzite base.
+(`/usr/libexec/polkit-kde-authentication-agent-1`), started from the niri
+spawn-at-startup config. PipeWire/WirePlumber: already in the Bazzite base.
 
 ### NVIDIA caveat
 
-Sway works with the NVIDIA proprietary driver on most setups, but it is the
-least-tested path in the Sway ecosystem. Known limitations:
-
-* Use the `bazzite-nvidia` base variant (correct driver + kernel params).
-* Screen sharing/copy sometimes needs `WLR_DRM_NO_ATOMIC=1` — if you hit it,
-  add it in `~/.config/sway/conf.d/10-nvidia.conf` (untracked drop-in) as
-  `exec systemctl --user set-environment WLR_DRM_NO_ATOMIC=1` or export it in
-  the session. Test before relying on it.
-* If Sway misbehaves after a driver update: boot the KDE session (still
-  installed) and roll back the image (`sudo bootc rollback`).
+niri works with the NVIDIA proprietary driver; the base image choice
+(`bazzite-nvidia-open`) matches this machine. If niri misbehaves after a
+driver update: boot the KDE session (still installed) and roll back the
+image (`sudo bootc rollback`).
 
 The original KDE desktop is always available as fallback — by design.
 
@@ -145,13 +150,25 @@ chezmoi --source ~/dotfiles/home/chezmoi apply
 ./scripts/inventory.sh capture               # first inventory for this machine
 ```
 
+Optional first-boot extras (ports of the main branch's NixOS config — see
+docs/nixos-port-map.md):
+
+```bash
+ujust atomic-ws-user-apps     # magpie ghostty pig opengrep r8 mygo rime-ice
+just brew-seed                # CLI/dev tools (brew translation of home/packages)
+just flatpak-seed             # GUI apps (flathub translation of the GUI packages)
+ujust atomic-ws-set-shell-fish  # fish as login shell (chsh — machine state)
+ujust atomic-ws-ollama-pull   # kev:4b-q4_K_M (runtime model state)
+```
+
 Existing files: chezmoi `apply` would overwrite conflicts — run `diff`
 first; if you have local configs you want to keep, back them up or move the
 conflicting file aside, apply, then merge by hand.
 
-Machine-specific sway overrides go in `~/.config/sway/conf.d/*.conf`
-(included last, NOT managed by chezmoi). Monitor setup lives in
-`~/.config/kanshi/config` — edit it locally after applying.
+Machine-specific niri overrides: the ported config includes live in
+`~/.config/niri/*.kdl` (managed by chezmoi); the hardware file
+(`niri-hardware.kdl`) holds this laptop's eDP-1 mode/scale — edit it
+locally after applying, or `chezmoi unmanage` it.
 
 ## 5. Verify everything
 
@@ -159,17 +176,18 @@ Machine-specific sway overrides go in `~/.config/sway/conf.d/*.conf`
 ./scripts/doctor.sh
 ```
 
-[OK]/[WARN]/[FAIL] output for: bootc status, booted image, sway session
-entry, waybar/foot/… binaries, portals, flatpak + flathub, brew, distrobox,
-chezmoi drift, timer state, git state.
+[OK]/[WARN]/[FAIL] output for: bootc status, booted image, niri session
+entry, niri/noctalia/kero/strata/foot binaries, portals, flatpak + flathub,
+brew, distrobox, chezmoi drift, timer state, git state.
 
 ## Troubleshooting
 
 | symptom | fix |
 | --- | --- |
-| No Sway entry at SDDM | image not actually booted (`sudo bootc status`); or you are still on stock Bazzite |
-| Sway session starts, then black screen | try the KDE session; check `~/.local/share/sway.log`; remove `~/.config/sway/conf.d/*` drop-ins |
-| Waybar/foot "command not found" inside Sway | those come from the custom image — you booted the wrong image |
-| Screen sharing does nothing | `systemctl --user status xdg-desktop-portal-wlr`; log out/in once |
+| No niri entry at SDDM | image not actually booted (`sudo bootc status`); or you are still on stock Bazzite |
+| niri session starts, then black screen | try the KDE session; check `~/.local/share/niri.log` (niri-session) |
+| kero/strata/foot "command not found" inside niri | those come from the custom image — you booted the wrong image |
+| ghostty "command not found" | ghostty is a user app: `ujust atomic-ws-user-apps` (or `just user-apps`) |
+| Screen sharing does nothing | `systemctl --user status xdg-desktop-portal-gnome`; log out/in once |
 | CI fails at "Verify signing prerequisites" | `SIGNING_SECRET` missing or cosign.pub still placeholder (see §1.2) |
 | CI fails at build | check the Actions log — usually `BASE_IMAGE` name typo in image-template.env |

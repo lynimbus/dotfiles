@@ -36,5 +36,5 @@ exactly as they would resolve the real binaries on Bazzite.
 * building the OCI image (needs podman + multi-GB base image pull — see
   `docs/installation.md`, "local build")
 * real flatpak/brew/distrobox behaviour (only our usage of them)
-* chezmoi apply against a real $HOME (needs the chezmoi binary; the sway
+* chezmoi apply against a real $HOME (needs the chezmoi binary; the niri
   config syntax is exercised only when you apply it on the target machine)

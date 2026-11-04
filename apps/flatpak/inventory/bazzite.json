@@ -1,0 +1,108 @@
+{
+  "version": 1,
+  "profile": "bazzite",
+  "remotes": {
+    "user": [],
+    "system": []
+  },
+  "apps": [
+    {
+      "application": "com.github.Matoking.protontricks",
+      "origin": "flathub",
+      "installation": "system",
+      "branch": "stable",
+      "arch": "x86_64"
+    },
+    {
+      "application": "com.github.tchx84.Flatseal",
+      "origin": "flathub",
+      "installation": "system",
+      "branch": "stable",
+      "arch": "x86_64"
+    },
+    {
+      "application": "com.qq.QQ",
+      "origin": "flathub",
+      "installation": "system",
+      "branch": "stable",
+      "arch": "x86_64"
+    },
+    {
+      "application": "com.vysp3r.ProtonPlus",
+      "origin": "flathub",
+      "installation": "system",
+      "branch": "stable",
+      "arch": "x86_64"
+    },
+    {
+      "application": "io.github.DenysMb.Kontainer",
+      "origin": "flathub",
+      "installation": "system",
+      "branch": "stable",
+      "arch": "x86_64"
+    },
+    {
+      "application": "io.github.flattool.Warehouse",
+      "origin": "flathub",
+      "installation": "system",
+      "branch": "stable",
+      "arch": "x86_64"
+    },
+    {
+      "application": "it.mijorus.gearlever",
+      "origin": "flathub",
+      "installation": "system",
+      "branch": "stable",
+      "arch": "x86_64"
+    },
+    {
+      "application": "org.fcitx.Fcitx5",
+      "origin": "flathub",
+      "installation": "system",
+      "branch": "stable",
+      "arch": "x86_64"
+    },
+    {
+      "application": "org.gnome.Firmware",
+      "origin": "flathub",
+      "installation": "system",
+      "branch": "stable",
+      "arch": "x86_64"
+    },
+    {
+      "application": "org.kde.gwenview",
+      "origin": "flathub",
+      "installation": "system",
+      "branch": "stable",
+      "arch": "x86_64"
+    },
+    {
+      "application": "org.kde.haruna",
+      "origin": "flathub",
+      "installation": "system",
+      "branch": "stable",
+      "arch": "x86_64"
+    },
+    {
+      "application": "org.kde.kcalc",
+      "origin": "flathub",
+      "installation": "system",
+      "branch": "stable",
+      "arch": "x86_64"
+    },
+    {
+      "application": "org.kde.okular",
+      "origin": "flathub",
+      "installation": "system",
+      "branch": "stable",
+      "arch": "x86_64"
+    },
+    {
+      "application": "org.mozilla.firefox",
+      "origin": "flathub",
+      "installation": "system",
+      "branch": "stable",
+      "arch": "x86_64"
+    }
+  ]
+}

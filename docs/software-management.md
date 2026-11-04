@@ -5,20 +5,29 @@ How to install things, and how the repo finds out about them.
 ## Priority order (use the simplest thing that works)
 
 1. **Bazzite ujust** — system integrations. Run `ujust` to list; this repo
-   adds `ujust atomic-ws-doctor / atomic-ws-sync / atomic-ws-restore`.
+   adds `ujust atomic-ws-doctor / atomic-ws-sync / atomic-ws-restore /
+   atomic-ws-user-apps / atomic-ws-set-shell-fish / atomic-ws-ollama-pull /
+   atomic-ws-sudo-nopasswd`.
 2. **Flatpak** — GUI apps. `flatpak install flathub org.mozilla.firefox`.
    Discoverable in GNOME Software / the Bazzite Portal too.
 3. **Homebrew** — CLI/TUI apps. `brew install ripgrep fd bat eza`.
    (Preinstalled on Bazzite since 2024; run `ujust install-brew` if absent.)
 4. **Distrobox** — dev toolchains and distro-specific builds.
    `distrobox enter fedora-dev`, then install anything inside.
-5. **AppImage** — rare cases; keep them in `~/Applications` (not tracked).
-6. **rpm-ostree layering** (`rpm-ostree install <pkg>`) — LAST resort:
+5. **Pinned GitHub releases** (`scripts/install-user-apps.sh`, or
+   `just user-apps` / `ujust atomic-ws-user-apps`) — apps that exist
+   nowhere else (magpie, ghostty, pig, opengrep, r8, mygo): the atomic
+   counterpart of the main branch's Nix overlay packages. Versions are
+   pinned with sha256 in the script; `--check` compares pins to upstream.
+6. **AppImage** — rare cases; keep them in `~/Applications` (not tracked).
+7. **rpm-ostree layering** (`rpm-ostree install <pkg>`) — LAST resort:
    layering breaks atomic updates' cleanliness. If you need a package on
    the host, prefer adding it to `build_files/build.sh` and rebuilding the
    image (a PR to yourself).
-7. **Custom OCI image** — for system components that must be host-integrated
-   (this repo's Sway stack is the example).
+8. **Custom OCI image** — for system components that must be host-integrated
+   (this repo's niri + noctalia + kero + strata stack is the example).
+   The full mapping from the main branch's NixOS config lives in
+   docs/nixos-port-map.md.
 
 ## The inventory: automatic discovery
 

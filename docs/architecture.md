@@ -6,10 +6,15 @@ One git repository (this one) holds everything needed to rebuild a working
 Linux workstation:
 
 * **System layer** — a custom Bazzite (bootc) image built from this repo's
-  `Containerfile` via GitHub Actions → GHCR. Adds a Sway session on top of
-  stock Bazzite WITHOUT touching the default KDE session.
-* **Configuration layer** — chezmoi-managed dotfiles in `home/chezmoi/`.
-* **Application layer** — Flatpak (GUI) + Homebrew (CLI), discovered
+  `Containerfile` via GitHub Actions → GHCR. Adds a niri + noctalia session
+  (ported from this repo's main-branch NixOS config, see
+  docs/nixos-port-map.md) on top of stock Bazzite WITHOUT touching the
+  default KDE session.
+* **Configuration layer** — chezmoi-managed dotfiles in `home/chezmoi/`
+  (niri, noctalia, mango, ghostty, fish, git, jj, ssh, pipewire, systemd
+  user units — ported from the NixOS home-manager config).
+* **Application layer** — Flatpak (GUI) + Homebrew (CLI) + pinned
+  GitHub-release apps (`scripts/install-user-apps.sh`), discovered
   automatically by inventory scans, restorable from the repo.
 * **Development layer** — Distrobox containers declared in
   `containers/distrobox.ini` with bootstrap scripts.
@@ -22,7 +27,7 @@ from those files. No hand-maintained package lists.
 ## Repository layout
 
 ```text
-Containerfile              bootc image definition (Bazzite + Sway stack)
+Containerfile              bootc image definition (Bazzite + niri stack)
 build_files/build.sh       runs INSIDE the image build (dnf5 install …)
 system_files/              files overlaid into the image (ujust recipes)
 image-template.env         image name / org / base-image / tags
@@ -30,9 +35,10 @@ justfile                   image-* recipes (build, rechunk, tag, sign)
 .github/workflows/build.yml  CI: build → GHCR → cosign sign
 cosign.pub                 image signing PUBLIC key (placeholder until
                            scripts/init-signing.sh runs)
-home/chezmoi/              chezmoi SOURCE directory (sway, waybar, foot,
-                           mako, wofi, starship, fish, bash, ghostty,
-                           systemd user units)
+home/chezmoi/              chezmoi SOURCE directory (niri, noctalia,
+                           mango, ghostty, foot fallback, fish + jjmsg,
+                           git, jj, ssh, pipewire autogain, hourly-chime,
+                           environment.d, bin scripts)
 system/systemd/user/       inventory timer units (installed by a script,
                            not baked into the image)
 apps/flatpak/              capture/restore wrappers + inventory.py
@@ -42,7 +48,8 @@ containers/distrobox.ini   declarative dev containers
 containers/bootstrap/      per-container bootstrap scripts
 containers/inventory/      captured container metadata
 scripts/                   bootstrap / inventory / sync / restore / doctor /
-                           backup / init-signing / install-user-timer
+                           backup / init-signing / install-user-timer /
+                           install-user-apps (GitHub-release apps)
 tests/                     mocked end-to-end test suite (tests/run.sh)
 docs/                      these documents
 ```
@@ -52,7 +59,7 @@ docs/                      these documents
 | decision | rationale |
 | --- | --- |
 | Bazzite base + custom image | atomic updates + rollback for free; upstream keeps driver/kernel/flatpak plumbing maintained |
-| Sway added to the image, not replacing KDE | login screen offers both; KDE remains the fallback if Sway breaks (NVIDIA driver updates, regressions) |
+| niri + noctalia added to the image, not replacing KDE | login screen offers both; KDE remains the fallback if niri breaks (NVIDIA driver updates, regressions). The session stack is a port of this repo's NixOS config (docs/nixos-port-map.md) |
 | chezmoi with a subdirectory source (`home/chezmoi`) | the repo root hosts other things (NixOS flake); the source must stay dedicated |
 | Flatpak for GUI apps | Bazzite-native, sandboxed, works on immutable systems |
 | Homebrew for CLI apps | preinstalled on Bazzite, distro-agnostic, no rpm layering |

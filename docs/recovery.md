@@ -79,11 +79,11 @@ The repo IS the machine definition: image (Containerfile), config
 ## Chezmoi says a file would be overwritten
 
 You have a local file chezmoi wants to manage (e.g. an old
-`~/.config/sway/config`):
+`~/.config/niri/config.kdl`):
 
 ```bash
-chezmoi --source ~/dotfiles/home/chezmoi diff        # see the change
-mv ~/.config/sway/config ~/.config/sway/config.bak   # keep yours
-chezmoi --source ~/dotfiles/home/chezmoi apply        # apply ours
-diff ~/.config/sway/config.bak ~/.config/sway/config # merge by hand
+chezmoi --source ~/dotfiles/home/chezmoi diff          # see the change
+mv ~/.config/niri/config.kdl ~/.config/niri/config.kdl.bak  # keep yours
+chezmoi --source ~/dotfiles/home/chezmoi apply          # apply ours
+diff ~/.config/niri/config.kdl.bak ~/.config/niri/config.kdl  # merge by hand
 ```

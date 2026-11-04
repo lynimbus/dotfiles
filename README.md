@@ -1,6 +1,6 @@
 # atomic-workstation
 
-> One git repo for a complete Linux workstation: **Bazzite (bootc) + Sway + Flatpak + Homebrew + Distrobox**, with automatic software discovery.
+> One git repo for a complete Linux workstation: **Bazzite (bootc) + niri + Flatpak + Homebrew + Distrobox**, with automatic software discovery.
 >
 > 正常装软件 → 定时器自动扫描 → 状态进 git → 新机器一键恢复 → 系统更新原子化、可回滚。
 
@@ -9,19 +9,24 @@
 This repo doubles as:
 
 * the **atomic-workstation** definition (this README + `docs/`), and
-* an existing **NixOS flake** for the current machine (`flake.nix`,
-  `home/`, `system/`, `pkgs/` — predates this project, kept untouched;
-  the atomic-workstation parts coexist with it, see docs/architecture.md).
+* an existing **NixOS flake** for the current machine on the `main`
+  branch (`flake.nix`, `home/`, `system/`, `pkgs/`). This branch is the
+  atomic translation of that config: every module/package has a documented
+  home in docs/nixos-port-map.md.
 
 ## Architecture in 30 seconds
 
 ```text
 SYSTEM   bootc image (this repo's Containerfile, built by CI → GHCR)
-         Bazzite + an ADDITIONAL Sway session (KDE stays as fallback)
-CONFIG   chezmoi source: home/chezmoi/ (sway, waybar, foot, mako, wofi,
-         starship, fish, bash, ghostty, systemd user units)
-APPS     flatpak (GUI) + homebrew (CLI) — auto-discovered hourly
-         into apps/*/inventory/<machine>.json + Brewfile
+         Bazzite + an ADDITIONAL niri + noctalia session (KDE stays as
+         fallback) — a port of this repo's main-branch NixOS config,
+         module by module: docs/nixos-port-map.md
+CONFIG   chezmoi source: home/chezmoi/ (niri, noctalia, mango, ghostty,
+         foot, fish+jjmsg, git, jj, ssh, pipewire autogain, hourly-chime,
+         systemd user units, environment.d)
+APPS     flatpak (GUI) + homebrew (CLI) + pinned GitHub releases
+         (scripts/install-user-apps.sh: magpie ghostty pig opengrep r8
+         mygo) — auto-discovered hourly into apps/*/inventory/
 DEVS     distrobox containers declared in containers/distrobox.ini
 ```
 
@@ -38,6 +43,8 @@ cd ~/dotfiles
 ./scripts/bootstrap.sh                              # environment check
 chezmoi --source home/chezmoi diff                  # preview
 chezmoi --source home/chezmoi apply                 # apply user config
+just user-apps                                      # magpie ghostty pig opengrep r8 mygo (optional)
+just brew-seed                                      # CLI tools (first boot only; optional)
 ./scripts/install-user-timer.sh                     # hourly inventory scan
 ./scripts/inventory.sh capture                      # first inventory
 ```
