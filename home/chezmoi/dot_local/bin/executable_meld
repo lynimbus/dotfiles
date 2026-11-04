@@ -1,0 +1,10 @@
+#!/bin/sh
+# ~/.local/bin/meld — jj's merge editor (home/chezmoi/dot_config/jj/config.toml
+# sets `merge-editor = "meld"`), backed by the flathub org.gnome.meld.
+#
+# Meld is only ever installed as a flatpak (apps/profiles/base.flatpak.txt),
+# which does NOT put a `meld` binary on PATH, so `jj resolve` would fail with
+# "cannot execute meld". Same shim idea as the chromium wrapper next to this
+# file. The flatpak needs /run/host and a session bus, both present inside a
+# niri session; file arguments are passed straight through.
+exec flatpak run org.gnome.meld "$@"

@@ -2,6 +2,10 @@
 // Three adaptations for the atomic (Bazzite) base:
 //  - polkit: the NixOS config ran polkit-gnome as a home-manager systemd
 //    service; Bazzite already ships KDE's agent, so start that instead.
+//    Plasma 6 moved the binary under /usr/libexec/kf6/ — the pre-kf6 path
+//    /usr/libexec/polkit-kde-authentication-agent-1 no longer exists on
+//    Fedora 45, and a missing agent means every polkit prompt silently
+//    fails (flatpak system installs, mounts, firmware updates).
 //  - fcitx5: Fedora's package ships no /etc/xdg/autostart entry (DEs start
 //    it through their own IM integration), so the niri session spawns it.
 //  - the rest is verbatim.
@@ -11,7 +15,10 @@
 spawn-at-startup "noctalia"
 
 // Polkit authentication agent from the Bazzite (KDE) base image.
-spawn-at-startup "/usr/libexec/polkit-kde-authentication-agent-1"
+// Plasma 6 keeps it at /usr/libexec/kf6/…; older bases used /usr/libexec/…
+// directly. Try both so a base-image bump cannot silently leave the session
+// without an agent (a missing agent makes every privileged prompt fail).
+spawn-sh-at-startup "for p in /usr/libexec/kf6/polkit-kde-authentication-agent-1 /usr/libexec/polkit-kde-authentication-agent-1; do [ -x \"$p\" ] && exec \"$p\"; done; echo 'no polkit agent found' >&2"
 
 // Input method (fcitx5 + rime; env vars ship in the image's
 // /etc/environment.d/60-fcitx5.conf).

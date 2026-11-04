@@ -22,5 +22,5 @@
 	enabled = true
 
 [user]
-	name = {{ .gitName | default "lynimbus" }}
-	email = {{ .gitEmail | default "128837704+lynimbus@users.noreply.github.com" }}
+	name = {{ get . "gitName" | default "lynimbus" }}
+	email = {{ get . "gitEmail" | default "128837704+lynimbus@users.noreply.github.com" }}

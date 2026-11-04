@@ -14,6 +14,16 @@ end
 # ~/.local/bin — GitHub-release apps (magpie, ghostty, pig, …) live here
 fish_add_path -g ~/.local/bin
 
+# Homebrew. Bazzite's /usr/share/fish/vendor_conf.d/ublue-brew.fish already
+# does this — but only for /usr/bin/fish and only when interactive. A
+# brew-installed fish (which this config's base.Brewfile installs) does not
+# read that vendor dir at all, and non-interactive shells skip it, so add the
+# path here too. Appended, so a brew `dbus`/`just` never shadows the image's;
+# fish_add_path is a no-op when the entry is already there.
+if test -d /home/linuxbrew/.linuxbrew/bin
+    fish_add_path --append --global --path /home/linuxbrew/.linuxbrew/bin /home/linuxbrew/.linuxbrew/sbin
+end
+
 # aliases (ported from NixOS)
 alias la 'ls -a'
 alias lla 'ls -la'

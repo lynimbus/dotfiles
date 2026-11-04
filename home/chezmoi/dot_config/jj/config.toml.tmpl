@@ -5,8 +5,8 @@
 # state — ~/.ssh/id_ed25519 must exist before signed pushes.
 
 [user]
-name = "{{ .gitName | default "lynimbus" }}"
-email = "{{ .gitEmail | default "128837704+lynimbus@users.noreply.github.com" }}"
+name = "{{ get . "gitName" | default "lynimbus" }}"
+email = "{{ get . "gitEmail" | default "128837704+lynimbus@users.noreply.github.com" }}"
 
 [git]
 sign-on-push = true
