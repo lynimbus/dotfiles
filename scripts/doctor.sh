@@ -33,19 +33,19 @@ else
 fi
 
 # ── session layer ──────────────────────────────────────────────────
-aw_step "sway session"
-for binary in sway swaylock swayidle waybar foot mako wofi grim slurp wl-copy; do
+aw_step "niri session"
+for binary in niri noctalia foot kero strata swaylock grim slurp wl-copy; do
     if aw_have "$binary"; then aw_ok "$binary"; else aw_warn "$binary not in PATH (comes with the custom image; KDE fallback session stays available)"; fi
 done
-if [[ -f /usr/share/wayland-sessions/sway.desktop ]]; then
-    aw_ok "wayland session entry: /usr/share/wayland-sessions/sway.desktop (SDDM can offer Sway)"
+if [[ -f /usr/share/wayland-sessions/niri.desktop ]]; then
+    aw_ok "wayland session entry: /usr/share/wayland-sessions/niri.desktop (SDDM can offer niri)"
 else
-    aw_warn "no sway.desktop session entry — SDDM cannot offer Sway until the custom image is installed"
+    aw_warn "no niri.desktop session entry — SDDM cannot offer niri until the custom image is installed"
 fi
-if [[ -f /usr/share/xdg-desktop-portal/portals/wlr.portal ]] || aw_have xdg-desktop-portal-wlr; then
-    aw_ok "xdg-desktop-portal-wlr present (screen sharing)"
+if [[ -f /usr/share/xdg-desktop-portal/portals/gnome.portal ]] || aw_have xdg-desktop-portal-gnome; then
+    aw_ok "xdg-desktop-portal-gnome present (screen sharing)"
 else
-    aw_warn "xdg-desktop-portal-wlr missing — screenshots/screen-share may not work in Sway"
+    aw_warn "xdg-desktop-portal-gnome missing — screenshots/screen-share may not work in niri"
 fi
 
 # ── application layer ──────────────────────────────────────────────

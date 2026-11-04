@@ -1,8 +1,44 @@
 # base.flatpak.txt — first-boot seed list (one flatpak ID per line).
 # Install:  xargs -a apps/profiles/base.flatpak.txt flatpak install --user --noninteractive flathub
-# Adjust to taste; your REAL inventory is captured afterwards.
+#
+# Rebuilt 2026-11 by merging THIS machine's captured inventory (QQ, Firefox,
+# Fcitx5, the KDE utilities, the Bazzite add-ons) with the GUI half of the
+# NixOS config on main (home/packages/gui.nix):
+#   ungoogled-chromium, wechat-uos, obs-studio  → flathub
+#   ddcutil wlsunset wl-clipboard tmux xwayland-satellite → image (dnf)
+#   strata kero magpie → image / scripts/install-user-apps.sh
+#   ayugram-desktop folia-major grok-bot → no flathub/repo build, see
+#       docs/nixos-port-map.md
+# meld is the jj merge editor from home/programs/jujutsu.nix.
+# Your REAL inventory is captured afterwards into
+# apps/flatpak/inventory/<profile>.json — that file wins over this seed.
+
+# ── browsers (main: ungoogled-chromium; machine reality: Firefox) ──
+io.github.ungoogled_software.ungoogled_chromium
 org.mozilla.firefox
-com.visualstudio.code
-org.videolan.VLC
-org.gimp.GIMP
-com.spotify.Client
+
+# ── chat (main: QQ via linuxqq-wayland-fix; atomic: flathub QQ) ──
+com.qq.QQ
+com.tencent.WeChat
+
+# ── editors / utilities from the machine's captured inventory ──
+org.kde.okular
+org.kde.gwenview
+org.kde.haruna
+org.kde.kcalc
+org.gnome.meld
+
+# ── input method (flatpak apps talk to the host fcitx5 via this) ──
+org.fcitx.Fcitx5
+
+# ── media / recording (main: obs-studio) ──
+com.obsproject.Studio
+
+# ── workstation plumbing actually installed on this machine ──
+com.github.tchx84.Flatseal
+io.github.flattool.Warehouse
+it.mijorus.gearlever
+com.vysp3r.ProtonPlus
+io.github.DenysMb.Kontainer
+com.github.Matoking.protontricks
+org.gnome.Firmware

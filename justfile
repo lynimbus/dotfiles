@@ -1,10 +1,11 @@
 # atomic-workstation — standalone justfile for this branch
 #
 # This branch only contains the atomic-workstation subsystem, so its justfile
-# holds just the image-* recipes (the NixOS recipes of the main branch do not
-# apply here). Parameters come from image-template.env via dotenv.
+# holds the image-* recipes plus the user-side seed/install recipes (the
+# NixOS recipes of the main branch do not apply here). Parameters come from
+# image-template.env via dotenv.
 # ═════════════════════════════════════════════════════════════════════════════
-# atomic-workstation — OCI image build (Bazzite + Sway)
+# atomic-workstation — OCI image build (Bazzite + niri/noctalia)
 #
 # Recipes ported from the ublue-os/image-template Justfile
 # (https://github.com/ublue-os/image-template). They are prefixed with
@@ -19,8 +20,8 @@ set dotenv-load
 image_name := env_var_or_default("IMAGE_NAME", "atomic-workstation")
 repo_organization := env_var_or_default("REPO_ORGANIZATION", "lynimbus")
 source_repo := env_var_or_default("SOURCE_REPO", "lynimbus/dotfiles")
-image_desc := env_var_or_default("IMAGE_DESC", "Bazzite with an additional Sway session")
-image_keywords := env_var_or_default("IMAGE_KEYWORDS", "bazzite,sway,bootc,atomic")
+image_desc := env_var_or_default("IMAGE_DESC", "Bazzite with an additional niri session")
+image_keywords := env_var_or_default("IMAGE_KEYWORDS", "bazzite,niri,bootc,atomic")
 image_logo_url := env_var_or_default("IMAGE_LOGO_URL", "")
 default_tag := env_var_or_default("DEFAULT_TAG", "latest")
 base_image := env_var_or_default("BASE_IMAGE", "ghcr.io/ublue-os/bazzite:stable")
@@ -38,6 +39,34 @@ image-check:
     echo "Checking syntax: justfile"
     just -f justfile --list >/dev/null
     echo "OK"
+
+# ── user-side seeds & release apps (ported from main's NixOS packages) ─────
+
+# Install/refresh the pinned GitHub-release apps (magpie, ghostty, pig,
+# opengrep, r8, mygo) into ~/.local — the pkgs/ overlay of the main branch
+[group('user')]
+user-apps *args:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    exec ./scripts/install-user-apps.sh "{{args}}"
+
+# First-boot CLI seed: the brew translation of main's home/packages/*.nix
+[group('user')]
+brew-seed:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if ! command -v brew >/dev/null 2>&1; then
+        echo "brew is not installed — on Bazzite: ujust install-brew" >&2
+        exit 1
+    fi
+    exec brew bundle --file apps/profiles/base.Brewfile
+
+# First-boot GUI seed: the flathub translation of main's GUI packages
+[group('user')]
+flatpak-seed:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    exec xargs -a apps/profiles/base.flatpak.txt flatpak install --user --noninteractive flathub
 
 # Print the image name (used by CI)
 [group('image')]
