@@ -6,34 +6,39 @@
 # leaves file next to this Brewfile). brew bundle installs everything
 # listed here on a fresh machine.
 
+# ── formulae ──
+# Manage your dotfiles across multiple diverse machines, securely
+brew "chezmoi"
+# User-friendly command-line shell for UNIX-like operating systems
 brew "fish"
+# Open source programming language to build simple/reliable/efficient software
 brew "go"
+# Post-modern modal text editor
 brew "helix"
+# Git-compatible distributed version control system
 brew "jj" # auto (dependency)
+# TUI for interacting with the Jujutsu version control system
 brew "jjui"
+# Lightweight and flexible command-line JSON processor
 brew "jq"
+# Open-source, cross-platform JavaScript runtime environment
 brew "node" # auto (dependency)
+# AI agent toolkit
 brew "pi-coding-agent"
+# Search tool like grep and The Silver Searcher
 brew "ripgrep"
+# CLI proxy to minimize LLM token consumption
 brew "rtk"
+# Cross-shell prompt for astronauts
 brew "starship"
 
+# ── casks ──
+# Terminal interface for Antigravity agents
 cask "antigravity-cli"
+# Share coding agent sessions across desktop and mobile
 cask "lody"
 
-# AI agent toolkit
-# CLI proxy to minimize LLM token consumption
-# Cross-shell prompt for astronauts
-# Git-compatible distributed version control system
-# Lightweight and flexible command-line JSON processor
-# Open source programming language to build simple/reliable/efficient software
-# Open-source, cross-platform JavaScript runtime environment
-# Post-modern modal text editor
-# Search tool like grep and The Silver Searcher
-# Share coding agent sessions across desktop and mobile
-# TUI for interacting with the Jujutsu version control system
-# Terminal interface for Antigravity agents
-# User-friendly command-line shell for UNIX-like operating systems
+# ── flatpak apps (authoritative list: apps/flatpak/inventory/) ──
 flatpak "com.github.Matoking.protontricks"
 flatpak "com.github.tchx84.Flatseal"
 flatpak "com.qq.QQ"
@@ -48,6 +53,8 @@ flatpak "org.kde.haruna"
 flatpak "org.kde.kcalc"
 flatpak "org.kde.okular"
 flatpak "org.mozilla.firefox"
+
+# ── vscode extensions ──
 vscode "ms-azuretools.vscode-containers"
 vscode "ms-vscode-remote.remote-containers"
 vscode "ms-vscode-remote.remote-ssh"

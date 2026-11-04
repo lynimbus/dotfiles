@@ -38,7 +38,19 @@ aw_inventory_dirs() {
 }
 
 # ── command presence ──────────────────────────────────────────────────────
-aw_have() { command -v "$1" >/dev/null 2>&1; }
+# AW_DISABLE_CMDS: space-separated list of commands to pretend are missing.
+# It exists because a PATH cannot hide a tool that lives in /usr/bin (shadowing
+# an earlier PATH entry only makes `command -v` fall through to the real
+# binary), and the test suite has to exercise the "tool absent" branches on a
+# machine where the tools are genuinely installed. Unset in normal use.
+aw_have() {
+    local cmd="$1"
+    local disabled
+    for disabled in ${AW_DISABLE_CMDS:-}; do
+        [[ "$cmd" == "$disabled" ]] && return 1
+    done
+    command -v "$cmd" >/dev/null 2>&1
+}
 
 # ── git helpers (safe: never mutate, never reset) ─────────────────────────
 aw_git() { git -C "${ATOMIC_WS_ROOT}" "$@"; }

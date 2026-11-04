@@ -85,6 +85,12 @@ elif ! aw_have chezmoi; then
     aw_info "  install: brew install chezmoi (or https://chezmoi.io/install), then re-run"
 else
     CHEZMOI_SRC="${ATOMIC_WS_ROOT}/home/chezmoi"
+    # `chezmoi init` renders home/chezmoi/.chezmoi.toml.tmpl into
+    # ~/.config/chezmoi/chezmoi.toml, which is where gitName/gitEmail/profile
+    # come from. Without it the git/jj templates fail with "map has no entry
+    # for key", so it is not optional. Re-running init is harmless (it keeps
+    # the existing config unless --force).
+    chezmoi --source "$CHEZMOI_SRC" init
     aw_info "preview of pending config changes (chezmoi diff):"
     chezmoi --source "$CHEZMOI_SRC" diff || true
     if aw_confirm "apply these user configurations now?"; then
@@ -118,4 +124,4 @@ fi
 
 aw_step "[9/9] health check"
 "${ATOMIC_WS_ROOT}/scripts/doctor.sh" || true
-aw_ok "restore finished — reboot (or log out) and pick the Sway session to test it"
+aw_ok "restore finished — reboot (or log out) and pick the niri session to test it"

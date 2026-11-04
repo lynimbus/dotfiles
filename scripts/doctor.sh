@@ -57,6 +57,16 @@ if aw_have flatpak; then
     else
         aw_warn "flathub remote missing — flatpak install will need: flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/"
     fi
+    # The image bakes the host fcitx5 + rime. The flathub "Fcitx 5" app is a
+    # self-contained daemon for hosts without one: it races for the fcitx5
+    # D-Bus name and keeps its own rime data under ~/.var/app/<app-id>, so the
+    # host dictionary never gets used. Match on the display name, not the app
+    # id — flathub has shipped this app under more than one id.
+    if flatpak list --app --columns=name 2>/dev/null | grep -qi 'fcitx'; then
+        aw_warn "the Fcitx 5 flatpak conflicts with the image's host fcitx5 — remove it: flatpak uninstall $(flatpak list --app --columns=application,name 2>/dev/null | grep -i fcitx | cut -f1)"
+    else
+        aw_ok "no conflicting Fcitx 5 flatpak (host fcitx5 is used)"
+    fi
 else
     aw_warn "flatpak not installed (GUI apps source unavailable)"
 fi
@@ -75,7 +85,11 @@ if [[ -f "$BREWFILE" ]]; then aw_ok "Brewfile for '${PROFILE}' exists"; else aw_
 aw_step "distrobox"
 if aw_have distrobox; then
     aw_ok "distrobox $(distrobox --version 2>/dev/null | head -1)"
-    aw_have podman && aw_ok "podman $(podman --version 2>/dev/null | awk '{print $2}')" || aw_warn "podman missing — distrobox needs a container manager"
+    if aw_have podman; then
+        aw_ok "podman $(podman --version 2>/dev/null | awk '{print $2}')"
+    else
+        aw_warn "podman missing — distrobox needs a container manager"
+    fi
 else
     aw_warn "distrobox not installed"
 fi
@@ -92,6 +106,22 @@ if aw_have chezmoi; then
     fi
 else
     fail "chezmoi missing — required to manage user configuration (brew install chezmoi)"
+fi
+
+# ── xdg defaults (port of home/core.nix xdg.mimeApps) ─────────────
+# run_once_10-xdg-and-units.sh only runs once, and the usual install order
+# (apply config on stock Bazzite → bootc switch → reboot) makes it run BEFORE
+# strata exists. Re-checking here is the recovery path.
+aw_step "xdg defaults"
+if command -v xdg-mime >/dev/null 2>&1; then
+    dir_handler="$(xdg-mime query default inode/directory 2>/dev/null || true)"
+    if [[ "$dir_handler" == "io.github.lgse.Strata.desktop" ]]; then
+        aw_ok "inode/directory → strata"
+    else
+        aw_warn "inode/directory → '${dir_handler:-unset}' — set it: xdg-mime default io.github.lgse.Strata.desktop inode/directory"
+    fi
+else
+    aw_warn "xdg-mime missing — cannot check the file-manager default"
 fi
 
 # ── timer ──────────────────────────────────────────────────────────

@@ -28,8 +28,13 @@ org.kde.haruna
 org.kde.kcalc
 org.gnome.meld
 
-# ── input method (flatpak apps talk to the host fcitx5 via this) ──
-org.fcitx.Fcitx5
+# ── input method ──
+# NOTHING HERE ON PURPOSE. The image bakes the host fcitx5 (+rime) and the
+# niri session spawns it; /etc/environment.d/60-fcitx5.conf points the
+# toolkits at it. The flathub "Fcitx 5" app is a *separate sandboxed
+# daemon* for hosts that have no fcitx5 — installing it on this image makes
+# two daemons race for the fcitx5 D-Bus name and hides the rime dictionary
+# in ~/.local/share/fcitx5/rime behind ~/.var/app/<app-id>.
 
 # ── media / recording (main: obs-studio) ──
 com.obsproject.Studio

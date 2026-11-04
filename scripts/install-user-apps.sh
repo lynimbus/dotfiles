@@ -61,7 +61,10 @@ installed_version() { # installed_version <name> — best-effort probe
     ghostty) [[ -x "$bin" ]] && "$bin" --version 2>/dev/null | head -1 || true ;;
     pig) [[ -x "$bin" ]] && "$bin" --version 2>/dev/null | head -1 || true ;;
     opengrep) [[ -x "$bin" ]] && "$bin" --version 2>/dev/null | head -1 || true ;;
-    r8) ls "${SHARE_DIR}/java"/r8-*.jar >/dev/null 2>&1 && basename "$(ls "${SHARE_DIR}/java"/r8-*.jar | tail -1)" || true ;;
+    r8)
+        local -a jars=("${SHARE_DIR}"/java/r8-*.jar)
+        [[ -e "${jars[0]}" ]] && basename "${jars[-1]}"
+        ;;
     mygo) [[ -x "${BIN_DIR:-}/mygo" ]] || command -v mygo >/dev/null 2>&1 && mygo --version 2>/dev/null | head -1 || true ;;
     esac
 }
@@ -71,6 +74,28 @@ fetch() { # fetch <url> <sha256> <dest>
     if [[ -n "$2" ]]; then
         echo "$2  $3" | sha256sum --check
     fi
+}
+
+resolve_java() { # resolve_java — absolute path to a JDK 17+ java
+    if aw_have java; then
+        command -v java
+        return 0
+    fi
+    # Homebrew's openjdk@17 is keg-only: it is never linked into
+    # $(brew --prefix)/bin, so `java` is not on PATH even though the JDK is
+    # installed. Prefer the stable `opt` symlink over the Cellar path.
+    local p
+    for p in \
+        /home/linuxbrew/.linuxbrew/opt/openjdk@17/bin/java \
+        /home/linuxbrew/.linuxbrew/opt/openjdk/bin/java \
+        /usr/lib/jvm/*/bin/java; do
+        if [[ -x "$p" ]]; then
+            echo "$p"
+            return 0
+        fi
+    done
+    aw_warn "no java found — r8/d8 wrappers fall back to 'java' on PATH; install it with: brew install openjdk@17"
+    echo java
 }
 
 install_binary() { # url sha name
@@ -85,7 +110,7 @@ install_appimage() { # url sha name
     chmod 0755 "/tmp/atomic-ws-$3.AppImage"
     rm -rf "${dest}"
     mkdir -p "${dest}"
-    (cd "${dest}" && /tmp/atomic-ws-$3.AppImage --appimage-extract >/dev/null)
+    (cd "${dest}" && "/tmp/atomic-ws-$3.AppImage" --appimage-extract >/dev/null)
     # Layout stays exactly as extracted — either a plain squashfs-root/
     # directory or the sharun form (AppDir/ payload + squashfs-root → AppDir
     # symlink). "squashfs-root/AppRun" resolves in both.
@@ -124,13 +149,31 @@ install_tarball() { # url sha name
 
 install_jar() { # url sha name version
     mkdir -p "${SHARE_DIR}/java"
-    fetch "$1" "$2" "${SHARE_DIR}/java/r8-$4.jar"
-    cat > "${BIN_DIR}/r8" <<EOF
+    local jar="${SHARE_DIR}/java/r8-$4.jar"
+    if [[ -f "$jar" && $FORCE -eq 0 ]]; then
+        aw_ok "r8-$4.jar already present — use --force to re-download"
+    else
+        fetch "$1" "$2" "$jar"
+    fi
+
+    # The jar has NO per-class main entry in its manifest (Main-Class is the
+    # SwissArmyKnife dispatcher), so `java -jar` only works with the tool name
+    # as the first argument. Spell the classes out the way pkgs/r8.nix does
+    # and provide both commands: r8 (shrink + dex) and d8 (dex only).
+    local java_bin
+    java_bin="$(resolve_java)"
+    local cls
+    for cls in R8 D8; do
+        local tool
+        tool="$(printf '%s' "$cls" | tr '[:upper:]' '[:lower:]')"
+        cat > "${BIN_DIR}/$tool" <<EOF
 #!/bin/sh
-# wrapper for the r8 dexer jar (Google Maven), port of pkgs/r8.nix (main branch)
-exec java -jar "${SHARE_DIR}/java/r8-$4.jar" "\$@"
+# wrapper for com.android.tools.r8.$cls in r8-$4.jar (Google Maven),
+# port of pkgs/r8.nix (main branch)
+exec "${java_bin}" -cp "${SHARE_DIR}/java/r8-$4.jar" com.android.tools.r8.$cls "\$@"
 EOF
-    chmod 0755 "${BIN_DIR}/r8"
+        chmod 0755 "${BIN_DIR}/$tool"
+    done
 }
 
 install_go() { # module@version
@@ -145,10 +188,20 @@ install_gitdata() { # url target-relative-path
     local dest="${SHARE_DIR}/$2"
     if [[ -d "${dest}/.git" ]]; then
         git -C "${dest}" pull --ff-only || aw_warn "$2: pull failed — resolve locally"
-    else
-        mkdir -p "${dest}"
-        git clone --depth 1 "$1" "${dest}"
+        return 0
     fi
+
+    # The directory can already exist WITHOUT being a git checkout: fcitx5
+    # creates ~/.local/share/fcitx5/rime and drops build/, installation.yaml
+    # etc. into it the first time the input method starts. `git clone` into a
+    # non-empty directory refuses, so clone aside and merge in, leaving the
+    # user's own state (build/, *.userdb) alone.
+    local tmp
+    tmp="$(mktemp -d)"
+    git clone --depth 1 "$1" "${tmp}/repo"
+    mkdir -p "$dest"
+    cp -a "${tmp}/repo/." "${dest}/"
+    rm -rf "$tmp"
 }
 
 # ── CLI ────────────────────────────────────────────────────────────────────
@@ -174,6 +227,21 @@ want_app() { # want_app <name>
     done
     return 1
 }
+
+# `install-user-apps.sh magepie` must not look like a successful no-op.
+for w in ${WANTED[@]+"${WANTED[@]}"}; do
+    [[ -z "$w" ]] && continue
+    known=0
+    for entry in "${ALL_APPS[@]}"; do
+        if [[ "$(app_field "$entry" 0)" == "$w" ]]; then
+            known=1
+            break
+        fi
+    done
+    if [[ $known -eq 0 ]]; then
+        aw_die "unknown app: $w (known: $(for e in "${ALL_APPS[@]}"; do printf '%s ' "$(app_field "$e" 0)"; done))"
+    fi
+done
 
 latest_tag() { # latest_tag <repo> — via redirect, no API (rate-limit free)
     curl -s -o /dev/null -w '%{redirect_url}' "https://github.com/$1/releases/latest" |
@@ -245,7 +313,7 @@ install)
             fi
             ;;
         jar)
-            ;; # idempotent by version in the filename
+            ;; # install_jar re-uses r8-<version>.jar and is idempotent by version
         esac
 
         aw_step "installing ${name} (${kind})"

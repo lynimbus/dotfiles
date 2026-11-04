@@ -10,16 +10,34 @@ UNITS="$REPO_ROOT/system/systemd/user"
 
 t_title "systemd user units"
 
+# The shipped unit points ExecStart at %h/dotfiles/… (the documented clone
+# location). `systemd-analyze verify` resolves %h and then insists the binary
+# exists, so verifying the committed file only passes on a machine whose repo
+# happens to be at ~/dotfiles. Verify an otherwise-identical copy whose
+# ExecStart points at this checkout instead: that still exercises every other
+# directive, and does not depend on where the repo lives.
+verify_unit() { # verify_unit <unit file> → prints whatever systemd complains about
+    local unit="$1" tmp
+    tmp="$(mktemp -d)"
+    sed "s|%h/dotfiles|${REPO_ROOT}|g" "$unit" >"${tmp}/$(basename "$unit")"
+    systemd-analyze verify "${tmp}/$(basename "$unit")" 2>&1
+    rm -rf "$tmp"
+}
+
 t_case "service file is a valid systemd unit"
-verify_out=$(systemd-analyze verify "$UNITS/atomic-workstation-inventory.service" 2>&1)
-if grep -v 'Invalid URL' <<<"$verify_out" | grep -q .; then
-    t_fail "service verify failed: $verify_out"
+if [[ ! -x "${REPO_ROOT}/scripts/inventory.sh" ]]; then
+    t_fail "scripts/inventory.sh is not executable — ExecStart would fail"
 else
-    t_ok
+    verify_out=$(verify_unit "$UNITS/atomic-workstation-inventory.service")
+    if grep -v 'Invalid URL' <<<"$verify_out" | grep -q .; then
+        t_fail "service verify failed: $verify_out"
+    else
+        t_ok
+    fi
 fi
 
 t_case "timer file is a valid systemd unit"
-verify_out=$(systemd-analyze verify "$UNITS/atomic-workstation-inventory.timer" 2>&1)
+verify_out=$(verify_unit "$UNITS/atomic-workstation-inventory.timer")
 if [[ -z "$verify_out" ]]; then t_ok; else t_fail "timer verify: $verify_out"; fi
 
 t_case "service runs capture as user, without root or push"

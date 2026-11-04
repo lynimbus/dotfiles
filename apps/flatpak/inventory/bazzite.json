@@ -56,13 +56,6 @@
       "arch": "x86_64"
     },
     {
-      "application": "org.fcitx.Fcitx5",
-      "origin": "flathub",
-      "installation": "system",
-      "branch": "stable",
-      "arch": "x86_64"
-    },
-    {
       "application": "org.gnome.Firmware",
       "origin": "flathub",
       "installation": "system",

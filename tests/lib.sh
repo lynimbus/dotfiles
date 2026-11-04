@@ -52,9 +52,38 @@ t_setup() {
     export ATOMIC_WS_ROOT="${REPO_ROOT}"
     export NO_COLOR=1
 }
-t_enable_mock() { ln -sf "${REPO_ROOT}/tests/fixtures/bin/mock-$1" "$T_SANDBOX/bin/$1"; }
-t_disable_mock() { rm -f "$T_SANDBOX/bin/$1"; }
+# Mocks are installed under the real name; `disable` must ALSO make the real
+# binary invisible, otherwise a machine that has brew/distrobox in PATH (every
+# Bazzite host) makes the "tool absent" cases fail — and, worse, the scripts
+# fall through to the real tool (real distrobox would create podman state in
+# the sandbox HOME). A PATH cannot hide /usr/bin/distrobox, so aw_have() in
+# scripts/lib/common.sh honours AW_DISABLE_CMDS for exactly this purpose.
+t_enable_mock() {
+    ln -sf "${REPO_ROOT}/tests/fixtures/bin/mock-$1" "$T_SANDBOX/bin/$1"
+    t_undisable_cmd "$1"
+}
+t_disable_mock() {
+    rm -f "$T_SANDBOX/bin/$1"
+    t_disable_cmd "$1"
+}
+t_disable_cmd() { # t_disable_cmd <name> — treat <name> as not installed
+    local cur=" ${AW_DISABLE_CMDS:-} "
+    [[ "$cur" == *" $1 "* ]] || export AW_DISABLE_CMDS="${AW_DISABLE_CMDS:+${AW_DISABLE_CMDS} }$1"
+}
+t_undisable_cmd() { # t_undisable_cmd <name>
+    local out="" c
+    for c in ${AW_DISABLE_CMDS:-}; do
+        [[ "$c" == "$1" ]] && continue
+        out="${out:+$out }$c"
+    done
+    export AW_DISABLE_CMDS="$out"
+}
 t_teardown() {
-    [[ -n "$T_SANDBOX" ]] && rm -rf "$T_SANDBOX"
-    unset MOCK_STATE WORKSTATION_PROFILE 2>/dev/null || true
+    if [[ -n "$T_SANDBOX" ]]; then
+        # Rootless podman/overlay leaves root-owned files behind if a test ever
+        # reaches the real engine; brute-force the permissions before removing.
+        chmod -R u+rwX "$T_SANDBOX" 2>/dev/null || true
+        rm -rf "$T_SANDBOX" 2>/dev/null || true
+    fi
+    unset MOCK_STATE WORKSTATION_PROFILE AW_DISABLE_CMDS 2>/dev/null || true
 }

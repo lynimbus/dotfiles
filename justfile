@@ -44,11 +44,17 @@ image-check:
 
 # Install/refresh the pinned GitHub-release apps (magpie, ghostty, pig,
 # opengrep, r8, mygo) into ~/.local — the pkgs/ overlay of the main branch
+#
+# `just user-apps` installs everything; `just user-apps magpie r8` only those;
+# `just user-apps --check` compares the pins with upstream.
 [group('user')]
 user-apps *args:
     #!/usr/bin/env bash
     set -euo pipefail
-    exec ./scripts/install-user-apps.sh "{{args}}"
+    # The variadic arguments are expanded to individually shell-quoted words
+    # by just — do NOT wrap the expansion in quotes, that would splice all
+    # arguments into one string.
+    exec ./scripts/install-user-apps.sh {{args}}
 
 # First-boot CLI seed: the brew translation of main's home/packages/*.nix
 [group('user')]
@@ -66,7 +72,21 @@ brew-seed:
 flatpak-seed:
     #!/usr/bin/env bash
     set -euo pipefail
-    exec xargs -a apps/profiles/base.flatpak.txt flatpak install --user --noninteractive flathub
+    # The seed list carries comment lines (# …) and prose with apostrophes, and
+    # xargs honours quotes/backslashes — `xargs -a` on the raw file dies with
+    # "unmatched single quote". Filter to IDs, then install one at a time so a
+    # single unavailable app does not abort the rest of the seed.
+    mapfile -t ids < <(grep -Ev '^[[:space:]]*(#|$)' apps/profiles/base.flatpak.txt)
+    if [[ ${#ids[@]} -eq 0 ]]; then
+        echo "no flatpak IDs in apps/profiles/base.flatpak.txt" >&2
+        exit 0
+    fi
+    failed=0
+    for id in "${ids[@]}"; do
+        flatpak install --user --noninteractive flathub "$id" ||
+            { echo "flatpak install failed: $id" >&2; failed=1; }
+    done
+    exit "$failed"
 
 # Print the image name (used by CI)
 [group('image')]

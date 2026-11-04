@@ -47,6 +47,11 @@ brew "node"
 brew "python@3.12"
 brew "zig"
 brew "koka"
+# Two JDKs on purpose: jadx/apktool bake `openjdk`'s JAVA_HOME into their
+# wrappers (Homebrew's Language::Java helper), while r8/d8 in
+# scripts/install-user-apps.sh resolve `openjdk@17` explicitly (R8 is tested
+# against 17). Both formulae are keg-only, so neither puts `java` on PATH.
+brew "openjdk"
 brew "openjdk@17"
 brew "jdtls"
 brew "ast-grep"
@@ -61,6 +66,10 @@ brew "payload-dumper-go"
 brew "ffmpeg"
 brew "imagemagick"
 brew "poppler"
+
+# ── config management ────────────────────────────────────────────────
+# chezmoi renders home/chezmoi/ (scripts/restore.sh calls it)
+brew "chezmoi"
 
 # ── agent runtimes this machine actually uses ─────────────────────────
 brew "pi-coding-agent"
