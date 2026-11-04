@@ -41,6 +41,7 @@ Nothing auto-commits, nothing auto-pushes, nothing auto-deletes.
 git clone git@github.com:<owner>/<repo>.git ~/dotfiles
 cd ~/dotfiles
 ./scripts/bootstrap.sh                              # environment check
+chezmoi --source home/chezmoi init                  # render ~/.config/chezmoi/chezmoi.toml (gitName/gitEmail/profile)
 chezmoi --source home/chezmoi diff                  # preview
 chezmoi --source home/chezmoi apply                 # apply user config
 just user-apps                                      # magpie ghostty pig opengrep r8 mygo (optional)
@@ -50,7 +51,7 @@ just brew-seed                                      # CLI tools (first boot only
 ```
 
 First deploy of the custom image: **docs/installation.md** (base image
-variants, signing keys, `bootc switch`, first Sway login).
+variants, signing keys, `bootc switch`, first niri login).
 
 ## Daily commands
 
@@ -82,7 +83,7 @@ and honest limitations: **docs/software-management.md**.
 
 ```text
 Containerfile, build_files/, system_files/, image-template.env, justfile
-  → custom Bazzite image (Sway added, KDE kept)
+  → custom Bazzite image (niri + noctalia added, KDE kept)
 .github/workflows/build.yml     → CI: build, rechunk, push GHCR, cosign-sign
 cosign.pub                      → signing public key (placeholder → scripts/init-signing.sh)
 home/chezmoi/                   → ALL user config (chezmoi source dir)
@@ -120,5 +121,5 @@ cosign verify --key cosign.pub ghcr.io/<owner>/atomic-workstation:latest
   consent, brew skip paths, git safety (no auto-push, merge-state refusal),
   systemd unit validation
 * ⚠️ needs a real Bazzite host (not this NixOS dev machine): `bootc switch`,
-  SDDM Sway session login, ujust recipe discovery, real flatpak/brew scans,
+  SDDM niri session login, ujust recipe discovery, real flatpak/brew scans,
   image build in CI. See docs/installation.md §3 and the repo issue tracker.

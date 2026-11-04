@@ -1,6 +1,6 @@
 # installation — atomic-workstation
 
-Step-by-step from an empty machine to a running Sway-on-Bazzite workstation.
+Step-by-step from an empty machine to a running niri-on-Bazzite workstation.
 Everything dangerous (image switch, reboot, signing keys) is a MANUAL step —
 the scripts never do those for you.
 
@@ -20,6 +20,7 @@ Edit `image-template.env` → `BASE_IMAGE`. Match your GPU:
 | --- | --- |
 | AMD / Intel graphics | `ghcr.io/ublue-os/bazzite:stable` (default) |
 | NVIDIA proprietary driver | `ghcr.io/ublue-os/bazzite-nvidia:stable` |
+| NVIDIA open kernel module | `ghcr.io/ublue-os/bazzite-nvidia-open:stable` (current default in `image-template.env`) |
 | Steam Deck / HTPC appliance | `ghcr.io/ublue-os/bazzite-deck:stable` |
 | GNOME flavour preferred | `ghcr.io/ublue-os/bazzite-gnome:stable` |
 
@@ -95,7 +96,7 @@ sudo systemctl reboot
 * On a non-atomic host you cannot rebase — install Bazzite first from its
   ISO, then switch to the custom image.
 
-## 3. First boot: Sway session
+## 3. First boot: niri session
 
 After the reboot, at the SDDM login screen:
 
@@ -116,18 +117,26 @@ Fedora packages (verified 2026-11): niri (ships
 `/usr/share/wayland-sessions/niri.desktop` — that is what makes SDDM offer
 niri), noctalia, foot (fallback terminal), swaylock, xwayland-satellite,
 xdg-desktop-portal-gnome/gtk (screen sharing), xdg-terminal-exec, grim,
-slurp, swappy, wl-clipboard, brightnessctl, playerctl, ddcutil, wlsunset,
-fish, tmux, just, fcitx5 (+ chinese-addons/rime/gtk/qt/configtool), the
+slurp, swappy, wl-clipboard, brightnessctl, playerctl, wlsunset, fish, tmux,
+just, fcitx5 (+ chinese-addons/rime/gtk/qt/configtool), android-tools, the
 font set (Noto CJK/emoji, JetBrains Mono, Fira Code, Intel One Mono),
-ladspa-swh-plugins, ollama, openssh-server, tuned.
+ladspa-swh-plugins, ollama-base + ollama-vulkan, openssh-server, tuned.
+
+`ddcutil` is not a Fedora package; it comes with the Bazzite base image
+(`terra-ddcutil`). `ollama` is installed as ollama-base + ollama-vulkan
+instead of the `ollama` meta package: the meta hard-requires ollama-rocm,
+which pulls in ~5.9 GB of AMD ROCm libraries that are dead weight on an
+NVIDIA machine. The GPU backend here is Vulkan (`OLLAMA_VULKAN=1` in the
+service drop-in) because Fedora cannot ship a CUDA build.
 
 Release tarballs pinned by sha256 in `build_files/build.sh`: kero (terminal,
 Mod+Return), strata (file manager + FileChooser portal), Maple Mono NF CN
 and JetBrainsMono Nerd Font (the two fonts Fedora does not package).
 
 Polkit agent: the KDE one already in Bazzite
-(`/usr/libexec/polkit-kde-authentication-agent-1`), started from the niri
-spawn-at-startup config. PipeWire/WirePlumber: already in the Bazzite base.
+(`/usr/libexec/kf6/polkit-kde-authentication-agent-1` on Plasma 6; the niri
+spawn-at-startup snippet probes both the kf6 and the legacy path).
+PipeWire/WirePlumber: already in the Bazzite base.
 
 ### NVIDIA caveat
 
@@ -144,6 +153,7 @@ The original KDE desktop is always available as fallback — by design.
 git clone git@github.com:<owner>/<repo>.git ~/dotfiles
 cd ~/dotfiles
 ./scripts/bootstrap.sh                       # checks the environment
+chezmoi --source ~/dotfiles/home/chezmoi init    # render ~/.config/chezmoi/chezmoi.toml
 chezmoi --source ~/dotfiles/home/chezmoi diff    # PREVIEW first
 chezmoi --source ~/dotfiles/home/chezmoi apply
 ./scripts/install-user-timer.sh              # hourly inventory capture
@@ -155,6 +165,7 @@ docs/nixos-port-map.md):
 
 ```bash
 ujust atomic-ws-user-apps     # magpie ghostty pig opengrep r8 mygo rime-ice
+                              # (or: just user-apps magpie r8 — pick a subset)
 just brew-seed                # CLI/dev tools (brew translation of home/packages)
 just flatpak-seed             # GUI apps (flathub translation of the GUI packages)
 ujust atomic-ws-set-shell-fish  # fish as login shell (chsh — machine state)

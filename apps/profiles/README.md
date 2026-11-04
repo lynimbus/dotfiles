@@ -7,10 +7,19 @@ Inventories are captured per profile:
     apps/brew/inventory/<profile>/Brewfile    — generated, commit it
 
 This directory holds OPTIONAL hand-written seed lists for brand-new machines
-(what to install before the first capture exists). They are plain text, one
-flatpak ID per line, applied with:
+(what to install before the first capture exists). `base.flatpak.txt` is one
+flatpak ID per line with `#` comments; apply it with:
 
-    xargs -a apps/profiles/base.flatpak.txt flatpak install --user --noninteractive flathub || true
+    just flatpak-seed
+    # equivalent, if you prefer the raw command (the grep drops the comments —
+    # xargs does NOT ignore them and chokes on the apostrophes in prose):
+    grep -Ev '^[[:space:]]*(#|$)' apps/profiles/base.flatpak.txt \
+      | xargs -r flatpak install --user --noninteractive flathub || true
+
+`base.Brewfile` is a normal Brewfile:
+
+    just brew-seed
+    # equivalent: brew bundle --file apps/profiles/base.Brewfile
 
 Nothing automatic uses these files — they are a convenience for
 first-boot setup, not a package manager.

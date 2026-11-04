@@ -8,7 +8,7 @@ Disaster recovery: new machine, broken update, lost data.
 # 0. install Bazzite from its ISO (or rebase an existing ostree host)
 sudo bootc switch ghcr.io/<owner>/atomic-workstation:latest && sudo systemctl reboot
 
-# 1. log into the SWAY session once (verify the image works)
+# 1. log into the niri session once (verify the image works)
 
 # 2. get the repo
 sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/  # if missing
@@ -18,8 +18,9 @@ git clone git@github.com:<owner>/<repo>.git ~/dotfiles
 ~/dotfiles/scripts/restore.sh
 ```
 
-`restore.sh` shows the chezmoi diff BEFORE applying anything and asks for
-confirmation. Reboot (or just log out) and enjoy.
+`restore.sh` runs `chezmoi init` (renders `~/.config/chezmoi/chezmoi.toml`
+with gitName/gitEmail/profile), shows the chezmoi diff BEFORE applying
+anything and asks for confirmation. Reboot (or just log out) and enjoy.
 
 ## System update fails / boots badly
 
@@ -82,6 +83,7 @@ You have a local file chezmoi wants to manage (e.g. an old
 `~/.config/niri/config.kdl`):
 
 ```bash
+chezmoi --source ~/dotfiles/home/chezmoi init --force  # (only if ~/.config/chezmoi is stale)
 chezmoi --source ~/dotfiles/home/chezmoi diff          # see the change
 mv ~/.config/niri/config.kdl ~/.config/niri/config.kdl.bak  # keep yours
 chezmoi --source ~/dotfiles/home/chezmoi apply          # apply ours
