@@ -1,0 +1,12 @@
+# Automount half of /mnt/windows (x-systemd.automount +
+# x-systemd.idle-timeout=60 from system/hardware.nix, main branch).
+
+[Unit]
+Description=Automount /mnt/windows on demand
+
+[Automount]
+Where=/mnt/windows
+TimeoutIdleSec=60
+
+[Install]
+WantedBy=multi-user.target

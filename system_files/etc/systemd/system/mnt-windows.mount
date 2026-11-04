@@ -1,0 +1,15 @@
+# Port of system/hardware.nix (main branch):
+#   fileSystems."/mnt/windows" = { device = "/dev/disk/by-uuid/24224C5D224C3658";
+#     fsType = "ntfs3"; options = [ "uid=1000" "gid=100" "windows_names"
+#       "nofail" "x-systemd.automount" "x-systemd.idle-timeout=60" ]; };
+# Translated from fstab options into the systemd unit pair the NixOS config
+# generated (mount + automount). UUIDs are this workstation's disks.
+
+[Unit]
+Description=Windows partition (/mnt/windows)
+
+[Mount]
+What=/dev/disk/by-uuid/24224C5D224C3658
+Where=/mnt/windows
+Type=ntfs3
+Options=uid=1000,gid=100,windows_names,nofail
