@@ -1,0 +1,5 @@
+#!/bin/sh
+# ~/.local/bin/kbd-backlight — port of home/desktop/screenshot.nix (main
+# branch): raise the keyboard backlight by 10% by default.
+
+exec brightnessctl --device=kbd_backlight set "${1:-10%+}"

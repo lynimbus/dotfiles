@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Magpie
+Comment=Every agent's model. One place. (tray autostart)
+Exec=magpie tray
+Terminal=false
+X-GNOME-Autostart-enabled=true

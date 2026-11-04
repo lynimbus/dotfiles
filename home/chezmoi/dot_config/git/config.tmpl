@@ -1,0 +1,26 @@
+# {{ .chezmoi.sourceFile }} — port of home/programs/git.nix (main branch)
+
+[init]
+	defaultBranch = "main"
+
+[pull]
+	rebase = true
+
+[merge]
+	conflictstyle = zdiff3
+
+[diff]
+	colorMoved = "default"
+
+[push]
+	autoSetupRemote = true
+
+[fetch]
+	prune = true
+
+[rerere]
+	enabled = true
+
+[user]
+	name = {{ .gitName | default "lynimbus" }}
+	email = {{ .gitEmail | default "128837704+lynimbus@users.noreply.github.com" }}

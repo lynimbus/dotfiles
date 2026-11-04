@@ -1,0 +1,6 @@
+#!/bin/sh
+# ~/.local/bin/chromium — make `spawn "chromium"` from the ported niri
+# keybindings work against the flathub ungoogled-chromium (the main branch
+# used the nixpkgs ungoogled-chromium, whose binary is named chromium).
+
+exec flatpak run io.github.ungoogled_software.ungoogled_chromium "$@"

@@ -1,0 +1,30 @@
+# ~/.config/jj/config.toml — port of home/programs/jujutsu.nix (main branch)
+#
+# Requires on PATH: hx (editor), difft (brew: difftastic), delta (brew:
+# git-delta), meld (flatpak: org.gnome.meld). The SSH signing key is machine
+# state — ~/.ssh/id_ed25519 must exist before signed pushes.
+
+[user]
+name = "{{ .gitName | default "lynimbus" }}"
+email = "{{ .gitEmail | default "128837704+lynimbus@users.noreply.github.com" }}"
+
+[git]
+sign-on-push = true
+private-commits = "description(glob:'wip:*') | description(glob:'private:*')"
+
+[ui]
+default-command = "log"
+editor = "hx"
+diff-formatter = "difft"
+diff-editor = ":builtin"
+merge-editor = "meld"
+
+[aliases]
+delta = ["diff", "--git", "--config", "ui.pager=[\"delta\", \"--navigate\"]"]
+
+[revset-aliases]
+"immutable_heads()" = "untracked_remote_bookmarks()"
+
+[signing]
+backend = "ssh"
+key = "~/.ssh/id_ed25519"

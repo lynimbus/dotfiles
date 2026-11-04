@@ -1,9 +1,10 @@
 # ~/.config/ghostty/config — atomic-workstation
 #
-# Ported from this repo's NixOS config (home/programs/ghostty.nix).
-# NOTE: ghostty is not in Fedora repos (checked 2026-10); install it yourself
-# (Flathub, or build in a distrobox) if you want it — foot remains the
-# session's default terminal and ships in the image.
+# Port of home/programs/ghostty.nix (main branch).
+# ghostty is not in Fedora repos (checked 2026-11) and upstream ships no
+# Linux binaries — install it with `ujust atomic-ws-user-apps` (pkgforge
+# AppImage into ~/.local/bin) or build it in a distrobox. Until then foot
+# remains the session's always-present fallback terminal.
 
 font-family = Maple Mono NF CN
 font-size = 13

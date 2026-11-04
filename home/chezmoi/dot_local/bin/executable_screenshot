@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Port of home/desktop/screenshot.sh (main branch). satty is not packaged
+# for x86_64 Fedora (checked 2026-11, rawhide), so the annotation step uses
+# swappy — the Fedora-packaged equivalent. grim/slurp/wl-clipboard are the
+# same binaries the NixOS config used; satty's
+# --actions-on-enter="save-to-clipboard,exit" maps to swappy --early-exit
+# plus a wl-copy of the saved file.
+
+out="$(xdg-user-dir PICTURES)/Screenshots/Screenshot from $(date '+%Y-%m-%d %H:%M:%S').png"
+mkdir -p "$(dirname "$out")"
+
+grim -t png -g "$(slurp -d -F monospace)" - |
+    swappy -f - -o "$out" --early-exit || true
+
+# swappy copies to the clipboard itself when it manages to; make sure the
+# final file ends up there even when its clipboard export was denied.
+if [[ -f "$out" ]]; then
+    wl-copy < "$out" || true
+fi

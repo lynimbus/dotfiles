@@ -1,0 +1,6 @@
+[Unit]
+Description=整点报时通知与提示音
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/hourly-chime

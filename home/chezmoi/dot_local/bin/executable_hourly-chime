@@ -1,0 +1,11 @@
+#!/bin/sh
+# ~/.local/bin/hourly-chime — port of home/programs/hourly-chime.nix (main
+# branch). notify-send comes from libnotify, pw-play from pipewire-utils and
+# the sound from sound-theme-freedesktop — all baked into the image.
+
+notify-send \
+    --app-name=hourly-chime \
+    --icon=clock \
+    "整点报时" "$(date +%H:%M)"
+exec pw-play \
+    /usr/share/sounds/freedesktop/stereo/complete.oga

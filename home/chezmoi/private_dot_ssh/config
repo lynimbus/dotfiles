@@ -1,0 +1,9 @@
+# ~/.ssh/config — port of home/programs/ssh.nix (main branch)
+
+Host *
+    ForwardAgent yes
+
+Host github.com
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519
