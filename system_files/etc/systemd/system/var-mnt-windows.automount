@@ -1,11 +1,14 @@
 # Automount half of /mnt/windows (x-systemd.automount +
 # x-systemd.idle-timeout=60 from system/hardware.nix, main branch).
+#
+# Where= mirrors var-mnt-windows.mount: the canonical /var/mnt/windows, not
+# the /mnt symlink.
 
 [Unit]
 Description=Automount /mnt/windows on demand
 
 [Automount]
-Where=/mnt/windows
+Where=/var/mnt/windows
 TimeoutIdleSec=60
 
 [Install]

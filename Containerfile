@@ -46,6 +46,10 @@ FROM ${BASE_IMAGE}
 # Nerd Font). Every package below exists in Fedora repositories or is pinned
 # by sha256 in build_files/build.sh (verified against rawhide 2026-11).
 RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
+    --mount=type=tmpfs,dst=/tmp \
     --mount=type=cache,dst=/var/cache \
     --mount=type=cache,dst=/var/log \
     /ctx/build.sh
+
+# Bootc lint check — fails the build instead of publishing a broken image
+RUN bootc container lint

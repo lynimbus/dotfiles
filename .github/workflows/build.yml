@@ -5,11 +5,18 @@ on:
   pull_request:
     branches:
       - main
+      - atomic-workstation
   schedule:
     - cron: '05 10 * * *'  # 10:05am UTC everyday — picks up fresh Bazzite builds
   push:
+    # `atomic-workstation` is where the image work happens; without it here a
+    # push to that branch runs nothing at all. Build/push/sign stay gated on
+    # the default branch (see the `github.ref == …default_branch` conditions
+    # below), so a branch push gets the build + `bootc container lint` check
+    # and publishes nothing.
     branches:
       - main
+      - atomic-workstation
     paths-ignore:
       - '**/README.md'
       - 'docs/**'

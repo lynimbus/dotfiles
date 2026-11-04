@@ -3,13 +3,19 @@
 #     fsType = "ntfs3"; options = [ "uid=1000" "gid=100" "windows_names" ]; };
 # `nofail` is added on top of the NixOS options so a missing disk can never
 # hang an image-based boot (documented deviation in docs/nixos-port-map.md).
+#
+# The unit is named for the CANONICAL path: on ostree hosts / is a symlink
+# into /sysroot and /mnt is the symlink /mnt -> var/mnt, so systemd (and
+# systemd-fstab-generator) name the unit var-mnt-data.mount and reject a
+# Where= that still goes through the /mnt symlink ("Mount path is not
+# canonical"). Userspace keeps using /mnt/data.
 
 [Unit]
 Description=Data partition (/mnt/data)
 
 [Mount]
 What=/dev/disk/by-uuid/466A71B2AC3E8697
-Where=/mnt/data
+Where=/var/mnt/data
 Type=ntfs3
 Options=uid=1000,gid=100,windows_names,nofail
 

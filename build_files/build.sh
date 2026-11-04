@@ -71,7 +71,9 @@ dnf5 -y install \
     xdg-utils \
     ImageMagick \
     LibRaw \
-    ollama \
+    android-tools \
+    ollama-base \
+    ollama-vulkan \
     openssh-server \
     tuned
 
@@ -163,6 +165,21 @@ gtk-update-icon-cache -q -t -f /usr/share/icons/hicolor 2>/dev/null || true
 systemctl enable ollama.service || true
 systemctl enable sshd.service || true
 systemctl enable tuned.service || true
+
+### Clean up build scratch space
+#
+# The release archives and the dnf/rpm scratch dirs are build inputs, not
+# image content: leaving them behind ships ~330 MB of dead weight and trips
+# `bootc container lint` (nonempty-run-tmp). The Containerfile also mounts a
+# tmpfs over /tmp; this is the belt-and-braces half for anyone building the
+# script outside that RUN.
+rm -f /tmp/MapleMono-NF-CN.zip /tmp/JetBrainsMono.zip \
+    /tmp/kero.tar.gz /tmp/strata.tar.gz
+# dnf5 keeps its repo metadata in /var/lib/dnf (not /var/cache), and both it
+# and /run/dnf are build scratch, not machine state. Removing them is what
+# makes `bootc container lint` stop reporting untracked /var content
+# (`var-tmpfiles: d /var/lib/dnf/repos/…`, plus `countme` counter files).
+rm -rf /run/dnf /run/dnf5 /var/lib/dnf /var/cache/libdnf5/* /var/cache/dnf/* 2>/dev/null || true
 
 #### Example for enabling a System Unit File
 # systemctl enable <unit>

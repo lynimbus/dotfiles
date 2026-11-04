@@ -9,7 +9,7 @@
 
 # Health check of the atomic-workstation setup (bootc/niri/apps/git state)
 [group('atomic-workstation')]
-atomic-ws-doctor:
+atomic-ws-doctor *args:
     #!/usr/bin/env bash
     set -euo pipefail
     REPO="${ATOMIC_WORKSTATION_DIR:-$HOME/dotfiles}"
@@ -23,7 +23,7 @@ atomic-ws-doctor:
 
 # Capture this machine's software inventory into the repo (flatpak/brew/distrobox)
 [group('atomic-workstation')]
-atomic-ws-sync:
+atomic-ws-sync *args:
     #!/usr/bin/env bash
     set -euo pipefail
     REPO="${ATOMIC_WORKSTATION_DIR:-$HOME/dotfiles}"
@@ -37,7 +37,7 @@ atomic-ws-sync:
 
 # Restore software and user configuration from the repo onto this machine
 [group('atomic-workstation')]
-atomic-ws-restore:
+atomic-ws-restore *args:
     #!/usr/bin/env bash
     set -euo pipefail
     REPO="${ATOMIC_WORKSTATION_DIR:-$HOME/dotfiles}"
@@ -52,7 +52,7 @@ atomic-ws-restore:
 # Install/update the GitHub-release user apps (magpie, ghostty, pig, opengrep,
 # r8, mygo) — the pieces the main branch used to build with Nix overlay pkgs
 [group('atomic-workstation')]
-atomic-ws-user-apps:
+atomic-ws-user-apps *args:
     #!/usr/bin/env bash
     set -euo pipefail
     REPO="${ATOMIC_WORKSTATION_DIR:-$HOME/dotfiles}"
@@ -92,6 +92,13 @@ atomic-ws-ollama-pull model="kev:4b-q4_K_M":
 atomic-ws-sudo-nopasswd:
     #!/usr/bin/env bash
     set -euo pipefail
-    echo "lynimbus ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/90-lynimbus-nopasswd >/dev/null
-    sudo chmod 440 /etc/sudoers.d/90-lynimbus-nopasswd
-    echo "passwordless sudo enabled for ${USER}"
+    # The invoking user, not "whoever sudo says we are".
+    target_user="${SUDO_USER:-${USER}}"
+    if [[ -z "$target_user" || "$target_user" == root ]]; then
+        echo "run this as your normal user (not via sudo), e.g. ujust atomic-ws-sudo-nopasswd" >&2
+        exit 1
+    fi
+    echo "${target_user} ALL=(ALL) NOPASSWD: ALL" |
+        sudo tee "/etc/sudoers.d/90-${target_user}-nopasswd" >/dev/null
+    sudo chmod 440 "/etc/sudoers.d/90-${target_user}-nopasswd"
+    echo "passwordless sudo enabled for ${target_user}"
