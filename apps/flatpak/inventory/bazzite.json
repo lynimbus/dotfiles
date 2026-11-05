@@ -3,7 +3,13 @@
   "profile": "bazzite",
   "remotes": {
     "user": [],
-    "system": []
+    "system": [
+      {
+        "name": "flathub",
+        "url": "https://dl.flathub.org/repo/",
+        "options": "filtered"
+      }
+    ]
   },
   "apps": [
     {
@@ -21,7 +27,21 @@
       "arch": "x86_64"
     },
     {
+      "application": "com.obsproject.Studio",
+      "origin": "flathub",
+      "installation": "system",
+      "branch": "stable",
+      "arch": "x86_64"
+    },
+    {
       "application": "com.qq.QQ",
+      "origin": "flathub",
+      "installation": "system",
+      "branch": "stable",
+      "arch": "x86_64"
+    },
+    {
+      "application": "com.tencent.WeChat",
       "origin": "flathub",
       "installation": "system",
       "branch": "stable",
@@ -49,6 +69,13 @@
       "arch": "x86_64"
     },
     {
+      "application": "io.github.ungoogled_software.ungoogled_chromium",
+      "origin": "flathub",
+      "installation": "system",
+      "branch": "stable",
+      "arch": "x86_64"
+    },
+    {
       "application": "it.mijorus.gearlever",
       "origin": "flathub",
       "installation": "system",
@@ -57,6 +84,13 @@
     },
     {
       "application": "org.gnome.Firmware",
+      "origin": "flathub",
+      "installation": "system",
+      "branch": "stable",
+      "arch": "x86_64"
+    },
+    {
+      "application": "org.gnome.meld",
       "origin": "flathub",
       "installation": "system",
       "branch": "stable",

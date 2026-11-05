@@ -81,9 +81,27 @@ flatpak-seed:
         echo "no flatpak IDs in apps/profiles/base.flatpak.txt" >&2
         exit 0
     fi
+    # Install into the scope that actually owns a `flathub` remote. Bazzite
+    # configures flathub as a SYSTEM remote (the image and the Bazzite Portal
+    # install apps there), so the previous hard-coded `--user` failed every
+    # entry with "no remote refs found for flathub" on a stock machine.
+    scope=""
+    if flatpak remotes --user 2>/dev/null | awk '{print $1}' | grep -qx flathub; then
+        scope="--user"
+    elif flatpak remotes --system 2>/dev/null | awk '{print $1}' | grep -qx flathub; then
+        scope="--system"
+    else
+        # Neither scope knows flathub (Bazzite always ships it system-wide, so
+        # this is the abnormal path). Add a USER remote — no root needed, and
+        # the installs then land in the same scope as the remote.
+        echo "no flathub remote in either scope — adding a user remote" >&2
+        flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/
+        scope="--user"
+    fi
+    echo "installing ${#ids[@]} app(s) into the flatpak $( [[ $scope == --user ]] && echo user || echo system ) scope" >&2
     failed=0
     for id in "${ids[@]}"; do
-        flatpak install --user --noninteractive flathub "$id" ||
+        flatpak install "$scope" --noninteractive flathub "$id" ||
             { echo "flatpak install failed: $id" >&2; failed=1; }
     done
     exit "$failed"

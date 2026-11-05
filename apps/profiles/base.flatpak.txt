@@ -1,5 +1,5 @@
 # base.flatpak.txt — first-boot seed list (one flatpak ID per line).
-# Install:  xargs -a apps/profiles/base.flatpak.txt flatpak install --user --noninteractive flathub
+# Install:  just flatpak-seed  (detects the flathub scope; do NOT force --user)
 #
 # Rebuilt 2026-11 by merging THIS machine's captured inventory (QQ, Firefox,
 # Fcitx5, the KDE utilities, the Bazzite add-ons) with the GUI half of the

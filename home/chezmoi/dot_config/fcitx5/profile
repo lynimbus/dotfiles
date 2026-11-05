@@ -1,0 +1,36 @@
+# ~/.config/fcitx5/profile — atomic-workstation
+#
+# Port of the input-method selection from the main branch's NixOS config
+# (system/input-method.nix enables fcitx5 with the rime addon; the flathub
+# "Fcitx 5" app previously provided this file implicitly and has been
+# removed — see docs/nixos-port-map.md).
+#
+# fcitx5 auto-generates this file on first start with only the layout's
+# keyboard IM. Without it a fresh restore would come up with English only and
+# no way to type Chinese until rime is added by hand, so the selection is
+# committed here. The rime DATA (dictionaries, userdb) stays user state under
+# ~/.local/share/fcitx5/rime, installed by scripts/install-user-apps.sh
+# rime-ice — do not commit that directory.
+
+[Groups/0]
+# Group Name
+Name=Default
+# Layout
+Default Layout=us
+# Default Input Method
+DefaultIM=rime
+
+[Groups/0/Items/0]
+# Name
+Name=keyboard-us
+# Layout
+# Layout=
+
+[Groups/0/Items/1]
+# Name
+Name=rime
+# Layout
+# Layout=
+
+[GroupOrder]
+0=Default

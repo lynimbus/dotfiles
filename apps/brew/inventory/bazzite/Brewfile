@@ -7,36 +7,79 @@
 # listed here on a fresh machine.
 
 # ── formulae ──
+# Simple, modern, secure file encryption
+brew "age"
+# Tool for reverse engineering 3rd party, closed, binary Android apps
+brew "apktool"
+# Code searching, linting, rewriting
+brew "ast-grep"
+# Clone of cat(1) with syntax highlighting and Git integration
+brew "bat"
 # Manage your dotfiles across multiple diverse machines, securely
 brew "chezmoi"
+# Diff that understands syntax
+brew "difftastic"
+# Load/unload environment variables based on $PWD
+brew "direnv"
+# Utilities for Enhanced Read-Only File System
+brew "erofs-utils"
+# Modern, maintained replacement for ls
+brew "eza"
+# Simple, fast and user-friendly alternative to find
+brew "fd"
+# GitHub command-line tool
+brew "gh"
+# Syntax-highlighting pager for git and diff output
+brew "git-delta"
 # Open source programming language to build simple/reliable/efficient software
 brew "go"
 # Post-modern modal text editor
 brew "helix"
+# Dex to Java decompiler
+brew "jadx"
+# Java language specific implementation of the Language Server Protocol
+brew "jdtls"
 # Git-compatible distributed version control system
 brew "jj" # auto (dependency)
 # TUI for interacting with the Jujutsu version control system
 brew "jjui"
+# Compiler for the Koka language
+brew "koka"
+# Ambitious Vim-fork focused on extensibility and agility
+brew "neovim"
 # Open-source, cross-platform JavaScript runtime environment
 brew "node" # auto (dependency)
+# Development kit for the Java programming language
+brew "openjdk" # auto (dependency)
+# Development kit for the Java programming language
+brew "openjdk@17"
+# Android OTA payload dumper written in Go
+brew "payload-dumper-go"
 # AI agent toolkit
 brew "pi-coding-agent"
+# Interpreted, interactive, object-oriented programming language
+brew "python@3.12"
 # Search tool like grep and The Silver Searcher
 brew "ripgrep"
 # CLI proxy to minimize LLM token consumption
 brew "rtk"
+# Static analysis and lint tool, for (ba)sh scripts
+brew "shellcheck"
+# Universal proxy platform
+brew "sing-box"
+# Editor of encrypted files
+brew "sops"
 # Cross-shell prompt for astronauts
 brew "starship"
+# Source code spell checker
+brew "typos-cli"
+# Programming language designed for robustness, optimality, and clarity
+brew "zig"
+# Shell extension to navigate your filesystem faster
+brew "zoxide"
 
 # ── casks ──
 # Terminal interface for Antigravity agents
 cask "antigravity-cli"
 # Share coding agent sessions across desktop and mobile
 cask "lody"
-
-# ── vscode extensions ──
-vscode "ms-azuretools.vscode-containers"
-vscode "ms-vscode-remote.remote-containers"
-vscode "ms-vscode-remote.remote-ssh"
-vscode "ms-vscode-remote.remote-ssh-edit"
-vscode "ms-vscode.remote-explorer"

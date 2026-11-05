@@ -12,9 +12,12 @@ flatpak ID per line with `#` comments; apply it with:
 
     just flatpak-seed
     # equivalent, if you prefer the raw command (the grep drops the comments —
-    # xargs does NOT ignore them and chokes on the apostrophes in prose):
+    # xargs does NOT ignore them and chokes on the apostrophes in prose). Note
+    # there is NO --user/--system here on purpose: `just flatpak-seed` detects
+    # the scope that owns the flathub remote (system on Bazzite) and a wrong
+    # hard-coded scope fails with "no remote refs found for flathub":
     grep -Ev '^[[:space:]]*(#|$)' apps/profiles/base.flatpak.txt \
-      | xargs -r flatpak install --user --noninteractive flathub || true
+      | xargs -r flatpak install --noninteractive flathub || true
 
 `base.Brewfile` is a normal Brewfile:
 

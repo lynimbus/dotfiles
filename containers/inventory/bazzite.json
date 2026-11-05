@@ -1,5 +1,11 @@
 {
   "version": 1,
   "profile": "bazzite",
-  "containers": []
+  "containers": [
+    {
+      "name": "fedora-dev",
+      "image": "registry.fedoraproject.org/fedora-toolbox:42",
+      "bootstrap": "containers/bootstrap/fedora-dev.sh"
+    }
+  ]
 }

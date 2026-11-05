@@ -8,6 +8,15 @@ How to install things, and how the repo finds out about them.
    adds `ujust atomic-ws-doctor / atomic-ws-sync / atomic-ws-restore /
    atomic-ws-user-apps / atomic-ws-set-shell-fish / atomic-ws-ollama-pull /
    atomic-ws-sudo-nopasswd`.
+
+   The recipes live in the image at
+   `system_files/usr/share/ublue-os/just/60-custom.just`. **The file name is
+   load-bearing**: `ujust` does not glob `/usr/share/ublue-os/just` — the base
+   `/usr/share/ublue-os/justfile` imports every recipe file explicitly, and
+   `import? "/usr/share/ublue-os/just/60-custom.just"` is the single slot
+   reserved for custom images. A recipe file under any other name is never
+   imported and `ujust atomic-ws-doctor` fails with "justfile does not contain
+   recipe" (`tests/test_ujust.sh` guards this).
 2. **Flatpak** — GUI apps. `flatpak install flathub org.mozilla.firefox`.
    Discoverable in GNOME Software / the Bazzite Portal too.
 3. **Homebrew** — CLI/TUI apps. `brew install ripgrep fd bat eza`.
@@ -182,6 +191,23 @@ additional_packages="gcc cmake"
 Existing containers are never replaced or destroyed automatically. To force
 recreation: `distrobox assemble create --replace --file containers/distrobox.ini`
 (you type it).
+
+**A package name that no longer exists silently kills the whole container.**
+`additional_packages` is installed with a single `dnf install`; one
+`No match for argument` entry aborts the transaction, the container is left
+without ANY of the listed packages, and `distrobox assemble` reports the
+container as created. Pin names to what the container's Fedora actually ships:
+verify with
+
+```bash
+podman run --rm registry.fedoraproject.org/fedora-toolbox:42 \
+  dnf list --available <pkg>
+```
+
+This is how `java-17-openjdk-devel` was caught: Fedora 42 dropped `java-17-*`
+entirely (only `java-21`/`java-25`/`java-latest` remain), so the old list
+aborted and produced an empty container. The list now uses
+`java-21-openjdk-devel`.
 
 ## What about the NixOS side of this repo?
 

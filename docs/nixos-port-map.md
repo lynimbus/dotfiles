@@ -74,7 +74,10 @@
 
 ## 本机现状（2026-11 采集）
 
-* 会话：KDE Plasma（Bazzite DX 镜像）；待部署 `bazzite-nvidia-open:testing`
+* 会话：自定义镜像 `ghcr.io/lynimbus/atomic-workstation:latest`
+  已 `bootc switch` 并重启（基础镜像 `bazzite-nvidia-open:stable`）；
+  niri 会话已验证可启动（`niri validate` 通过、`/usr/share/wayland-sessions/
+  niri.desktop` 存在），KDE Plasma 仍作为回退会话保留
 * flatpak 应用（QQ、Firefox、OBS、KDE 系工具等）→ capture 后落在
   `apps/flatpak/inventory/bazzite.json`。**flathub 的 “Fcitx 5” 应用不进
   seed，也不进 inventory**：`apps/flatpak/inventory.py` 遇到它会跳过并打印
@@ -82,12 +85,30 @@
   上就是 bug。原因：镜像自带宿主 fcitx5，flathub 那个是给没装输入法的系统用的
   独立守护进程，两者会抢 fcitx5 的 D-Bus 名，rime 词库也会被隔到
   `~/.var/app/<app-id>` 里。
-  **本机现状（偏离）**：这台机器跑的是 Bazzite DX 基础镜像，自定义镜像尚未
-  部署（没有 niri/foot/swappy），宿主 `~/.local/share/fcitx5/` 也没有词库，
-  所以现在真正在提供中文输入的就是这个 flatpak——因此**暂时不能卸**。
-  部署自定义镜像 + 跑 `install-user-apps.sh rime-ice` 之后再按 doctor 提示卸掉
-  （`scripts/doctor.sh` 用应用显示名匹配，不依赖 flathub 的 app id）
+  **已完成**：镜像部署 + `install-user-apps.sh rime-ice` 之后
+  （`~/.local/share/fcitx5/rime` 已有 rime-ice 词库、宿主 fcitx5 已接管
+  `org.fcitx.Fcitx5` D-Bus 名），按 doctor 提示卸掉了该 flatpak
+  （`flatpak uninstall --system org.fcitx.Fcitx5`，
+  `scripts/doctor.sh` 用应用显示名匹配，不依赖 flathub 的 app id）
 * brew：helix/jj/jjui/go/node/pi-coding-agent 等 → `apps/brew/inventory/bazzite/`
   （fish 与 jq 已从 brew 移除：`/usr/bin/fish`、`/usr/bin/jq` 由镜像提供，
   brew 版本排在 PATH 后面永远不会被解析到）
-* `~/.local/bin/magpie`（自更新中，0.1.2909）、Lody 桌面 AppImage
+* `~/.local/bin/magpie`（自更新中，0.1.2909）、ghostty/opengrep/r8/mygo
+  （`scripts/install-user-apps.sh` 安装）、Lody 桌面 AppImage
+
+### 已知缺口：基础镜像由 bazzite-dx-nvidia 换成了 bazzite-nvidia-open
+
+`bootc status` 的回滚项（上一份部署）是 `ghcr.io/ublue-os/bazzite-dx-nvidia:stable`，
+当前自建镜像以 `bazzite-nvidia-open:stable` 为基础。DX 变体自带一批开发工具
+（VS Code / `code`、docker、kubectl 等），普通 nvidia-open 变体没有，因此
+`apps/brew/inventory/bazzite/Brewfile` 里的 vscode 扩展行在换基后消失
+（`code` 不再存在）。GHCR 上没有 `bazzite-dx-nvidia-open` 变体（只有
+`bazzite-dx-nvidia`），所以两者不可兼得：
+
+* 若要保留 DX 的桌面开发体验，把 `image-template.env` 的 `BASE_IMAGE` 改回
+  `ghcr.io/ublue-os/bazzite-dx-nvidia:stable` 并重建镜像；
+* 若要 nvidia-open 驱动，则用 brew/flatpak 自行补上缺失的 CLI/GUI 工具
+  （`code` 可用 flatpak `com.visualstudio.code`，或 brew `--cask` 不可用时的
+  其它途径）。
+
+这是一个待定的取舍，本分支目前选择 nvidia-open。

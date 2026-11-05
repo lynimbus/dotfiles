@@ -74,27 +74,26 @@ fetch() { # fetch <url> <sha256> <dest>
     fi
 }
 
-resolve_java() { # resolve_java — absolute path to a JDK 17+ java
-    if aw_have java; then
-        command -v java
-        return 0
-    fi
-    # Homebrew's openjdk@17 is keg-only: it is never linked into
-    # $(brew --prefix)/bin, so `java` is not on PATH even though the JDK is
-    # installed. Prefer the stable `opt` symlink over the Cellar path.
-    local p
-    for p in \
-        /home/linuxbrew/.linuxbrew/opt/openjdk@17/bin/java \
-        /home/linuxbrew/.linuxbrew/opt/openjdk/bin/java \
-        /usr/lib/jvm/*/bin/java; do
-        if [[ -x "$p" ]]; then
-            echo "$p"
-            return 0
-        fi
+# The java probe used by the generated r8/d8 wrappers. It is deliberately
+# emitted INTO the wrapper (resolved at run time, not install time): on a
+# fresh machine r8 is installed before `brew install openjdk@17`, so baking in
+# a path here would point at nothing. Homebrew's openjdk @17/@latest are
+# keg-only — never linked into $(brew --prefix)/bin — hence the explicit opt
+# paths; `java` on PATH is tried first for a system JDK.
+JAVA_PROBE='if command -v java >/dev/null 2>&1; then
+    java_bin=java
+else
+    java_bin=""
+    for p in /home/linuxbrew/.linuxbrew/opt/openjdk@17/bin/java \
+             /home/linuxbrew/.linuxbrew/opt/openjdk/bin/java \
+             /usr/lib/jvm/*/bin/java; do
+        if [ -x "$p" ]; then java_bin="$p"; break; fi
     done
-    aw_warn "no java found — r8/d8 wrappers fall back to 'java' on PATH; install it with: brew install openjdk@17"
-    echo java
-}
+fi
+if [ -z "$java_bin" ]; then
+    echo "r8: no Java runtime found (need JDK 17+); install it with: brew install openjdk@17" >&2
+    exit 1
+fi'
 
 install_binary() { # url sha name
     fetch "$1" "$2" "/tmp/atomic-ws-$3"
@@ -157,9 +156,8 @@ install_jar() { # url sha name version
     # The jar has NO per-class main entry in its manifest (Main-Class is the
     # SwissArmyKnife dispatcher), so `java -jar` only works with the tool name
     # as the first argument. Spell the classes out the way pkgs/r8.nix does
-    # and provide both commands: r8 (shrink + dex) and d8 (dex only).
-    local java_bin
-    java_bin="$(resolve_java)"
+    # and provide both commands: r8 (shrink + dex) and d8 (dex only). Java is
+    # resolved by the wrapper at run time (see JAVA_PROBE).
     local cls
     for cls in R8 D8; do
         local tool
@@ -168,10 +166,29 @@ install_jar() { # url sha name version
 #!/bin/sh
 # wrapper for com.android.tools.r8.$cls in r8-$4.jar (Google Maven),
 # port of pkgs/r8.nix (main branch)
-exec "${java_bin}" -cp "${SHARE_DIR}/java/r8-$4.jar" com.android.tools.r8.$cls "\$@"
+${JAVA_PROBE}
+exec "\$java_bin" -cp "${SHARE_DIR}/java/r8-$4.jar" com.android.tools.r8.$cls "\$@"
 EOF
         chmod 0755 "${BIN_DIR}/$tool"
     done
+
+    # Mirror the wrapper's runtime probe exactly, so the warning is accurate at
+    # install time too. (r8 is routinely installed before the JDK; the wrapper
+    # still works once `brew install openjdk@17` has run.)
+    local _java_found=0 _cand
+    if aw_have java; then
+        _java_found=1
+    else
+        for _cand in \
+            /home/linuxbrew/.linuxbrew/opt/openjdk@17/bin/java \
+            /home/linuxbrew/.linuxbrew/opt/openjdk/bin/java \
+            /usr/lib/jvm/*/bin/java; do
+            [[ -x "$_cand" ]] && { _java_found=1; break; }
+        done
+    fi
+    if [[ $_java_found -eq 0 ]]; then
+        aw_warn "no Java runtime found — r8/d8 will not run until you: brew install openjdk@17"
+    fi
 }
 
 install_go() { # module@version

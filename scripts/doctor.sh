@@ -16,13 +16,48 @@ fail() {
     FAILS=$((FAILS + 1))
 }
 
+# ── user context ───────────────────────────────────────────────────
+# The one check that needs root is `bootc status`, so the documented
+# invocation is `sudo ./scripts/doctor.sh` (or `ujust atomic-ws-doctor` run
+# with sudo). Root's HOME and root's `systemd --user` manager then make every
+# USER-scoped check lie: chezmoi would diff against /root, and the timer would
+# look permanently uninstalled. So when running as root under sudo, resolve the
+# real login user once and run the user-owned checks through `aw_user`.
+AW_RUN_USER="$(id -un)"
+AW_RUN_HOME="${HOME}"
+if [[ "${EUID}" -eq 0 && -n "${SUDO_USER:-}" && "${SUDO_USER}" != root ]]; then
+    AW_RUN_USER="${SUDO_USER}"
+    AW_RUN_HOME="$(getent passwd "${AW_RUN_USER}" 2>/dev/null | cut -d: -f6)"
+    [[ -n "${AW_RUN_HOME}" ]] || AW_RUN_HOME="/home/${AW_RUN_USER}"
+fi
+AW_RUN_UID="$(id -u "${AW_RUN_USER}" 2>/dev/null || id -u)"
+export AW_RUN_USER AW_RUN_HOME AW_RUN_UID
+
+# aw_user — run a user-owned command in the login user's context. A no-op when
+# we are already that user (the normal non-sudo case); under sudo it drops back
+# to the user with a usable HOME, PATH and XDG_RUNTIME_DIR (what `systemctl
+# --user` and `xdg-mime` need).
+aw_user() {
+    if [[ "${EUID}" -ne 0 ]]; then
+        "$@"
+    else
+        runuser -u "${AW_RUN_USER}" -- env \
+            HOME="${AW_RUN_HOME}" \
+            PATH="${AW_RUN_HOME}/.local/bin:${AW_RUN_HOME}/bin:${PATH}" \
+            XDG_RUNTIME_DIR="/run/user/${AW_RUN_UID}" \
+            "$@"
+    fi
+}
+
 # ── system layer ───────────────────────────────────────────────────
 aw_step "system"
 if aw_have bootc; then
     aw_ok "bootc available"
     if bootc status >/dev/null 2>&1; then
         aw_ok "bootc status readable"
-        bootc status 2>/dev/null | grep -m1 'image:' | sed 's/^ *image: */[INFO]  booted image: /' >&2 || true
+        # A bare `image:` (the map key) also matches a plain 'image:' grep and
+        # prints an empty value; require a value on the same line.
+        bootc status 2>/dev/null | grep -m1 -E '^ *image: .+' | sed 's/^ *image: */[INFO]  booted image: /' >&2 || true
     else
         aw_warn "bootc status needs root — run: sudo bootc status"
     fi
@@ -99,7 +134,7 @@ aw_step "chezmoi"
 CHEZMOI_SRC="${ATOMIC_WS_ROOT}/home/chezmoi"
 if aw_have chezmoi; then
     aw_ok "chezmoi $(chezmoi --version 2>/dev/null | awk '{print $NF}' | head -1)"
-    if OUT="$(chezmoi --source "$CHEZMOI_SRC" diff 2>/dev/null)" && [[ -z "$OUT" ]]; then
+    if OUT="$(aw_user chezmoi --source "$CHEZMOI_SRC" diff 2>/dev/null)" && [[ -z "$OUT" ]]; then
         aw_ok "user config applied and in sync with the repo"
     else
         aw_warn "config drift — preview with: chezmoi --source $CHEZMOI_SRC diff"
@@ -114,7 +149,7 @@ fi
 # strata exists. Re-checking here is the recovery path.
 aw_step "xdg defaults"
 if command -v xdg-mime >/dev/null 2>&1; then
-    dir_handler="$(xdg-mime query default inode/directory 2>/dev/null || true)"
+    dir_handler="$(aw_user xdg-mime query default inode/directory 2>/dev/null || true)"
     if [[ "$dir_handler" == "io.github.lgse.Strata.desktop" ]]; then
         aw_ok "inode/directory → strata"
     else
@@ -127,13 +162,16 @@ fi
 # ── timer ──────────────────────────────────────────────────────────
 aw_step "systemd user timer"
 if command -v systemctl >/dev/null 2>&1; then
-    state="$(systemctl --user is-enabled atomic-workstation-inventory.timer 2>/dev/null || echo not-found)"
+    # `systemctl is-enabled` prints the state ("not-found") to STDOUT and ALSO
+    # exits non-zero, so `$(... || echo not-found)` yields the value twice
+    # ("not-found\nnot-found"). Capture stdout first; substitute on failure.
+    state="$(aw_user systemctl --user is-enabled atomic-workstation-inventory.timer 2>/dev/null)" || state="not-found"
     case "$state" in
     enabled) aw_ok "timer enabled (hourly inventory capture)" ;;
     disabled) aw_warn "timer disabled — enable: ~/dotfiles/scripts/install-user-timer.sh" ;;
     *) aw_warn "timer unit $state (install: ~/dotfiles/scripts/install-user-timer.sh)" ;;
     esac
-    if systemctl --user show atomic-workstation-inventory.service --property=Result --value 2>/dev/null | grep -qx failure; then
+    if aw_user systemctl --user show atomic-workstation-inventory.service --property=Result --value 2>/dev/null | grep -qx failure; then
         aw_warn "last timer run FAILED — journalctl --user -u atomic-workstation-inventory.service"
     fi
 else

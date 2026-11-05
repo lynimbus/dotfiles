@@ -1,7 +1,18 @@
 # ═══════════════════════════════════════════════════════════════════
 # atomic-workstation helpers — ujust recipes baked into the image.
 #
-# ujust discovers every *.just file under /usr/share/ublue-os/just/.
+# The FILE NAME is load-bearing. `ujust` does not glob
+# /usr/share/ublue-os/just: /usr/share/ublue-os/justfile imports every recipe
+# file EXPLICITLY, and the single slot reserved for custom images is
+#
+#     import? "/usr/share/ublue-os/just/60-custom.just"
+#
+# (`import?` tolerates the file being absent). These recipes must therefore
+# live in 60-custom.just. Under any other name -- the file shipped as
+# 99-atomic-workstation.just before this fix -- nothing imports them, and
+# `ujust atomic-ws-doctor` fails with "justfile does not contain recipe" no
+# matter how correct the file contents are.
+#
 # These recipes wrap the scripts in the dotfiles repo (default ~/dotfiles,
 # override with the ATOMIC_WORKSTATION_DIR environment variable).
 # See docs/software-management.md and docs/nixos-port-map.md.
@@ -64,8 +75,13 @@ atomic-ws-user-apps *args:
     fi
     exec "$REPO/scripts/install-user-apps.sh" "$@"
 
-# Port of system/users.nix: fish as the login shell (opt-in — chsh touches
-# /etc, which stays machine state on atomic systems)
+# Port of system/users.nix: fish as the login shell (opt-in; it touches
+# /etc, which stays machine state on atomic systems).
+#
+# NOTE: Bazzite's util-linux build ships without /usr/bin/chsh (verified on
+# the booted image: `rpm -V util-linux` reports "missing /usr/bin/chsh"), so
+# the historical `chsh -s` body failed with "command not found". Prefer chsh
+# when it exists and otherwise use `usermod -s`, which shadow-utils provides.
 [group('atomic-workstation')]
 atomic-ws-set-shell-fish:
     #!/usr/bin/env bash
@@ -75,7 +91,12 @@ atomic-ws-set-shell-fish:
         echo "login shell is already fish"
         exit 0
     fi
-    exec chsh -s /usr/bin/fish
+    if command -v chsh >/dev/null 2>&1; then
+        exec chsh -s /usr/bin/fish
+    fi
+    # chsh is absent on Bazzite; usermod -s does the same edit of /etc/passwd.
+    echo "chsh not found — falling back to usermod -s /usr/bin/fish" >&2
+    exec sudo usermod -s /usr/bin/fish "${USER}"
 
 # Port of system/ollama.nix loadModels — the model is runtime state, so it
 # cannot be baked into the image
