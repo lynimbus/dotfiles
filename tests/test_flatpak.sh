@@ -43,6 +43,17 @@ assert_contains "branch captured" '"branch": "beta"' "$INV"
 assert_contains "origin captured" '"origin": "fedora"' "$INV"
 assert_contains "flathub url recorded" 'https://example.com/flathub/' "$INV"
 
+t_case "capture skips an app that duplicates something the image owns"
+# the sandboxed fcitx5 app really is installed on machines that still have it;
+# recording it would make restore.sh install the duplicate on a fresh machine
+seed system org.fcitx.Fcitx5 flathub
+out=$(bash "$CAPTURE" 2>&1)
+assert_not_contains "sandboxed fcitx5 not recorded" '"application": "org.fcitx.Fcitx5"' "$INV"
+assert_contains "conflict explained" "sandboxed fcitx5 daemon" "$out"
+assert_contains "uninstall command suggested" "flatpak uninstall --system -y" "$out"
+grep -v 'org.fcitx.Fcitx5' "$MOCK_STATE/flatpak/system/apps.tsv" >"$MOCK_STATE/flatpak/system/apps.tsv.tmp"
+mv "$MOCK_STATE/flatpak/system/apps.tsv.tmp" "$MOCK_STATE/flatpak/system/apps.tsv"
+
 t_case "capture is idempotent — second run produces byte-identical file"
 cp "$INV" "$T_SANDBOX/inv-before"
 bash "$CAPTURE" >/dev/null 2>&1
@@ -78,6 +89,36 @@ before_sys=$(flatpak list --app --columns=application,origin,installation,branch
 bash "$RESTORE" >/dev/null 2>&1
 after_sys=$(flatpak list --app --columns=application,origin,installation,branch,arch --system | wc -l)
 assert_eq "no duplicate installs" "$before_sys" "$after_sys"
+
+t_case "restore refuses to install a conflicting app from a stale inventory"
+# a profile captured before the conflict rule existed can still name the
+# sandboxed fcitx5 app; restore must skip it instead of reintroducing it
+conflict_id=$(INV_PY="${REPO_ROOT}/apps/flatpak/inventory.py" python3 - <<'PYEOF'
+import os, re
+src = open(os.environ["INV_PY"]).read()
+block = re.search(r"CONFLICTS_WITH_IMAGE = \{(.*?)\n\}", src, re.S).group(1)
+print(re.search(r'"([^"]+)"', block).group(1))
+PYEOF
+)
+python3 - "$INV" "$conflict_id" <<'PYEOF'
+import json, sys, pathlib
+p, app_id = pathlib.Path(sys.argv[1]), sys.argv[2]
+inv = json.loads(p.read_text())
+inv["apps"].append({"application": app_id, "origin": "flathub",
+                    "installation": "system", "branch": "stable",
+                    "arch": "x86_64"})
+p.write_text(json.dumps(inv, indent=2))
+PYEOF
+out=$(bash "$RESTORE" --dry-run 2>&1)
+assert_not_contains "conflicting app not installed" "installing system $conflict_id" "$out"
+assert_contains "restore explains the conflict" "duplicates an image component" "$out"
+python3 - "$INV" "$conflict_id" <<'PYEOF'
+import json, sys, pathlib
+p, app_id = pathlib.Path(sys.argv[1]), sys.argv[2]
+inv = json.loads(p.read_text())
+inv["apps"] = [a for a in inv["apps"] if a["application"] != app_id]
+p.write_text(json.dumps(inv, indent=2))
+PYEOF
 
 t_case "restore NEVER removes apps that are not in the inventory"
 seed system org.extra.Unlisted flathub

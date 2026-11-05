@@ -37,7 +37,6 @@ SHARE_DIR="${HOME}/.local/share"
 ALL_APPS=(
     "magpie|binary|https://github.com/yetone/magpie/releases/download/v0.1.2909/magpie-linux-amd64|b50b705da4470d76a35ea01dc50fc7e66fbed92ffd7fc29b2d7d901e7b1963c7"
     "ghostty|appimage|https://github.com/pkgforge-dev/ghostty-appimage/releases/download/v1.4.0/Ghostty-1.4.0-x86_64.AppImage|50ad4f8b54a01e7d41426e7d12ffae9c88aa1c516ac140755e2bca596e1d2ae6"
-    "pig|tarball|https://github.com/MichaelKinsy/PiG/releases/download/v0.5.3/pig-0.5.3-linux-amd64.tar.gz|1e45e5e591a06d087587d5f09d2b6d61673a1e262cb2609e6189defffd5ae7ec"
     "opengrep|binary|https://github.com/opengrep/opengrep/releases/download/v1.33.1/opengrep_manylinux_x86|46e8133cc490f9f50518061590ce2f6be5a08afaeda034471c0ceda4b3899808"
     "r8|jar|https://dl.google.com/android/maven2/com/android/tools/r8/9.5.28/r8-9.5.28.jar|38a9ffaaebbd17d1514e3ecbff5a85b989bb13c551b9e224c7409514eea84ff5"
     "mygo|goinstall|github.com/egoist/mygo/cmd/mygo@v0.7.3|"
@@ -59,7 +58,6 @@ installed_version() { # installed_version <name> — best-effort probe
     case "$1" in
     magpie) [[ -x "$bin" ]] && "$bin" --version 2>/dev/null | head -1 || true ;;
     ghostty) [[ -x "$bin" ]] && "$bin" --version 2>/dev/null | head -1 || true ;;
-    pig) [[ -x "$bin" ]] && "$bin" --version 2>/dev/null | head -1 || true ;;
     opengrep) [[ -x "$bin" ]] && "$bin" --version 2>/dev/null | head -1 || true ;;
     r8)
         local -a jars=("${SHARE_DIR}"/java/r8-*.jar)

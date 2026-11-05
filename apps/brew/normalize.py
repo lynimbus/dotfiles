@@ -3,7 +3,9 @@
 
 `brew bundle dump` writes a description comment BEFORE the entry it describes,
 and mixes several managers into one file (brew/cask/tap plus whatever other
-managers the user has: flatpak, vscode, mas). Sorting that file line-by-line
+managers the user has: flatpak, vscode, mas). The flatpak bucket is dropped
+rather than grouped — apps/flatpak/inventory/<profile>.json is the single
+authoritative list for flatpak state. Sorting that file line-by-line
 (what a plain `grep '^brew ' | sort` does) detaches every description into a
 floating comment block and buries the foreign entries in a "rest" bucket.
 
@@ -28,12 +30,12 @@ TITLES = {
     "tap": "taps",
     "brew": "formulae",
     "cask": "casks",
-    "flatpak": "flatpak apps (authoritative list: apps/flatpak/inventory/)",
+    # never emitted: group() drops flatpak entries (see apps/flatpak/inventory/),
     "vscode": "vscode extensions",
     "mas": "mac app store (not installable on Linux)",
     "other": "other brew bundle directives",
 }
-ORDER = ["tap", "brew", "cask", "flatpak", "vscode", "mas", "other"]
+ORDER = ["tap", "brew", "cask", "vscode", "mas", "other"]
 
 HEADER = """\
 # Brewfile — atomic-workstation (profile: {profile})
@@ -74,6 +76,14 @@ def group(raw_path: str, leaves: set[str]) -> tuple[dict[str, list], list[str]]:
                 continue
 
             manager, name = match.group(1), match.group(2)
+            if manager == "flatpak":
+                # One package, one owner: `brew bundle dump` mirrors every
+                # flatpak app it can see, which put a second copy of the whole
+                # flatpak list in this file — including stale entries that
+                # apps/flatpak/inventory.py deliberately skips. Flatpak state
+                # lives in apps/flatpak/inventory/<profile>.json only.
+                pending = []
+                continue
             entry = line
             if manager == "brew" and name not in leaves:
                 entry += " # auto (dependency)"

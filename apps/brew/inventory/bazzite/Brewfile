@@ -9,8 +9,6 @@
 # ── formulae ──
 # Manage your dotfiles across multiple diverse machines, securely
 brew "chezmoi"
-# User-friendly command-line shell for UNIX-like operating systems
-brew "fish"
 # Open source programming language to build simple/reliable/efficient software
 brew "go"
 # Post-modern modal text editor
@@ -19,8 +17,6 @@ brew "helix"
 brew "jj" # auto (dependency)
 # TUI for interacting with the Jujutsu version control system
 brew "jjui"
-# Lightweight and flexible command-line JSON processor
-brew "jq"
 # Open-source, cross-platform JavaScript runtime environment
 brew "node" # auto (dependency)
 # AI agent toolkit
@@ -37,22 +33,6 @@ brew "starship"
 cask "antigravity-cli"
 # Share coding agent sessions across desktop and mobile
 cask "lody"
-
-# ── flatpak apps (authoritative list: apps/flatpak/inventory/) ──
-flatpak "com.github.Matoking.protontricks"
-flatpak "com.github.tchx84.Flatseal"
-flatpak "com.qq.QQ"
-flatpak "com.vysp3r.ProtonPlus"
-flatpak "io.github.DenysMb.Kontainer"
-flatpak "io.github.flattool.Warehouse"
-flatpak "it.mijorus.gearlever"
-flatpak "org.fcitx.Fcitx5"
-flatpak "org.gnome.Firmware"
-flatpak "org.kde.gwenview"
-flatpak "org.kde.haruna"
-flatpak "org.kde.kcalc"
-flatpak "org.kde.okular"
-flatpak "org.mozilla.firefox"
 
 # ── vscode extensions ──
 vscode "ms-azuretools.vscode-containers"

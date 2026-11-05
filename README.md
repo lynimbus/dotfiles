@@ -25,7 +25,7 @@ CONFIG   chezmoi source: home/chezmoi/ (niri, noctalia, mango, ghostty,
          foot, fish+jjmsg, git, jj, ssh, pipewire autogain, hourly-chime,
          systemd user units, environment.d)
 APPS     flatpak (GUI) + homebrew (CLI) + pinned GitHub releases
-         (scripts/install-user-apps.sh: magpie ghostty pig opengrep r8
+         (scripts/install-user-apps.sh: magpie ghostty opengrep r8
          mygo) — auto-discovered hourly into apps/*/inventory/
 DEVS     distrobox containers declared in containers/distrobox.ini
 ```
@@ -44,7 +44,7 @@ cd ~/dotfiles
 chezmoi --source home/chezmoi init                  # render ~/.config/chezmoi/chezmoi.toml (gitName/gitEmail/profile)
 chezmoi --source home/chezmoi diff                  # preview
 chezmoi --source home/chezmoi apply                 # apply user config
-just user-apps                                      # magpie ghostty pig opengrep r8 mygo (optional)
+just user-apps                                      # magpie ghostty opengrep r8 mygo (optional)
 just brew-seed                                      # CLI tools (first boot only; optional)
 ./scripts/install-user-timer.sh                     # hourly inventory scan
 ./scripts/inventory.sh capture                      # first inventory

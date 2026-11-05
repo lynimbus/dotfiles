@@ -49,7 +49,7 @@ atomic-ws-restore *args:
     fi
     exec "$REPO/scripts/restore.sh" "$@"
 
-# Install/update the GitHub-release user apps (magpie, ghostty, pig, opengrep,
+# Install/update the GitHub-release user apps (magpie, ghostty, opengrep,
 # r8, mygo) — the pieces the main branch used to build with Nix overlay pkgs
 [group('atomic-workstation')]
 atomic-ws-user-apps *args:

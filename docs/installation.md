@@ -118,9 +118,14 @@ Fedora packages (verified 2026-11): niri (ships
 niri), noctalia, foot (fallback terminal), swaylock, xwayland-satellite,
 xdg-desktop-portal-gnome/gtk (screen sharing), xdg-terminal-exec, grim,
 slurp, swappy, wl-clipboard, brightnessctl, playerctl, wlsunset, fish, tmux,
-just, fcitx5 (+ chinese-addons/rime/gtk/qt/configtool), android-tools, the
+just, fcitx5 (+ rime/gtk/qt/configtool), poppler-utils, android-tools, the
 font set (Noto CJK/emoji, JetBrains Mono, Fira Code, Intel One Mono),
 ladspa-swh-plugins, ollama-base + ollama-vulkan, openssh-server, tuned.
+
+The Bazzite base image already ships `jq`, `fzf`, `fastfetch`, `git` and
+`python3`; the image layer above adds `ffmpeg`, `ImageMagick` and
+`poppler-utils`. `apps/profiles/base.Brewfile` therefore installs none of
+them again — see docs/software-management.md ("One package, one owner").
 
 `ddcutil` is not a Fedora package; it comes with the Bazzite base image
 (`terra-ddcutil`). `ollama` is installed as ollama-base + ollama-vulkan
@@ -164,7 +169,7 @@ Optional first-boot extras (ports of the main branch's NixOS config — see
 docs/nixos-port-map.md):
 
 ```bash
-ujust atomic-ws-user-apps     # magpie ghostty pig opengrep r8 mygo rime-ice
+ujust atomic-ws-user-apps     # magpie ghostty opengrep r8 mygo rime-ice
                               # (or: just user-apps magpie r8 — pick a subset)
 just brew-seed                # CLI/dev tools (brew translation of home/packages)
 just flatpak-seed             # GUI apps (flathub translation of the GUI packages)

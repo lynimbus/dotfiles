@@ -44,7 +44,6 @@ dnf5 -y install \
     7zip \
     xz \
     fcitx5 \
-    fcitx5-chinese-addons \
     fcitx5-rime \
     fcitx5-gtk \
     fcitx5-qt \
@@ -68,6 +67,7 @@ dnf5 -y install \
     gtksourceview5 \
     gvfs \
     poppler-glib \
+    poppler-utils \
     xdg-utils \
     ImageMagick \
     LibRaw \

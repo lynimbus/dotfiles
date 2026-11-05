@@ -100,6 +100,27 @@ def _looks_like_runtime(app_id):
     suffixes = (".Platform", ".SDK", ".GL", ".VAAPI", ".ffmpeg", ".openh264")
     return any(app_id.endswith(s) for s in suffixes)
 
+# Apps that duplicate something the image layer already owns. Recording one of
+# these in the inventory would make restore.sh install the duplicate on a fresh
+# machine, so capture leaves it out and says why (scripts/doctor.sh warns about
+# the same app on the machine that has it). Keyed on the app id; flathub has
+# shipped the Fcitx 5 app under more than one id, so every known id is listed.
+CONFLICTS_WITH_IMAGE = {
+    "org.fcitx.Fcitx5": (
+        "sandboxed fcitx5 daemon: it races the image's host fcitx5 for the "
+        "fcitx5 D-Bus name and keeps its rime data under ~/.var/app/"
+    ),
+    "bxx.esmrq.Wftim3": (
+        "sandboxed fcitx5 daemon: it races the image's host fcitx5 for the "
+        "fcitx5 D-Bus name and keeps its rime data under ~/.var/app/"
+    ),
+}
+
+
+def _conflicts_with_image(app_id):
+    """Reason this app must not enter the inventory, or None."""
+    return CONFLICTS_WITH_IMAGE.get(app_id)
+
 
 def _list_apps(installation):
     proc = _flatpak(
@@ -109,7 +130,21 @@ def _list_apps(installation):
     rows = _parse_tsv(proc.stdout, APP_COLUMNS)
     # Defence in depth: --app already excludes runtimes; also drop anything
     # whose ref looks like a runtime (org.freedesktop.Platform and friends).
-    return [r for r in rows if not _looks_like_runtime(r["application"])]
+    kept = []
+    for row in rows:
+        app_id = row["application"]
+        if _looks_like_runtime(app_id):
+            continue
+        conflict = _conflicts_with_image(app_id)
+        if conflict:
+            print(
+                f"[flatpak] skipping {app_id} -- {conflict}\n"
+                f"          remove it with: flatpak uninstall --{installation} -y {app_id}",
+                file=sys.stderr,
+            )
+            continue
+        kept.append(row)
+    return kept
 
 
 def _list_remotes(installation):
@@ -306,6 +341,19 @@ def restore(profile, inv_file, prune=False, dry=False, assume_yes=False):
     for app in inv["apps"]:
         key = (app["application"], app["installation"], app["branch"])
         if key in installed:
+            continue
+        # An inventory captured before a conflict rule existed (or edited by
+        # hand) can still name an app the image already provides. Installing it
+        # would reintroduce the duplicate on this machine — capture() refuses to
+        # record these, this is the restore-side guard.
+        conflict = _conflicts_with_image(app["application"])
+        if conflict:
+            print(
+                f"[WARN]  inventory lists {app['application']}, which duplicates "
+                f"an image component -- {conflict}\n"
+                f"        skipping it; re-run capture to drop it from the inventory",
+                file=sys.stderr,
+            )
             continue
         ref = app["application"]
         if app.get("arch") and app["arch"] not in ("", native_arch):

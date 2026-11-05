@@ -1,9 +1,7 @@
 chezmoi
-fish
 go
 helix
 jjui
-jq
 pi-coding-agent
 ripgrep
 rtk

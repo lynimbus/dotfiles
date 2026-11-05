@@ -40,7 +40,7 @@
 
 | main 模块 | atomic 落点 |
 |---|---|
-| `core.nix`（EDITOR=hx、polkit-gnome、mime inode/directory→strata） | `dot_config/environment.d/60-atomic-workstation.conf`（另含 brew PATH 与 `PIG_USE_PI_DIRS`）；polkit 复用 Bazzite 的 KDE agent（`/usr/libexec/kf6/polkit-kde-authentication-agent-1`，niri `spawn-at-startup` 两路径探测）；mime 由 `run_once_10-xdg-and-units.sh` 设置，`doctor.sh` 复查 |
+| `core.nix`（EDITOR=hx、polkit-gnome、mime inode/directory→strata） | `dot_config/environment.d/60-atomic-workstation.conf`（另含 brew PATH）；polkit 复用 Bazzite 的 KDE agent（`/usr/libexec/kf6/polkit-kde-authentication-agent-1`，niri `spawn-at-startup` 两路径探测）；mime 由 `run_once_10-xdg-and-units.sh` 设置，`doctor.sh` 复查 |
 | `programs/fish.nix`（vi 键位、别名、jjmsg） | `dot_config/fish/config.fish` + `dot_config/fish/functions/jjmsg.fish`（jjmsg 逐字节移植） |
 | `programs/git.nix` | `dot_config/git/config.tmpl` |
 | `programs/jujutsu.nix` | `dot_config/jj/config.toml.tmpl`（difft/delta/SSH 签名原样）；`merge-editor = "meld"` 由 `dot_local/bin/executable_meld` 包装 flathub 的 `org.gnome.meld`（flatpak 不会把 `meld` 放进 PATH） |
@@ -49,7 +49,7 @@
 | `programs/direnv.nix` / `zoxide.nix` | brew 安装 + fish 配置里的 guarded init（`--cmd cd` 保留） |
 | `programs/hourly-chime.nix` | `dot_config/systemd/user/hourly-chime.{service,timer}` + `dot_local/bin/executable_hourly-chime` |
 | `programs/magpie.nix`（自启） | `dot_config/autostart/magpie.desktop`；本体 `install-user-apps.sh` |
-| `programs/pig.nix`（Pi settings 合并） | pig 由 `install-user-apps.sh` 提供；Nix wrapper 里的 `PIG_USE_PI_DIRS=1`/`PI_SKIP_VERSION_CHECK=1` 改为 `dot_config/environment.d/60-atomic-workstation.conf` 的会话变量，继续复用 `~/.pi/agent/`（`pi` 别名未移植，需要时自行 `ln -s pig ~/.local/bin/pi`） |
+| `programs/pig.nix`（Pi settings 合并） | 未移植：pig 已移除，`pi` 改用 brew 的 `pi-coding-agent`（自带 `pi` 命令）；Nix wrapper 的 `PIG_USE_PI_DIRS=1` 已不需要，`pi` 直接使用 `~/.pi/agent/`。`PI_SKIP_VERSION_CHECK=1` 需要时自行在 `dot_config/environment.d/60-atomic-workstation.conf` 里补 |
 | `programs/gram.nix` | —（缺口）Gram 是 Zed 私有构建，无 Linux 分发 |
 | `audio/rnnoise.nix` | `dot_config/pipewire/pipewire.conf.d/99-autogain.conf`：dyson 压缩器可用；rnnoise LADSPA 插件 Fedora 未打包（werman 插件不进仓库），节点注释保留，替代方案 EasyEffects。**控制端口名已按插件实际端口改正**（`Peak limit (dB)`/`Release time (s)`/`Fast compression ratio`/`Compression ratio`）——main 分支写的 `Input Gain`/`Threshold`/`Ratio`/`Attack Time`/`Makeup Gain` 在 dyson 里不存在，PipeWire 会逐条丢弃；模块另加 `flags = [ ifexists nofail ]`，镜像切换前缺插件也不至于把 PipeWire 拖死 |
 | `desktop/niri/`（conf/*.kdl + reorder-workspaces.sh） | `dot_config/niri/` 原样移植；spawn-at-startup 增补 polkit agent；reorder 脚本 hostname 同时匹配 `nixos|bazzite` |
@@ -62,25 +62,32 @@
 
 | main 列表 | 去向 |
 |---|---|
-| `cli.nix`：neovim helix ripgrep fzf jq just gh jjui fd eza bat fastfetch dig shellcheck sops age ssh-to-age libxml2 file sing-box lody-pi | `apps/profiles/base.Brewfile`（brew 均有，除下述）；dig/libxml2/file/just 已在镜像（dnf）；ssh-to-age 无 brew 公式（需要时 `go install github.com/Mic92/ssh-to-age/cmd/ssh-to-age@latest`）；lody-pi 不需要（Lody 桌面自带运行时） |
+| `cli.nix`：neovim helix ripgrep fzf jq just gh jjui fd eza bat fastfetch dig shellcheck sops age ssh-to-age libxml2 file sing-box lody-pi | `apps/profiles/base.Brewfile`（其余走 brew）；`fzf jq fastfetch` 由 Bazzite 基础镜像提供，`dig/libxml2/file/just` 由镜像层（dnf）提供，均不再写进 Brewfile；ssh-to-age 无 brew 公式（需要时 `go install github.com/Mic92/ssh-to-age/cmd/ssh-to-age@latest`）；lody-pi 不需要（Lody 桌面自带运行时） |
 | `dev.nix`：zig koka go mygo python3 nodejs jdt-language-server openjdk17 ast-grep typos opengrep binutils llvm jadx apktool erofs-utils android-tools payload-dumper-go r8 | brew（zig koka go node jdtls openjdk + openjdk@17 ast-grep typos-cli jadx apktool erofs-utils payload-dumper-go）；python3/binutils/llvm 走镜像或 distrobox；`android-tools` 在 `build_files/build.sh`（adb/fastboot）；mygo opengrep r8 → `install-user-apps.sh`（r8 装成 `r8`/`d8` 两个 wrapper，JDK 取 brew 的 keg-only `opt/openjdk@17`） |
 | `dev.nix`（Nix 独占）：nix-init nixfmt nil nixd | —（无 Nix；需要时用 NixOS distrobox 容器，见 `containers/distrobox.ini`） |
 | `gui.nix`：ddcutil wlsunset wl-clipboard tmux xwayland-satellite | 镜像（dnf）；ddcutil 例外——基础镜像自带 terra-ddcutil（同源 fork，提供 ddcutil 二进制），再装会冲突 |
 | `gui.nix`：ungoogled-chromium wechat-uos obs-studio | flathub：`io.github.ungoogled_software.ungoogled_chromium` `com.tencent.WeChat` `com.obsproject.Studio`（base.flatpak.txt） |
 | `gui.nix`：strata kero | 镜像（release tarball，build.sh） |
 | `gui.nix`：magpie lody-mygo grok-bot folia-major ayugram-desktop | magpie → `install-user-apps.sh`；lody-mygo 仅发布 macOS dmg；grok-bot/folia-major/ayugram 无 Linux 分发（缺口） |
-| `archive.nix`：zip unzip p7zip xz ffmpeg imagemagick poppler | 镜像（dnf 7zip/xz/ffmpeg/imagemagick/poppler）+ brew 兜底 |
-| `pkgs/` overlay：pig rtk sing-box | pig → `install-user-apps.sh`；rtk、sing-box → brew core |
+| `archive.nix`：zip unzip p7zip xz ffmpeg imagemagick poppler | 镜像层（dnf `zip/unzip/7zip/xz/ffmpeg/ImageMagick/poppler-utils`）；brew 不再重复安装 |
+| `pkgs/` overlay：pig rtk sing-box | pig 已移除（`pi` 用 brew 的 `pi-coding-agent`）；rtk、sing-box → brew core |
 
 ## 本机现状（2026-11 采集）
 
 * 会话：KDE Plasma（Bazzite DX 镜像）；待部署 `bazzite-nvidia-open:testing`
 * flatpak 应用（QQ、Firefox、OBS、KDE 系工具等）→ capture 后落在
-  `apps/flatpak/inventory/bazzite.json`。**flathub 的 “Fcitx 5” 应用已从
-  seed 与 inventory 中移除**：镜像自带宿主 fcitx5，flathub 那个是给没装
-  输入法的系统用的独立守护进程，两者会抢 fcitx5 的 D-Bus 名，rime 词库也
-  会被隔到 `~/.var/app/<app-id>` 里。机器上若还装着，按 doctor 提示的
-  `flatpak uninstall <app-id>` 卸掉（`scripts/doctor.sh` 用应用显示名匹配，
-  不依赖 flathub 的 app id）
-* brew：fish/helix/jj/jjui/go/node/pi-coding-agent 等 → `apps/brew/inventory/bazzite/`
+  `apps/flatpak/inventory/bazzite.json`。**flathub 的 “Fcitx 5” 应用不进
+  seed，也不进 inventory**：`apps/flatpak/inventory.py` 遇到它会跳过并打印
+  卸载命令，因为 `restore.sh` 会照着 inventory 装机，把重复的输入法装到新机器
+  上就是 bug。原因：镜像自带宿主 fcitx5，flathub 那个是给没装输入法的系统用的
+  独立守护进程，两者会抢 fcitx5 的 D-Bus 名，rime 词库也会被隔到
+  `~/.var/app/<app-id>` 里。
+  **本机现状（偏离）**：这台机器跑的是 Bazzite DX 基础镜像，自定义镜像尚未
+  部署（没有 niri/foot/swappy），宿主 `~/.local/share/fcitx5/` 也没有词库，
+  所以现在真正在提供中文输入的就是这个 flatpak——因此**暂时不能卸**。
+  部署自定义镜像 + 跑 `install-user-apps.sh rime-ice` 之后再按 doctor 提示卸掉
+  （`scripts/doctor.sh` 用应用显示名匹配，不依赖 flathub 的 app id）
+* brew：helix/jj/jjui/go/node/pi-coding-agent 等 → `apps/brew/inventory/bazzite/`
+  （fish 与 jq 已从 brew 移除：`/usr/bin/fish`、`/usr/bin/jq` 由镜像提供，
+  brew 版本排在 PATH 后面永远不会被解析到）
 * `~/.local/bin/magpie`（自更新中，0.1.2909）、Lody 桌面 AppImage

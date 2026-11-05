@@ -16,7 +16,7 @@ How to install things, and how the repo finds out about them.
    `distrobox enter fedora-dev`, then install anything inside.
 5. **Pinned GitHub releases** (`scripts/install-user-apps.sh`, or
    `just user-apps` / `ujust atomic-ws-user-apps`) — apps that exist
-   nowhere else (magpie, ghostty, pig, opengrep, r8, mygo): the atomic
+   nowhere else (magpie, ghostty, opengrep, r8, mygo): the atomic
    counterpart of the main branch's Nix overlay packages. Versions are
    pinned with sha256 in the script; `--check` compares pins to upstream.
 6. **AppImage** — rare cases; keep them in `~/Applications` (not tracked).
@@ -28,6 +28,54 @@ How to install things, and how the repo finds out about them.
    (this repo's niri + noctalia + kero + strata stack is the example).
    The full mapping from the main branch's NixOS config lives in
    docs/nixos-port-map.md.
+
+## One package, one owner
+
+A package that is installed twice is not installed better: the copy that
+resolves is decided by PATH, and the other one is 200 MB of confusion. Every
+manager below owns a slice, and the repo refuses to record the same thing twice.
+
+| owner | owns | never also installed via |
+| --- | --- | --- |
+| image (`build_files/build.sh`, dnf) | session stack, input method, fonts, media libs, CLI basics (`fish just tmux file libxml2 zip unzip 7zip xz bind-utils ffmpeg ImageMagick poppler-utils android-tools`) | Homebrew |
+| Bazzite base image | `jq fzf fastfetch git python3` | Homebrew |
+| Homebrew | CLI/TUI the image does not ship (`helix rg fd bat eza gh go node zig …`) | GitHub releases |
+| Flatpak | GUI apps | Brewfile |
+| distrobox | per-distro toolchains | — (see below) |
+| `scripts/install-user-apps.sh` | software that exists **nowhere** else (magpie, ghostty, opengrep, r8, mygo) | — |
+
+Rules the tooling enforces, in this branch's history:
+
+* **brew never re-adds what the image ships.** `environment.d` appends the
+  brew prefix *after* the system paths, so a brew `fish`/`just`/`jq` can only
+  ever be the copy you never run. `apps/profiles/base.Brewfile` dropped fish,
+  just, ffmpeg, ImageMagick, poppler, jq, fzf and fastfetch for that reason.
+* **flatpak state has one file.** `brew bundle dump` mirrors every flatpak app
+  it can see; `apps/brew/normalize.py` discards that bucket, so
+  `apps/flatpak/inventory/<profile>.json` stays the only flatpak record.
+* **capture drops apps that duplicate an image component.** The flathub
+  “Fcitx 5” app is a sandboxed daemon for hosts *without* an input method;
+  `apps/flatpak/inventory.py` refuses to record it (and prints the uninstall
+  command), so `restore.sh` can never install the duplicate on a fresh machine.
+  `scripts/doctor.sh` warns on the machine that still has it.
+* **containers repeat host CLIs on purpose.** A distrobox container does not
+  see `/home/linuxbrew/.linuxbrew`, so `containers/distrobox.ini` lists its own
+  `ripgrep fd jq …`. That is isolation, not a duplicate — do not "fix" it.
+* **if Homebrew has a formula, use Homebrew.** `pig` (a Pi wrapper from a
+  GitHub release) was removed once `pi-coding-agent` provided `pi` properly.
+
+To audit for new duplicates after installing something, compare the layers:
+
+```bash
+norm() { tr 'A-Z' 'a-z' | sed '/^$/d' | sort -u; }   # dnf spells ImageMagick
+image() {   # the dnf list out of build_files/build.sh, one package per line
+    sed -n '/^dnf5 -y install/,/[^\\]$/p' build_files/build.sh \
+      | sed 's/^[[:space:]]*//;s/ *\\$//' | grep -v '^dnf5' | norm
+}
+comm -12 \
+  <(grep '^brew ' apps/profiles/base.Brewfile | sed 's/.*"\(.*\)".*/\1/' | norm) \
+  <(image)
+```
 
 ## The inventory: automatic discovery
 

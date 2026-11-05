@@ -10,24 +10,29 @@
 # Not translatable to brew (see docs/nixos-port-map.md):
 #   nvd nix-init nixfmt nil nixd  — Nix-only tooling, no Nix on atomic
 #   lody-pi                       — Lody desktop ships its own runtime
-#   opengrep r8 mygo pig          — scripts/install-user-apps.sh
+#   opengrep r8 mygo              — scripts/install-user-apps.sh
 #   satty                         — swappy is baked into the image
-#   file libxml2 dig tmux 7zip    — already in the image (dnf)
+#
+# One package, one owner (docs/software-management.md). These were dropped
+# here because the IMAGE already provides them — a brew copy lands behind the
+# system PATH (environment.d appends brew last on purpose), so it is never the
+# one that resolves; it only costs disk and a shadowed duplicate:
+#   file libxml2 dig tmux 7zip zip unzip fish just ffmpeg ImageMagick
+#   android-tools               — build_files/build.sh (dnf, image layer)
+#   jq fzf fastfetch            — the Bazzite base image
+#   pdftoppm pdfinfo …          — the Bazzite base image (poppler-utils);
+#                                 the image layer adds poppler-glib for
+#                                 GLib/thumbnailing and now poppler-utils too
 
 # ── CLI (home/packages/cli.nix) ──────────────────────────────────────
-brew "fish"
 brew "neovim"
 brew "helix"
 brew "ripgrep"
-brew "fzf"
-brew "jq"
-brew "just"
 brew "gh"
 brew "jjui"
 brew "fd"
 brew "eza"
 brew "bat"
-brew "fastfetch"
 brew "shellcheck"
 brew "sops"
 brew "age"
@@ -63,9 +68,8 @@ brew "payload-dumper-go"
 # android-tools: no brew formula — the image's dnf `android-tools` covers it
 
 # ── archive/media (home/packages/archive.nix) ─────────────────────────
-brew "ffmpeg"
-brew "imagemagick"
-brew "poppler"
+# ffmpeg / ImageMagick / poppler: no brew lines. The image layer installs
+# ffmpeg + ImageMagick (dnf) and poppler-utils (dnf) — see the list above.
 
 # ── config management ────────────────────────────────────────────────
 # chezmoi renders home/chezmoi/ (scripts/restore.sh calls it)

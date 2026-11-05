@@ -2,8 +2,8 @@
 #
 # Verbatim port of the jjmsg function from home/programs/fish.nix (main
 # branch): generates a Conventional Commit message for the current jj change
-# with `pi` (PiG / pi-coding-agent), with batching + truncation for large
-# diffs. Requires jj and pi on PATH (brew + install-user-apps.sh).
+# with `pi` (pi-coding-agent), with batching + truncation for large
+# diffs. Requires jj and pi on PATH (brew pi-coding-agent).
 
 function jjmsg --description "generate a commit message for the current jj change"
       set -l listing (jj log --no-pager --color never --no-graph -r @ -T 'commit_id ++ "\0" ++ self.diff().files().map(|f| json(f.path()) ++ "\n" ++ f.display_diff_path().replace("\n", " ") ++ "\0").join("")' | command cat | string split0)

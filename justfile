@@ -42,7 +42,7 @@ image-check:
 
 # ── user-side seeds & release apps (ported from main's NixOS packages) ─────
 
-# Install/refresh the pinned GitHub-release apps (magpie, ghostty, pig,
+# Install/refresh the pinned GitHub-release apps (magpie, ghostty,
 # opengrep, r8, mygo) into ~/.local — the pkgs/ overlay of the main branch
 #
 # `just user-apps` installs everything; `just user-apps magpie r8` only those;

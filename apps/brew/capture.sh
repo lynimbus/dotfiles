@@ -43,7 +43,9 @@ brew leaves >"${LEAVES_RAW}" 2>/dev/null || : >"${LEAVES_RAW}"
 # `grep '^brew ' | sort` (the obvious way) detaches every description into a
 # floating comment block and drops flatpak/vscode entries into a "rest"
 # bucket; apps/brew/normalize.py keeps comment blocks attached to their entry,
-# groups by manager and sorts inside each group (LC_ALL=C -> byte-stable).
+# groups by manager and sorts inside each group (LC_ALL=C -> byte-stable),
+# and drops the flatpak bucket: apps/flatpak/inventory/<profile>.json is the
+# only record of flatpak state.
 python3 "${SCRIPT_DIR}/normalize.py" "${RAW}" "${LEAVES_RAW}" "${PROFILE}" >"${OUT}"
 
 # leaves.<profile>.txt: exactly the formulae the user asked for

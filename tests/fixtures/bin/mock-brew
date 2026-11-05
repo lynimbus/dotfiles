@@ -10,7 +10,8 @@ mkdir -p "$STATE"
 FORMULAE="$STATE/formulae.txt"
 LEAVES="$STATE/leaves.txt"
 CASKS="$STATE/casks.txt"
-touch "$FORMULAE" "$LEAVES" "$CASKS"
+FLATPAKS="$STATE/flatpaks.txt"
+touch "$FORMULAE" "$LEAVES" "$CASKS" "$FLATPAKS"
 
 # extract package names (2nd quoted field) from Brewfile lines: brew "name"
 formula_names() { awk -F'"' '/^brew /{ print $2 }' "$1"; }
@@ -55,6 +56,13 @@ case "$cmd" in
                         [[ -z "$f" ]] && continue
                         echo "brew \"$f\""
                     done < "$FORMULAE"
+                    # real brew bundle dump also mirrors the flatpak apps it
+                    # can see; tests use this to prove they are not copied
+                    # into the committed Brewfile
+                    while IFS= read -r f; do
+                        [[ -z "$f" ]] && continue
+                        echo "flatpak \"$f\""
+                    done < "$FLATPAKS"
                 } > "$file"
                 ;;
             "")
