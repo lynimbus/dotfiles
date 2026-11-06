@@ -81,5 +81,3 @@ brew "zoxide"
 # ── casks ──
 # Terminal interface for Antigravity agents
 cask "antigravity-cli"
-# Share coding agent sessions across desktop and mobile
-cask "lody"
