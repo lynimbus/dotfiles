@@ -8,7 +8,11 @@
 
 if status is-interactive
     set -g fish_greeting ""
-    fish_vi_keybindings
+    # Name is `fish_vi_key_bindings` (two words + underscore). The port from
+    # the main branch's fish.nix wrote `fish_vi_keybindings`, which is not a
+    # fish function and makes every interactive shell print
+    #   fish: Unknown command: fish_vi_keybindings
+    fish_vi_key_bindings
 end
 
 # ~/.local/bin — GitHub-release apps (magpie, ghostty, opengrep, …) live here

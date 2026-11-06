@@ -9,7 +9,6 @@ name = "{{ get . "gitName" | default "lynimbus" }}"
 email = "{{ get . "gitEmail" | default "128837704+lynimbus@users.noreply.github.com" }}"
 
 [git]
-sign-on-push = true
 private-commits = "description(glob:'wip:*') | description(glob:'private:*')"
 
 [ui]
@@ -21,6 +20,14 @@ merge-editor = "meld"
 
 [aliases]
 delta = ["diff", "--git", "--config", "ui.pager=[\"delta\", \"--navigate\"]"]
+
+# jj 0.47 deprecated the boolean `git.sign-on-push`; the replacement is this
+# revset (the old true value migrated to exactly this expression). Keeping the
+# old key makes every jj/jjui invocation print
+#   Warning: Deprecated user-level config: git.sign-on-push is updated to
+#   revsets.git-sign-on-push = "~signed() & mine()"
+[revsets]
+git-sign-on-push = "~signed() & mine()"
 
 [revset-aliases]
 "immutable_heads()" = "untracked_remote_bookmarks()"

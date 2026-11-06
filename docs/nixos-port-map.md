@@ -104,6 +104,10 @@
   bash 走 `dot_bashrc`（注意 Bazzite 有 `~/.bash_profile`，它 source
   `~/.bashrc` 但**不** source `~/.profile`，所以 `dot_profile` 里的
   PATH 段对 bash 登录 shell 是死代码）
+* `~/.config/fcitx5/profile`（输入法选择）由 chezmoi 以 `create_private_`
+  托管，而**不是**普通 `dot_config` 文件：fcitx5 每次运行都会重写该文件
+  （删掉注释、强制 0600），普通托管会造成永久 drift（且 diff 只有 mode 一行）。
+  `create_private_` 只在缺失时种下内容、强制 0600，之后不再覆盖应用自己的输出
 * noctalia 的两条残留 WRN 属正常：`~/.face` 已改为指向
   adwaita `avatar-default.svg` 的 chezmoi symlink（消掉
   "failed to decode image"）；`secret-store … provider-unavailable`
