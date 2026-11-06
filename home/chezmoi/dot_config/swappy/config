@@ -1,0 +1,53 @@
+# ~/.config/swappy/config — atomic-workstation
+#
+# Managed by chezmoi. Source path: home/chezmoi/dot_config/swappy/config.
+# Deployed target: ~/.config/swappy/config (chezmoi's `dot_config` prefix maps
+# to ~/.config; swappy also looks at $XDG_CONFIG_HOME/swappy/config and this
+# image leaves XDG_CONFIG_HOME unset, so both names resolve to this file).
+#
+# *** early_exit is a CONFIG KEY, not a command-line switch. ***
+# There is no such option: `--early-exit` is not a valid CLI option.
+# `swappy --help-all` offers only -h/--help, -f/--file, -o/--output-file,
+# -v/--version (plus the generic GApplication/GTK options). Passing
+# `--early-exit` to the binary is therefore ignored or rejected, which is how
+# the Fedora port lost the "annotate once, confirm, and the tool goes away"
+# flow that NixOS got from satty's
+# `--actions-on-enter="save-to-clipboard,exit"`.
+# The swappy equivalent of that satty action is `early_exit=true` below: swappy
+# exits by itself after the user hits Save (Ctrl+s) or Copy (Ctrl+c), and the
+# helper's `wl-copy` then guarantees the saved file reaches the clipboard.
+# Do NOT "fix" a swappy that stays open by editing the helper's argv; set this
+# config key instead.
+#
+# Every key below is required. swappy 1.5.1 prints
+# "<key> is missing in <path> (<value>)" for any key absent from the
+# [Default] group, so all nine keys listed in `man swappy` (CONFIG FILE) are
+# present with in-range values (line_size 1..50, text_size 10..50,
+# paint_mode one of brush|text|rectangle|ellipse|arrow|blur). Out-of-range
+# values make swappy bail out at startup.
+#
+# save_dir mirrors niri's screenshot-path
+# (~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png) and the
+# screenshot helper's output directory, so both capture routes land in the
+# same folder.
+
+[Default]
+# Where the Save button / Ctrl+s writes (env vars expand; created on demand).
+save_dir=$HOME/Pictures/Screenshots
+# strftime(3) template for that file — keep in sync with niri's screenshot-path.
+save_filename_format=Screenshot from %Y-%m-%d %H-%M-%S.png
+# Show the annotation panel on startup.
+show_panel=true
+# Default stroke width, 1..50.
+line_size=5
+# Default text size, 10..50.
+text_size=20
+# Pango font description used by the text tool.
+text_font=Maple Mono NF CN 13
+# Tool selected on startup: brush|text|rectangle|ellipse|arrow|blur.
+paint_mode=brush
+# The key this file exists for: quit after Save or Copy, restoring satty's
+# --actions-on-enter="save-to-clipboard,exit" one-confirm-and-done behaviour.
+early_exit=true
+# Start with rectangles/ellipses unfilled (f toggles filling at runtime).
+fill_shape=false

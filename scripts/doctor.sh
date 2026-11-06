@@ -69,7 +69,11 @@ fi
 
 # ── session layer ──────────────────────────────────────────────────
 aw_step "niri session"
-for binary in niri noctalia foot kero strata swaylock grim slurp wl-copy; do
+# grim + slurp + swappy + wl-copy make up the screenshot chain that the Print
+# bind drives, so a missing swappy/wl-copy silently breaks annotation and a
+# missing `screenshot` (~/.local/bin) breaks the bind itself. Check both here
+# instead of only the capture tools.
+for binary in niri noctalia foot kero strata swaylock grim slurp swappy wl-copy screenshot; do
     if aw_have "$binary"; then aw_ok "$binary"; else aw_warn "$binary not in PATH (comes with the custom image; KDE fallback session stays available)"; fi
 done
 if [[ -f /usr/share/wayland-sessions/niri.desktop ]]; then

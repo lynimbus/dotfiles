@@ -7,7 +7,17 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${HERE}/.." && pwd)"
 export REPO_ROOT
 
-SUITES=(flatpak brew distrobox inventory git systemd ujust image_integration dotfiles)
+# TMPDIR fallback. layerfs `exec` points TMPDIR at <workspace>/.tmp, but that
+# scratch dir is never captured by checkpoint/publish, so in a clean workspace
+# it simply does not exist and every suite's bare `mktemp` fails with
+# "failed to create file via template ... No such file or directory". Fall back
+# to /tmp (present and writable on every Linux) only when the configured TMPDIR
+# is unusable; an explicitly set, working TMPDIR is left exactly as it is.
+if [[ ! -d "${TMPDIR:-/tmp}" || ! -w "${TMPDIR:-/tmp}" ]]; then
+    export TMPDIR=/tmp
+fi
+
+SUITES=(flatpak brew distrobox inventory git systemd ujust image_integration dotfiles screenshot screenshot_config screenshot_wiring)
 if [[ ${1:-} != "" ]]; then
     SUITES=("$1")
 fi

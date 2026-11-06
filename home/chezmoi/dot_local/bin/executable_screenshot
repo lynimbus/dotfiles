@@ -1,21 +1,99 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Port of home/desktop/screenshot.sh (main branch). satty is not packaged
-# for x86_64 Fedora (checked 2026-11, rawhide), so the annotation step uses
-# swappy — the Fedora-packaged equivalent. grim/slurp/wl-clipboard are the
-# same binaries the NixOS config used; satty's
-# --actions-on-enter="save-to-clipboard,exit" maps to swappy --early-exit
-# plus a wl-copy of the saved file.
+# Screenshot + annotation entrypoint for niri (`Print { spawn "screenshot"; }`)
+# and mango (`bind=NONE,Print,spawn,screenshot`).
+#
+# Port of home/desktop/screenshot.sh (main branch). satty is not packaged for
+# x86_64 Fedora, so the annotation step uses swappy, the Fedora-packaged
+# equivalent. satty's --actions-on-enter="save-to-clipboard,exit" behaviour is
+# reproduced by swappy's `early_exit = true` in ~/.config/swappy/config — a
+# [Default] config key, not a command-line flag (swappy 1.5.1 rejects unknown
+# options) — together with the explicit wl-copy at the end of this script,
+# which guarantees the saved PNG reaches the clipboard.
+#
+# Failures are reported on stderr and, when libnotify is available, through a
+# critical desktop notification: niri spawns this script detached, so its
+# stderr only lands in the journal where the user will never look.
+
+notify_error() {
+    local msg="$1"
+    printf 'screenshot: %s\n' "$msg" >&2
+    if command -v notify-send >/dev/null 2>&1; then
+        # Notification is best effort; never let it mask the real failure.
+        notify-send --urgency=critical "Screenshot failed" "$msg" >/dev/null 2>&1 || true
+    fi
+}
+
+warn() {
+    printf 'screenshot: warning: %s\n' "$1" >&2
+}
+
+is_png() { # is_png <file> — non-empty and starts with the PNG signature
+    local file="$1" magic
+    [[ -s "$file" ]] || return 1
+    magic="$(head -c 8 -- "$file" | od -An -tx1 | tr -d ' \n')"
+    [[ "$magic" == "89504e470d0a1a0a" ]]
+}
 
 out="$(xdg-user-dir PICTURES)/Screenshots/Screenshot from $(date '+%Y-%m-%d %H:%M:%S').png"
-mkdir -p "$(dirname "$out")"
 
-grim -t png -g "$(slurp -d -F monospace)" - |
-    swappy -f - -o "$out" --early-exit || true
-
-# swappy copies to the clipboard itself when it manages to; make sure the
-# final file ends up there even when its clipboard export was denied.
-if [[ -f "$out" ]]; then
-    wl-copy < "$out" || true
+if ! mkdir -p "$(dirname "$out")"; then
+    notify_error "cannot create the screenshot directory: $(dirname "$out")"
+    exit 1
 fi
+
+# slurp cancels with a non-zero exit (Esc) and/or prints nothing. That is a
+# normal user action, not a failure: leave without touching anything else.
+region=""
+if ! region="$(slurp -d -F monospace)"; then
+    exit 0
+fi
+if [[ -z "${region//[[:space:]]/}" ]]; then
+    exit 0
+fi
+
+tmp=""
+cleanup() {
+    if [[ -n "$tmp" && -e "$tmp" ]]; then
+        rm -f -- "$tmp"
+    fi
+}
+trap cleanup EXIT
+
+if ! tmp="$(mktemp --suffix=.png)"; then
+    tmp=""
+    notify_error "cannot create a temporary file for the screenshot"
+    exit 1
+fi
+
+if ! grim -t png -g "$region" "$tmp"; then
+    notify_error "grim failed to capture the selected region ($region)"
+    exit 1
+fi
+if ! is_png "$tmp"; then
+    notify_error "grim did not produce a valid PNG (empty or corrupt capture)"
+    exit 1
+fi
+
+if ! swappy -f "$tmp" -o "$out"; then
+    notify_error "swappy failed to annotate/save the screenshot"
+    exit 1
+fi
+
+# swappy exits 0 without writing -o when the user cancels the annotation.
+# That is a deliberate cancel: stay quiet and leave the clipboard alone.
+if [[ ! -e "$out" ]]; then
+    exit 0
+fi
+
+if ! is_png "$out"; then
+    warn "swappy wrote an empty or invalid PNG to $out; not copying it to the clipboard"
+    exit 0
+fi
+
+if ! wl-copy < "$out"; then
+    warn "wl-copy failed; the screenshot is saved at $out but was not copied to the clipboard"
+fi
+
+exit 0

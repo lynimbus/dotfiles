@@ -227,7 +227,14 @@ binds {
     // Mod+Space       { switch-layout "next"; }
     // Mod+Shift+Space { switch-layout "prev"; }
 
-    // Screenshot Annotation via satty
+    // Screenshot chain: grim + slurp + swappy (image packages) →
+    // ~/.local/bin/screenshot → swappy, configured by ~/.config/swappy/config.
+    // Print spawns the wrapper, which captures with grim/slurp and annotates
+    // with swappy, then copies the result with wl-copy. Ctrl+Print/Alt+Print
+    // use niri's own actions and are saved via `screenshot-path` in config.kdl.
+    // Do NOT reuse another annotator's flags: `--early-exit` is NOT a swappy
+    // CLI option (swappy exits non-zero and the capture is lost silently).
+    // `early_exit` is a CONFIG KEY in ~/.config/swappy/config — set it there.
     Print { spawn "screenshot"; }
     Ctrl+Print { screenshot-screen; }
     Alt+Print { screenshot-window; }
