@@ -28,6 +28,23 @@ alias lla='ls -la'
 alias c='clear'
 alias grep='grep --color=auto'
 
+# ── ~/.local/bin (GitHub-release apps, pipx, cargo) ─────────────────
+# This MUST be here and not only in ~/.profile: a login bash reads the FIRST
+# of ~/.bash_profile / ~/.bash_login / ~/.profile, and Bazzite ships a
+# ~/.bash_profile (from /etc/skel) that sources ~/.bashrc but never
+# ~/.profile. So the ~/.local/bin block in ~/.profile is dead code for bash.
+#
+# It matters beyond interactive shells: niri-session runs
+# `systemctl --user import-environment`, which overwrites the user manager's
+# environment.d PATH with the LOGIN SHELL's PATH. With ~/.local/bin missing
+# there, every niri child (noctalia, systemd user units, desktop entries)
+# loses ghostty/chromium/screenshot/magpie — the exact failure this fixes.
+# fish already does this via `fish_add_path -g ~/.local/bin` in config.fish.
+case ":${PATH}:" in
+    *":${HOME}/.local/bin:"*) ;;
+    *) export PATH="${HOME}/.local/bin:${PATH}" ;;
+esac
+
 # ── Homebrew (CLI apps on Bazzite) ──────────────────────────────────
 # Bazzite installs brew system-wide for the `linuxbrew` user; ~/.linuxbrew is
 # only a symlink some installers create. Check both, quietly.

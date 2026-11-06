@@ -120,7 +120,8 @@ xdg-desktop-portal-gnome/gtk (screen sharing), xdg-terminal-exec, grim,
 slurp, swappy, wl-clipboard, brightnessctl, playerctl, wlsunset, fish, tmux,
 just, fcitx5 (+ rime/gtk/qt/configtool), poppler-utils, android-tools, the
 font set (Noto CJK/emoji, JetBrains Mono, Fira Code, Intel One Mono),
-ladspa-swh-plugins, ollama-base + ollama-vulkan, openssh-server, tuned.
+ladspa-swh-plugins, openssh-server, tuned, plus the pinned upstream ollama
+release (see the ollama note below).
 
 The Bazzite base image already ships `jq`, `fzf`, `fastfetch`, `git` and
 `python3`; the image layer above adds `ffmpeg`, `ImageMagick` and
@@ -128,11 +129,18 @@ The Bazzite base image already ships `jq`, `fzf`, `fastfetch`, `git` and
 them again — see docs/software-management.md ("One package, one owner").
 
 `ddcutil` is not a Fedora package; it comes with the Bazzite base image
-(`terra-ddcutil`). `ollama` is installed as ollama-base + ollama-vulkan
-instead of the `ollama` meta package: the meta hard-requires ollama-rocm,
-which pulls in ~5.9 GB of AMD ROCm libraries that are dead weight on an
-NVIDIA machine. The GPU backend here is Vulkan (`OLLAMA_VULKAN=1` in the
-service drop-in) because Fedora cannot ship a CUDA build.
+(`terra-ddcutil`).
+
+**ollama is NOT the Fedora package.** Fedora 45 (and rawhide) still ship
+ollama 0.24.0, while the model this machine loads (`kev:4b-q4_K_M`) declares
+`"requires":"0.40.4"` in its registry manifest — `ollama pull` fails with a
+412 "requires a newer version of Ollama". `build_files/build.sh` therefore
+installs the sha256-pinned upstream release (0.40.15) to Fedora's own paths
+(`/usr/bin/ollama`, `/usr/lib/ollama`) and excludes `cuda_v12`/`cuda_v13`
+(~2.4 GB of CUDA userspace, dead weight on a Vulkan machine). Fedora's unit
+and `ollama` sysuser are reproduced under `system_files/`. The GPU backend is
+Vulkan (`OLLAMA_VULKAN=1` in the service drop-in) because Fedora cannot ship
+a CUDA build.
 
 Release tarballs pinned by sha256 in `build_files/build.sh`: kero (terminal,
 Mod+Return), strata (file manager + FileChooser portal), Maple Mono NF CN

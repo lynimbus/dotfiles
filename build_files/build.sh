@@ -72,8 +72,6 @@ dnf5 -y install \
     ImageMagick \
     LibRaw \
     android-tools \
-    ollama-base \
-    ollama-vulkan \
     openssh-server \
     tuned
 
@@ -156,12 +154,51 @@ install -Dm644 /usr/lib/strata/portal/strata.portal \
 fc-cache -f || true
 gtk-update-icon-cache -q -t -f /usr/share/icons/hicolor 2>/dev/null || true
 
+### ollama — pinned upstream release, NOT the Fedora package
+#
+# Why not `dnf install ollama-base ollama-vulkan`? Fedora 45 still ships
+# ollama 0.24.0 (checked 2026-11; rawhide too), while the model this machine
+# loads (`kev:4b-q4_K_M`) declares `"requires":"0.40.4"` in its registry
+# manifest. `ollama pull` therefore fails with
+#   "The model you are attempting to pull requires a newer version of Ollama."
+# so the packaged build is unusable for the configured model.
+#
+# The upstream release bundle is the same payload the official
+# `ollama/ollama` image ships: bin/ollama + lib/ollama/{vulkan,cuda_v*}. The
+# binary finds its libraries RELATIVE to its own path (bin/../lib/ollama), so
+# installing to the same layout Fedora used (/usr/bin/ollama +
+# /usr/lib/ollama) keeps everything working. Because the Fedora package is no
+# longer installed, its systemd unit and `ollama` sysuser ship in
+# system_files/ instead (same contents).
+#
+# cuda_v12/ + cuda_v13/ are ~2.4 GB of NVIDIA CUDA userspace that is dead
+# weight here: this machine's GPU backend is Vulkan (see the service drop-in
+# and docs/nixos-port-map.md). They are excluded from the extraction.
+OLLAMA_VERSION="0.40.15"
+fetch \
+    "https://github.com/ollama/ollama/releases/download/v${OLLAMA_VERSION}/ollama-linux-amd64.tar.zst" \
+    "628c018404a4206493efd38e46251c154ede5141b8b8dc85c659b3b027c47379" \
+    /tmp/ollama.tar.zst
+mkdir -p /tmp/ollama-unpack
+tar --zstd -xf /tmp/ollama.tar.zst -C /tmp/ollama-unpack \
+    --exclude='lib/ollama/cuda_v12/*' \
+    --exclude='lib/ollama/cuda_v13/*'
+install -Dm755 /tmp/ollama-unpack/bin/ollama /usr/bin/ollama
+mkdir -p /usr/lib/ollama
+cp -a /tmp/ollama-unpack/lib/ollama/. /usr/lib/ollama/
+rm -rf /tmp/ollama-unpack /tmp/ollama.tar.zst
+# The tar also carries empty cuda_v12/cuda_v13 dirs after the exclude; drop
+# them so `bootc container lint` sees no stray empty lib dirs.
+rmdir /usr/lib/ollama/cuda_v12 /usr/lib/ollama/cuda_v13 2>/dev/null || true
+
 ### Services
 #
 # Port of system/ollama.nix (service enabled, host/env baked — models are
 # runtime state, pulled via `ujust atomic-ws-ollama-pull`), system/ssh.nix
 # (hardening drop-in ships in system_files/, enable the daemon) and tuned
-# (system/hardware.nix).
+# (system/hardware.nix). Since the ollama payload now comes from upstream
+# (above), the unit Fedora's ollama-base used to own — and the `ollama`
+# sysuser — ship in system_files/ instead.
 systemctl enable ollama.service || true
 systemctl enable sshd.service || true
 systemctl enable tuned.service || true

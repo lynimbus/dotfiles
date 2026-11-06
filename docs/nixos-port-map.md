@@ -25,7 +25,7 @@
 | `input-method.nix`（fcitx5 + rime-ice） | build.sh：fcitx5 全家桶 + `system_files/etc/environment.d/60-fcitx5.conf` | rime-ice 词库是用户数据：装到 `~/.local/share/fcitx5/rime`（见下） |
 | `audio.nix` | — | PipeWire/WirePlumber 是 Bazzite 基础镜像的一部分 |
 | `hardware.nix` | `system_files/etc/systemd/system/var-mnt-{windows,data}.{mount,automount}` | NTFS 挂载按同样的 UUID/参数移植为 systemd 挂载单元；`/mnt/data` 额外加 `nofail` 防止缺盘卡启动。**单元名用规范化路径 `var-mnt-*`、`Where=/var/mnt/*`**：ostree 上 `/mnt -> var/mnt` 是符号链接，systemd 拒绝经由符号链接的挂载点（`Mount path … is not canonical`），`systemd-fstab-generator` 对 fstab 也是这么命名的。zram/蓝牙/tuned 已是 Bazzite 默认（tuned 在镜像里显式 enable） |
-| `ollama.nix` | build.sh：dnf `ollama-base` + `ollama-vulkan` + `system_files/.../ollama.service.d/10-lynimbus.conf` | 环境变量、`DeviceAllow` 全量（6 条）原样移植。**不装 `ollama` 元包**：它硬依赖 `ollama-rocm`，会拖进约 5.9 GB AMD ROCm 库。Fedora 无法打包 CUDA，GPU 后端改为 Vulkan（drop-in 里 `OLLAMA_VULKAN=1`）。另加 `StateDirectory=ollama`——ostree 不部署 `/var`，否则 `bootc switch` 后服务无家目录、无限重启。`loadModels` 变为 `ujust atomic-ws-ollama-pull` |
+| `ollama.nix` | build.sh：**上游 release 固定版本**（sha256 校验）安装到 Fedora 的路径（`/usr/bin/ollama` + `/usr/lib/ollama`）+ `system_files/{usr/lib/systemd/system/ollama.service,usr/lib/sysusers.d/ollama.conf,etc/systemd/system/ollama.service.d/10-lynimbus.conf}` | 环境变量、`DeviceAllow` 全量（6 条）原样移植。**不用 Fedora 的 ollama 包**：Fedora 45 仍只到 0.24.0，而配置的模型 `kev:4b-q4_K_M` 在 registry manifest 里声明 `"requires":"0.40.4"`，`ollama pull` 报 412 "requires a newer version of Ollama"，因此改用上游 release（0.40.15）并排除 `cuda_v12/cuda_v13`（约 2.4 GB，本机走 Vulkan）。Fedora 包不再安装，其 unit 与 `ollama` sysuser 改由 `system_files/` 提供。GPU 后端 Vulkan（drop-in `OLLAMA_VULKAN=1`）。另加 `StateDirectory=ollama`——ostree 不部署 `/var`，否则 `bootc switch` 后服务无家目录、无限重启。`loadModels` 变为 `ujust atomic-ws-ollama-pull` |
 | `users.nix` | ujust：`atomic-ws-set-shell-fish`、`atomic-ws-sudo-nopasswd` | 用户/密码是安装期机器状态；fish 与免密 sudo 做成 opt-in 命令 |
 | `nix.nix` / `nix-ld.nix` | — | 无 Nix；CLI 生态整体迁到 Homebrew |
 | `desktop-niri.nix` | build.sh：dnf niri + strata（release tarball）+ `system_files` 的 niri drop-in 与 portal 配置 | niri 25.11 在 Fedora 44 仓库；strata 1.1.1 按其 tarball 手工放置（FileManager1 D-Bus + FileChooser portal），`FileChooser=strata;gtk` 原样 |
@@ -95,6 +95,22 @@
   brew 版本排在 PATH 后面永远不会被解析到）
 * `~/.local/bin/magpie`（自更新中，0.1.2909）、ghostty/opengrep/r8/mygo
   （`scripts/install-user-apps.sh` 安装）、Lody 桌面 AppImage
+* **`~/.local/bin` 必须出现在 niri 会话的 PATH 里**（否则 ghostty/
+  chromium/screenshot 等 `spawn` 全部 `No such file or directory`）。
+  坑在于：`niri-session` 会执行 `systemctl --user import-environment`，
+  用**登录 shell 的 PATH** 覆盖用户管理器的 `environment.d` PATH。所以
+  光在 `environment.d/60-atomic-workstation.conf` 里写 PATH 没用——必须让
+  登录 shell 自己导出 `~/.local/bin`：fish 走 `fish_add_path -g`，
+  bash 走 `dot_bashrc`（注意 Bazzite 有 `~/.bash_profile`，它 source
+  `~/.bashrc` 但**不** source `~/.profile`，所以 `dot_profile` 里的
+  PATH 段对 bash 登录 shell 是死代码）
+* noctalia 的两条残留 WRN 属正常：`~/.face` 已改为指向
+  adwaita `avatar-default.svg` 的 chezmoi symlink（消掉
+  "failed to decode image"）；`secret-store … provider-unavailable`
+  是因为 niri 会话没有 Secret Service 提供者——本机没有 gnome-keyring，
+  启用 Fedora 的 `oo7-daemon` 只会得到一个**未解锁**的 keyring（无 PAM
+  pinentry），比没有 provider 更糟，故保持禁用。主分支 NixOS 侧同样没有
+  keyring（secrets 走 sops-nix），这是对齐而非缺陷
 
 ### 已知缺口：基础镜像由 bazzite-dx-nvidia 换成了 bazzite-nvidia-open
 
