@@ -75,6 +75,23 @@ atomic-ws-user-apps *args:
     fi
     exec "$REPO/scripts/install-user-apps.sh" "$@"
 
+# Carry the Flatpak QQ profile (~/.var/app/com.qq.QQ/config/QQ, ~1.5 GB) over
+# to the native build's config path (~/.config/QQ) before the Flatpak is
+# uninstalled. A copy, never a move: the Flatpak tree stays the fallback.
+# Run it, then quit QQ, then `flatpak uninstall com.qq.QQ` once native works.
+[group('atomic-workstation')]
+atomic-ws-qq-migrate *args:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    REPO="${ATOMIC_WORKSTATION_DIR:-$HOME/dotfiles}"
+    if [[ ! -x "$REPO/scripts/migrate-qq-from-flatpak.sh" ]]; then
+        echo "atomic-workstation repo not found at: $REPO" >&2
+        echo "Clone it first:  git clone git@github.com:lynimbus/dotfiles.git ~/dotfiles" >&2
+        echo "...or export ATOMIC_WORKSTATION_DIR=/path/to/your/clone" >&2
+        exit 1
+    fi
+    exec "$REPO/scripts/migrate-qq-from-flatpak.sh" "$@"
+
 # Port of system/users.nix: fish as the login shell (opt-in; it touches
 # /etc, which stays machine state on atomic systems).
 #

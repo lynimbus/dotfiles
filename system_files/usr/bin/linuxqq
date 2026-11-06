@@ -1,0 +1,8 @@
+#!/bin/sh
+# /usr/bin/linuxqq — the QQ entry point the Wayland fix looks up first.
+#
+# WHY: the fix resolves QQ by asking `command -v linuxqq` before falling back to
+# /opt/QQ/qq, and `linuxqq` is also the command a user expects in PATH. Exec the
+# payload directly: calling the fix's own wrapper here would send it back
+# through the same resolution order and loop forever.
+exec /opt/QQ/qq "$@"

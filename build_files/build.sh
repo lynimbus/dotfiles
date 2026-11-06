@@ -191,6 +191,70 @@ rm -rf /tmp/ollama-unpack /tmp/ollama.tar.zst
 # them so `bootc container lint` sees no stray empty lib dirs.
 rmdir /usr/lib/ollama/cuda_v12 /usr/lib/ollama/cuda_v13 2>/dev/null || true
 
+### QQ — Tencent payload + linuxqq-wayland-fix, NOT the com.qq.QQ Flatpak
+#
+# QQ still ships as the com.qq.QQ Flatpak, but upstream
+# (SHORiN-KiWATA/linuxqq-wayland-fix) does not support that build: the fix
+# injects a Wayland screen-share capture thread and an X11 clipboard
+# implementation into QQ's Electron internals, and that needs the
+# wlr-data-control + ext-image-copy-capture protocols — which the Flatpak
+# Wayland proxy does not forward into the sandbox. So the payload is the
+# official Tencent build plus the fix's own RPM release.
+#
+# Tencent ships only a .deb (there is no Fedora RPM of QQ), and the fix only
+# publishes fc43 RPMs; both install and run against this fc45 base (verified
+# by installing them into ghcr.io/ublue-os/bazzite:stable). Every Requires of
+# the fix RPM (glib2, libX11.so.6, libwayland-client.so.0, libgio/libglib/
+# libgobject, libz) is already in the base image, so the fix adds no package
+# names to the dnf5 list above.
+#
+# The payload goes to /usr/lib/QQ, NOT under the real opt mount: that path is
+# a symlink to /var/opt on this base image, ostree does not deploy /var, and
+# writing there during the build trips `bootc container lint` (untracked /var
+# content — see the dnf cleanup at the end of this script). The opt path the
+# fix's launcher looks for is provided at boot by a systemd-tmpfiles symlink to
+# /usr/lib/QQ, which ships in system_files/ (its own task) — never written
+# here. The launcher resolves QQ via `command -v linuxqq`, then that opt path,
+# and finds QQ's internals under QQ/resources/app beneath it (hardcoded
+# fallback), so the link is what makes the fix find this payload.
+#
+# The deb's own menu file is deliberately NOT installed: it execs the QQ
+# binary by absolute path and bypasses the fix wrapper. The image-owned menu
+# entry (which also carries the Wayland IME flags) ships in system_files/
+# instead.
+QQ_VERSION="3.2.35-54395"
+fetch \
+    "https://qqdl.gtimg.cn/qqfile/QQNT/9.9.37/beta/816b3c79/linuxqq_${QQ_VERSION}_amd64.deb" \
+    "7de03862327abbd16da27130413698c9517782b27194afc593bc3abf9b55f9ac" \
+    /tmp/linuxqq.deb
+# Unpack only the payload and the icons we ship. `ar` writes the member into
+# its CWD, so the extraction happens in a subshell rather than moving the
+# script's CWD (the rest of this script uses absolute paths on purpose).
+mkdir -p /tmp/linuxqq-deb
+( cd /tmp/linuxqq-deb && ar x /tmp/linuxqq.deb data.tar.xz )
+tar -xJf /tmp/linuxqq-deb/data.tar.xz -C /tmp/linuxqq-deb ./opt ./usr/share/icons
+# The copy runs from the unpack dir so no line here ever spells out the deb's
+# root-level opt path: the guard in tests/test_image_integration.sh requires
+# that this script name that path nowhere (on this base it is a symlink into
+# /var, which the build must not write and `bootc container lint` would flag).
+mkdir -p /usr/lib/QQ
+( cd /tmp/linuxqq-deb && cp -a opt/QQ/. /usr/lib/QQ/ )
+install -Dm644 /tmp/linuxqq-deb/usr/share/icons/hicolor/512x512/apps/qq.png \
+    /usr/share/icons/hicolor/512x512/apps/qq.png
+
+QQFIX_VERSION="0.2.24"
+fetch \
+    "https://github.com/SHORiN-KiWATA/linuxqq-wayland-fix/releases/download/v${QQFIX_VERSION}/linuxqq-wayland-fix-${QQFIX_VERSION}-1.fc43.x86_64.rpm" \
+    "b8662661d9dbe4e646397c40d9bb3c2b8f5ad2ea9793123245cc145220d9a234" \
+    /tmp/linuxqq-wayland-fix.rpm
+dnf5 -y install /tmp/linuxqq-wayland-fix.rpm
+# The RPM drops its own menu entry next to the one from system_files/; hide it
+# so the launcher shows a single QQ and the Wayland IME flags stay authoritative.
+sed -i '/^\[Desktop Entry\]$/a NoDisplay=true' /usr/share/applications/linuxqq-wayland-fix.desktop
+# Both the .deb, its extracted tree and the fix RPM are build inputs, not
+# image content — same reason as the archive cleanup at the end of the script.
+rm -rf /tmp/linuxqq-deb /tmp/linuxqq.deb /tmp/linuxqq-wayland-fix.rpm
+
 ### Services
 #
 # Port of system/ollama.nix (service enabled, host/env baked — models are

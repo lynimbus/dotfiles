@@ -17,7 +17,7 @@ if [[ ! -d "${TMPDIR:-/tmp}" || ! -w "${TMPDIR:-/tmp}" ]]; then
     export TMPDIR=/tmp
 fi
 
-SUITES=(flatpak brew distrobox inventory git systemd ujust image_integration dotfiles screenshot screenshot_config screenshot_wiring)
+SUITES=(flatpak brew distrobox inventory git systemd ujust image_integration dotfiles screenshot screenshot_config screenshot_wiring qq_desktop qq_migration)
 if [[ ${1:-} != "" ]]; then
     SUITES=("$1")
 fi

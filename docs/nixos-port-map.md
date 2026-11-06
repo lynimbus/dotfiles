@@ -32,7 +32,7 @@
 | `desktop-mango.nix` | 仅 chezmoi：`dot_config/mango/*.conf` | mango（mangowm）无 Fedora 包、无 release 二进制（Nix 独占构建）；配置保留备用，会话不可用 |
 | `xdg.nix`（terminal-exec=ghostty、gvfs、portal） | `xdg-terminal-exec`（dnf）；ghostty 由 `install-user-apps.sh` 提供 | gvfs 走 dnf；portal 配置在 `system_files/etc/xdg-desktop-portal/niri-portals.conf`（portal 只读 `$XDG_CONFIG_DIRS*/xdg-desktop-portal/` 与 `/etc/xdg-desktop-portal/`，`/etc/xdg/portal/` 不会被读） |
 | `magisk.nix`（只读 /etc overlay、machine-id） | — | bootc 天生镜像化 /etc，等价语义已存在 |
-| `linuxqq-wayland-fix.nix` | — | 修补的是原生 QQ 包；atomic 上 QQ 走 flathub（自带同等修复），见 apps 清单 |
+| `linuxqq-wayland-fix.nix` | build.sh：固定版本的腾讯 deb 装到 `/usr/lib/QQ` + 同版本的 fix RPM；tmpfiles 把 `/opt/QQ` 链到 `/usr/lib/QQ`（`/opt` 在 ostree 上是 `var/opt`）+ `system_files/usr/share/applications/qq.desktop` 菜单入口 | 修的是原生包：QQ 由镜像提供，**不再走 flathub**。flatpak 的 wrapper 只传 `--ozone-platform=wayland`，而修复依赖 `wlr-data-control` / `ext-image-copy-capture`，flatpak 代理不转发这两个协议，剪贴板/截图/屏幕共享照样坏。`/opt/QQ` 做成 tmpfiles 链接是因为 `/opt -> var/opt`，写进镜像的 `/usr` 内容不会落在那里 |
 | `plymouth.nix`（mac-style 主题） | — | Bazzite 接管 plymouth；换主题需重建 initramfs，不合每日构建模式 |
 | `packages.nix`（curl/wget） | — | 基础镜像已有 |
 

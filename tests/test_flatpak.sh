@@ -168,6 +168,72 @@ rc=$?
 if [[ $rc -eq 1 ]]; then t_ok; else t_fail "prune --yes rc: expected 1, got $rc"; fi
 assert_contains "explains the refusal" "deliberately ignored" "$out"
 
+t_case "QQ is image-owned: neither the seed list nor the bazzite inventory installs it"
+# QQ moved out of the sandbox (native Tencent payload + linuxqq-wayland-fix in
+# build_files/build.sh). Leaving it in either list re-installs the flatpak next
+# to the native build and the protocol-broken proxy path comes back.
+SEED_LIST="${REPO_ROOT}/apps/profiles/base.flatpak.txt"
+BAZZITE_INV="${REPO_ROOT}/apps/flatpak/inventory/bazzite.json"
+assert_file_exists "seed list present" "$SEED_LIST"
+assert_file_exists "bazzite inventory present" "$BAZZITE_INV"
+assert_not_contains "seed list drops com.qq.QQ" 'com.qq.QQ' "$SEED_LIST"
+assert_not_contains "inventory drops com.qq.QQ" 'com.qq.QQ' "$BAZZITE_INV"
+assert_contains "seed list keeps WeChat" 'com.tencent.WeChat' "$SEED_LIST"
+assert_contains "inventory keeps WeChat" '"application": "com.tencent.WeChat"' "$BAZZITE_INV"
+assert_contains "seed comment points at the image payload" '/usr/lib/QQ' "$SEED_LIST"
+
+# the seed list must still yield WeChat as a real app ID (not just in a comment)
+seed_ids=$(grep -vE '^[[:space:]]*(#|$)' "$SEED_LIST" | sed 's/[[:space:]]//g' | sort -u)
+if grep -qxF 'com.tencent.WeChat' <<<"$seed_ids"; then
+    t_ok
+else
+    t_fail "seed list no longer lists com.tencent.WeChat as an app"
+fi
+
+# a 15-entry list with one removed must still keep every field of every other app
+remaining=$(python3 - "$BAZZITE_INV" <<'PYEOF'
+import json, sys
+
+inv = json.load(open(sys.argv[1]))
+if inv.get("version") != 1 or inv.get("profile") != "bazzite":
+    raise SystemExit("schema header changed")
+if not isinstance(inv.get("remotes", {}).get("system"), list):
+    raise SystemExit("remotes block damaged")
+
+ids = [a["application"] for a in inv["apps"]]
+if "com.qq.QQ" in ids:
+    raise SystemExit("com.qq.QQ is still in apps[]")
+if "com.tencent.WeChat" not in ids:
+    raise SystemExit("com.tencent.WeChat disappeared")
+for app in inv["apps"]:
+    for key in ("application", "origin", "installation", "branch", "arch"):
+        if not app.get(key):
+            raise SystemExit("%s lost field %s" % (app.get("application"), key))
+if len(ids) != len(set(ids)):
+    raise SystemExit("duplicate app ids")
+print(",".join(sorted(ids)))
+PYEOF
+)
+rc=$?
+assert_eq "inventory validates: JSON parses, schema kept, no QQ, fields intact" "0" "$rc"
+assert_eq "every other app is still listed" \
+    "com.github.Matoking.protontricks,com.github.tchx84.Flatseal,com.obsproject.Studio,com.tencent.WeChat,com.vysp3r.ProtonPlus,io.github.DenysMb.Kontainer,io.github.flattool.Warehouse,io.github.ungoogled_software.ungoogled_chromium,org.gnome.Firmware,org.gnome.meld,org.kde.gwenview,org.kde.haruna,org.kde.kcalc,org.kde.okular,org.mozilla.firefox" \
+    "$remaining"
+
+if python3 -m json.tool "$BAZZITE_INV" >/dev/null 2>&1; then t_ok; else t_fail "python3 -m json.tool rejects the inventory"; fi
+
+t_case "port map maps linuxqq-wayland-fix to build.sh, not to a flathub QQ that carries the fix"
+PORT_MAP="${REPO_ROOT}/docs/nixos-port-map.md"
+assert_file_exists "port map present" "$PORT_MAP"
+qq_row=$(grep -F 'linuxqq-wayland-fix.nix' "$PORT_MAP")
+if [[ -n "$qq_row" ]]; then t_ok; else t_fail "no linuxqq-wayland-fix.nix row in the port map"; fi
+assert_contains "row points at build.sh" 'build.sh' "$qq_row"
+assert_contains "row names the native payload path" '/usr/lib/QQ' "$qq_row"
+assert_contains "row explains the /opt -> /usr/lib/QQ tmpfiles link" 'tmpfiles' "$qq_row"
+assert_contains "row points at the menu entry" 'qq.desktop' "$qq_row"
+assert_contains "row records what the fix needs" 'wlr-data-control' "$qq_row"
+assert_not_contains "row no longer claims the flatpak carries the same fix" 'atomic 上 QQ 走 flathub' "$qq_row"
+
 t_teardown
 rm -f "${REPO_ROOT}/apps/flatpak/inventory/testbox.json"
 

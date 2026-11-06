@@ -1,0 +1,17 @@
+# QQ menu entry.
+#
+# WHY this is the only .desktop for QQ: two entries (one bare, one fixed) make
+# the launcher pick a coin flip. The fix's launcher only adds
+# --ozone-platform=wayland and forwards the rest of argv, so the IME flags the
+# upstream Flatpak wrapper used (its qq.sh) have to be passed from here —
+# without them fcitx5 typing inside QQ regresses. NoDisplay is deliberately
+# absent: the entry must be visible in the menu.
+[Desktop Entry]
+Type=Application
+Name=QQ
+Comment=QQ with the Wayland fix (screen sharing, clipboard, screenshot)
+Exec=linuxqq-wayland-fix --enable-wayland-ime --wayland-text-input-version=3 %U
+Icon=qq
+Terminal=false
+Categories=Network;InstantMessaging;
+StartupWMClass=QQ

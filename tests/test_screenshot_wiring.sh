@@ -240,11 +240,12 @@ fi
 t_case "tests/run.sh still parses"
 if bash -n "$RUN_SH" 2>/dev/null; then t_ok; else t_fail "bash -n tests/run.sh failed"; fi
 
-# The 12-suite array must survive the edit verbatim.
-t_case "SUITES keeps all 12 suites"
+# The 14-suite array must survive the edit verbatim.
+t_case "SUITES keeps all 14 suites"
 missing_suites=()
 for want_suite in flatpak brew distrobox inventory git systemd ujust image_integration \
-                  dotfiles screenshot screenshot_config screenshot_wiring; do
+                  dotfiles screenshot screenshot_config screenshot_wiring \
+                  qq_desktop qq_migration; do
     word_in_line "$want_suite" "$SUITES_LINE" || missing_suites+=("$want_suite")
 done
 if [[ ${#missing_suites[@]} -eq 0 ]]; then

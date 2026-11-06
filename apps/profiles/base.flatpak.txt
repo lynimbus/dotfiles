@@ -17,8 +17,11 @@
 io.github.ungoogled_software.ungoogled_chromium
 org.mozilla.firefox
 
-# ── chat (main: QQ via linuxqq-wayland-fix; atomic: flathub QQ) ──
-com.qq.QQ
+# ── chat (QQ is IMAGE-OWNED: native Tencent payload in /usr/lib/QQ + the
+# linuxqq-wayland-fix wrapper, both installed by build_files/build.sh — the
+# flathub QQ app ID must NOT be re-seeded here: the sandbox proxy does not
+# forward wlr-data-control / ext-image-copy-capture, so clipboard, screenshots
+# and screen share break, and the flatpak would shadow the native build) ──
 com.tencent.WeChat
 
 # ── editors / utilities from the machine's captured inventory ──
