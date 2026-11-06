@@ -20,9 +20,8 @@ else
     echo "    xdg-mime default io.github.lgse.Strata.desktop inode/directory" >&2
 fi
 
-# Enable the ported user units (hourly-chime). The unit files were just
-# written by this apply, so the user manager has to re-read them first;
-# enable --now is a no-op on an already-active timer.
+# The unit files were just written by this apply, so the user manager has to
+# re-read them first; enable --now is a no-op on an already-active timer.
 if command -v systemctl >/dev/null 2>&1; then
     systemctl --user daemon-reload 2>/dev/null || true
     systemctl --user enable --now hourly-chime.timer 2>/dev/null || \

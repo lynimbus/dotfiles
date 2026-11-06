@@ -65,7 +65,6 @@ fi
 
 aw_have restic || aw_die "restic is not installed (brew install restic, or dnf install restic)"
 
-# Defaults
 BACKUP_PATHS="${BACKUP_PATHS:-$HOME/Documents $HOME/Pictures}"
 DEFAULT_EXCLUDES="$HOME/.cache
 **/.cache

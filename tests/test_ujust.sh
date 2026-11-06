@@ -83,6 +83,26 @@ t_case "doctor.sh is executable and syntactically valid"
 assert_file_exists "scripts/doctor.sh" "$REPO_ROOT/scripts/doctor.sh"
 if bash -n "$REPO_ROOT/scripts/doctor.sh" 2>/dev/null; then t_ok; else t_fail "bash -n failed"; fi
 
+# ── justfile header consolidation + recipe surface ──────────────────────────
+JUSTFILE="$REPO_ROOT/justfile"
+
+t_title "justfile recipe surface"
+
+t_case "just -f justfile --list succeeds"
+( cd "$REPO_ROOT" && just -f justfile --list >/dev/null 2>&1 )
+assert_rc 0 "just --list"
+
+t_case "just --summary still lists the same 12 recipe names"
+assert_eq "recipe names" \
+    "brew-seed flatpak-seed image-build image-check image-clean image-generate-build-tags image-generate-default-tag image-name image-ostree-rechunk image-rechunk image-tag-images user-apps" \
+    "$( cd "$REPO_ROOT" && just -f justfile --summary 2>/dev/null )"
+
+t_case "60-custom.just keeps its why-comment and recipe list"
+assert_contains "filename why-comment" 'The FILE NAME is load-bearing.' "$RECIPE_FILE"
+assert_eq "ujust recipe names" \
+    "atomic-ws-doctor atomic-ws-ollama-pull atomic-ws-qq-migrate atomic-ws-restore atomic-ws-set-shell-fish atomic-ws-sudo-nopasswd atomic-ws-sync atomic-ws-user-apps" \
+    "$( cd "$REPO_ROOT" && just -f "$RECIPE_FILE" --summary 2>/dev/null )"
+
 echo
 if [[ $TESTS_FAILED -eq 0 ]]; then
     echo "ujust: ${TESTS_RUN} checks, 0 failed" >&2

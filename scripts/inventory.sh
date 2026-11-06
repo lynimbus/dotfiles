@@ -40,7 +40,6 @@ environment:
 EOF
 }
 
-# parse "profile + flags": first non-flag argument is the profile
 parse_args() {
     PROFILE_ARG=""
     PRUNE=0

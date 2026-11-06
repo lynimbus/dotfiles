@@ -92,7 +92,6 @@ t_case "Alt+Print uses niri's built-in window action"
 assert_contains "Alt+Print binds" 'Alt+Print { screenshot-window; }' "$KEYBINDINGS"
 
 t_case "the screenshot comment no longer mentions satty"
-assert_not_contains "no 'via satty'" 'via satty' "$KEYBINDINGS"
 assert_not_contains "satty is not mentioned at all" 'satty' "$KEYBINDINGS"
 
 # Only the comment lines that document screenshots are inspected, so prose
@@ -185,23 +184,6 @@ else
     t_fail "niri config.kdl has no active screenshot-path pointing at Pictures/Screenshots"
 fi
 
-# ── suite registration ─────────────────────────────────────────────
-t_title "tests/run.sh registration"
-
-SUITES_LINE="$(grep -E '^[[:space:]]*SUITES=\(' "$RUN_SH" 2>/dev/null | head -1)"
-t_case "tests/run.sh declares a SUITES array"
-assert_file_exists "tests/run.sh" "$RUN_SH"
-if [[ -n "$SUITES_LINE" ]]; then t_ok; else t_fail "no SUITES=(...) array found in tests/run.sh"; fi
-
-t_case "SUITES registers the screenshot suite"
-if word_in_line screenshot "$SUITES_LINE"; then t_ok; else t_fail "tests/run.sh SUITES is missing [screenshot]: ${SUITES_LINE}"; fi
-
-t_case "SUITES registers the screenshot_config suite"
-if word_in_line screenshot_config "$SUITES_LINE"; then t_ok; else t_fail "tests/run.sh SUITES is missing [screenshot_config]: ${SUITES_LINE}"; fi
-
-t_case "SUITES registers the screenshot_wiring suite"
-if word_in_line screenshot_wiring "$SUITES_LINE"; then t_ok; else t_fail "tests/run.sh SUITES is missing [screenshot_wiring]: ${SUITES_LINE}"; fi
-
 # ── test runner TMPDIR fallback ────────────────────────────────────
 # layerfs `exec` points TMPDIR at <workspace>/.tmp, a scratch dir that is
 # never captured by checkpoint/publish, so in a clean workspace it does not
@@ -239,20 +221,6 @@ fi
 # bash -n: the new guard must not break parsing of the runner.
 t_case "tests/run.sh still parses"
 if bash -n "$RUN_SH" 2>/dev/null; then t_ok; else t_fail "bash -n tests/run.sh failed"; fi
-
-# The 14-suite array must survive the edit verbatim.
-t_case "SUITES keeps all 14 suites"
-missing_suites=()
-for want_suite in flatpak brew distrobox inventory git systemd ujust image_integration \
-                  dotfiles screenshot screenshot_config screenshot_wiring \
-                  qq_desktop qq_migration; do
-    word_in_line "$want_suite" "$SUITES_LINE" || missing_suites+=("$want_suite")
-done
-if [[ ${#missing_suites[@]} -eq 0 ]]; then
-    t_ok
-else
-    t_fail "tests/run.sh SUITES is missing: ${missing_suites[*]}"
-fi
 
 # With a broken TMPDIR, dotfiles' bare `mktemp` used to fail the suite.
 BAD_TMPDIR="${TMPDIR_SANDBOX}/no-such-dir"

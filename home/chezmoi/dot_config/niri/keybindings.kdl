@@ -13,19 +13,15 @@ binds {
     // shows a list of important hotkeys.
     Mod+Shift+Slash { show-hotkey-overlay; }
 
-    // Suggested binds for running programs: terminal, app launcher, screen locker.
     Mod+Return { spawn "kero"; }
     Mod+Shift+Return { spawn "ghostty" "--class=com.mitchellh.ghostty.float" "--maximize=false"; }
 
-    // Launcher
     Mod+D { spawn "noctalia" "msg" "panel-toggle" "launcher"; }
     Mod+Space { spawn "noctalia" "msg" "panel-toggle" "launcher"; }
     XF86Search { spawn "noctalia" "msg" "panel-toggle" "launcher"; }
 
-    // Browser
     Mod+B { spawn "chromium"; }
 
-    // Locker
     CTRL+Alt+L { spawn "noctalia" "msg" "session" "lock"; }
 
     // Use spawn-sh to run a shell command. Do this if you need pipes, multiple commands, etc.
@@ -33,7 +29,6 @@ binds {
     // For example, this is a standard bind to toggle the screen reader (orca).
     // Super+Alt+S allow-when-locked=true hotkey-overlay-title=null { spawn-sh "pkill orca || exec orca"; }
 
-    // Example volume keys mappings for PipeWire & WirePlumber.
     // The allow-when-locked=true property makes them work even when the session is locked.
     // Using spawn-sh allows to pass multiple arguments together with the command.
     // "-l 1.0" limits the volume to 100%.
@@ -47,7 +42,6 @@ binds {
     XF86AudioMicMute allow-when-locked=true { spawn "noctalia" "msg" "mic-mute"; }
 
 
-    // Example media keys mapping using playerctl.
     // This will work with any MPRIS-enabled media player.
     // XF86AudioPlay        allow-when-locked=true { spawn-sh "playerctl play-pause"; }
     // XF86AudioStop        allow-when-locked=true { spawn-sh "playerctl stop"; }
@@ -58,7 +52,6 @@ binds {
     XF86AudioPrev        allow-when-locked=true { spawn-sh "noctalia msg media previous"; }
     XF86AudioNext        allow-when-locked=true { spawn-sh "noctalia msg media next"; }
 
-    // Example brightness key mappings for brightnessctl.
     // You can use regular spawn with multiple arguments too (to avoid going through "sh"),
     // but you need to manually put each argument in separate "" quotes.
     // XF86MonBrightnessUp allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "1%+"; }
@@ -66,7 +59,6 @@ binds {
     XF86MonBrightnessUp allow-when-locked=true { spawn "noctalia" "msg" "brightness-up"; }
     XF86MonBrightnessDown allow-when-locked=true { spawn "noctalia" "msg" "brightness-down"; }
 
-    // keyboard backlight
     XF86KbdBrightnessUp allow-when-locked=true { spawn "kbd-backlight" "10%+"; }
     XF86KbdBrightnessDown allow-when-locked=true { spawn "kbd-backlight" "10%-"; }
 
@@ -196,7 +188,6 @@ binds {
     // Center all fully visible columns on screen.
     Mod+Ctrl+C { center-visible-columns; }
 
-    // Finer width adjustments.
     // This command can also:
     // * set width in pixels: "1000"
     // * adjust width in pixels: "-5" or "+5"
@@ -207,19 +198,16 @@ binds {
     Mod+Minus { set-column-width "-10%"; }
     Mod+Equal { set-column-width "+10%"; }
 
-    // Finer height adjustments when in column with other windows.
     Mod+Shift+Minus { set-window-height "-10%"; }
     Mod+Shift+Equal { set-window-height "+10%"; }
 
     // Move the focused window between the floating and the tiling layout.
     Mod+V       { toggle-window-floating; }
 
-    // Toggle tabbed column display mode.
     // Windows in this column will appear as vertical tabs,
     // rather than stacked on top of each other.
     Mod+W { toggle-column-tabbed-display; }
 
-    // Actions to switch layouts.
     // Note: if you uncomment these, make sure you do NOT have
     // a matching layout switch hotkey configured in xkb options above.
     // Having both at once on the same hotkey will break the switching,
@@ -257,7 +245,6 @@ binds {
     // moving the mouse or pressing any other key.
     Mod+Shift+P { power-off-monitors; }
 
-    // Utility shortcuts
     Mod+Shift+V { spawn "noctalia" "msg" "panel-toggle" "clipboard"; }
 
     Mod+S { spawn "noctalia" "msg" "panel-toggle" "control-center"; }

@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # restore.sh — install Homebrew packages from apps/brew/inventory/<profile>/Brewfile
 #
-# Additive: installs what is missing, never uninstalls anything.
 # --dry-run reports what WOULD be installed by comparing the Brewfile with
 # `brew list` (no reliance on optional `brew bundle` flags).
 # Skips with a warning when Homebrew or the Brewfile is missing.
@@ -40,7 +39,6 @@ if [[ ! -f "$BREWFILE" ]]; then
     exit 0
 fi
 
-# Compare Brewfile entries against what is installed.
 INSTALLED="$(mktemp)"
 trap 'rm -f "$INSTALLED"' EXIT
 brew list --formula 2>/dev/null >"$INSTALLED" || true

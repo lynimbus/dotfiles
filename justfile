@@ -1,18 +1,14 @@
+# ═════════════════════════════════════════════════════════════════════════════
 # atomic-workstation — standalone justfile for this branch
 #
+# Bazzite + niri/noctalia OCI image: recipes ported from the
+# ublue-os/image-template Justfile (https://github.com/ublue-os/image-template).
 # This branch only contains the atomic-workstation subsystem, so its justfile
 # holds the image-* recipes plus the user-side seed/install recipes (the
-# NixOS recipes of the main branch do not apply here). Parameters come from
-# image-template.env via dotenv.
-# ═════════════════════════════════════════════════════════════════════════════
-# atomic-workstation — OCI image build (Bazzite + niri/noctalia)
-#
-# Recipes ported from the ublue-os/image-template Justfile
-# (https://github.com/ublue-os/image-template). They are prefixed with
+# NixOS recipes of the main branch do not apply here). They are prefixed with
 # `image-` because this repo already uses `build`/`check` for NixOS.
-# Parameters come from image-template.env (loaded via dotenv below).
+# Parameters come from image-template.env via dotenv.
 # CI: .github/workflows/build.yml. See docs/installation.md.
-# ═════════════════════════════════════════════════════════════════════════════
 
 set dotenv-filename := "image-template.env"
 set dotenv-load

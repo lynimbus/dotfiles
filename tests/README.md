@@ -2,17 +2,13 @@
 
 ## Layout
 
-| path | purpose |
-| --- | --- |
-| `run.sh` | runs every suite (or one: `./tests/run.sh flatpak`) |
-| `lib.sh` | tiny assertion framework + sandbox helpers (`t_setup`/`t_teardown`) |
-| `test_flatpak.sh` | capture/restore/status/prune against the mock CLI |
-| `test_brew.sh` | Brewfile dump/restore, absent-brew, failures |
-| `test_distrobox.sh` | container capture/restore, idempotency |
-| `test_inventory.sh` | inventory.sh argument parsing / profile handling (regression tests) |
-| `test_git.sh` | sync.sh git behaviour (throwaway copy, never the real repo) |
-| `test_systemd.sh` | unit-file validation + timer semantics |
-| `fixtures/bin/mock-*` | test doubles for flatpak / brew / distrobox |
+Each `tests/test_<name>.sh` file is one suite. `run.sh` auto-discovers every `tests/test_*.sh` (so adding a suite needs no registry edit); `lib.sh` holds the tiny assertion framework and the mock sandbox helpers (`t_setup` / `t_teardown`). Assertions are behavioural: they drive the capture/restore scripts through the real-named mocks in `tests/fixtures/bin/` and check the resulting files and output.
+
+## Running
+
+    ./tests/run.sh              every discovered tests/test_*.sh suite
+    ./tests/run.sh flatpak      one discovered suite (by name)
+    bash tests/test_inventory_data.sh   the canonical QQ data guard on its own
 
 ## Mocks
 

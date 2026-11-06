@@ -2,10 +2,8 @@
 # capture.sh — record existing distrobox containers into
 # containers/inventory/<profile>.json
 #
-# Stores: container name, image, and whether a matching bootstrap script
-# exists in containers/bootstrap/<name>.sh. Container STATUS is deliberately
-# NOT recorded (it changes on every boot and would pollute git diffs).
-# Skips cleanly (exit 0) when distrobox is not installed.
+# Container STATUS is deliberately NOT recorded: it changes on every boot and
+# would pollute git diffs.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -22,7 +20,6 @@ if ! aw_have distrobox; then
     exit 0
 fi
 
-# distrobox list output columns: ID | NAME | STATUS | IMAGE
 RAW="$(distrobox list --no-color 2>/dev/null || true)"
 
 python3 - "$PROFILE" "$OUT" "$RAW" "${SCRIPT_DIR}/bootstrap" <<'PY_EOF'

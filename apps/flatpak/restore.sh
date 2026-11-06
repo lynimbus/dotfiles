@@ -2,8 +2,6 @@
 # restore.sh — additively restore flatpaks from apps/flatpak/inventory/<profile>.json
 #
 # Restores the profile given as $1, WORKSTATION_PROFILE, or the hostname.
-# Additive only unless --prune is passed (see below). Never uninstalls apps
-# that exist on this machine but not in the inventory.
 #
 # Usage: restore.sh [profile] [--prune] [--dry-run] [--yes]
 set -euo pipefail

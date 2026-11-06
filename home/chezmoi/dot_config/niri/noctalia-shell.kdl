@@ -1,10 +1,8 @@
 // https://docs.noctalia.dev/getting-started/compositor-settings/niri/
 
 window-rule {
-  // Rounded corners for a modern look.
   geometry-corner-radius 20
 
-  // Clips window contents to the rounded corner boundaries.
   clip-to-geometry true
 }
 
@@ -13,7 +11,6 @@ debug {
   honor-xdg-activation-with-invalid-serial
 }
 
-// Place the Noctalia backdrop layer inside niri's overview.
 layer-rule {
   match namespace="^noctalia-backdrop"
   place-within-backdrop true

@@ -25,11 +25,9 @@ source "${SCRIPT_DIR}/lib/common.sh"
 BIN_DIR="${HOME}/.local/bin"
 SHARE_DIR="${HOME}/.local/share"
 
-# ── manifest ───────────────────────────────────────────────────────────────
 # Format: name|kind|url|sha256
 #   kind: binary      — single executable → ~/.local/bin/<name>
 #         appimage    — AppImage extracted → ~/.local/share/<name> + AppRun wrapper
-#         tarball     — .tar.gz holding <name> at its top level
 #         jar         — single jar → ~/.local/share/java + java wrapper
 #         goinstall   — Go module installed via `go install` (needs brew go)
 #         gitdata     — git-clone data dir (no sha pin; update = git pull)
@@ -42,8 +40,6 @@ ALL_APPS=(
     "mygo|goinstall|github.com/egoist/mygo/cmd/mygo@v0.7.3|"
     "rime-ice|gitdata|https://github.com/iDvel/rime-ice|fcitx5/rime"
 )
-
-# ── helpers ────────────────────────────────────────────────────────────────
 
 app_field() { # app_field <entry> <n>
     local IFS='|'
@@ -118,7 +114,6 @@ install_appimage() { # url sha name
 exec "${dest}/squashfs-root/AppRun" "\$@"
 EOF
     chmod 0755 "${BIN_DIR}/$3"
-    # Register the shipped desktop entry + icon for the app grid
     local desk="${dest}/squashfs-root/com.mitchellh.ghostty.desktop"
     if [[ -f "${desk}" ]]; then
         mkdir -p "${HOME}/.local/share/applications"
@@ -129,19 +124,6 @@ EOF
         fi
     fi
     rm -f "/tmp/atomic-ws-$3.AppImage"
-}
-
-install_tarball() { # url sha name
-    fetch "$1" "$2" "/tmp/atomic-ws-$3.tar.gz"
-    local tmp
-    tmp="$(mktemp -d)"
-    tar -xzf "/tmp/atomic-ws-$3.tar.gz" -C "$tmp"
-    local inner
-    inner="$(find "$tmp" -maxdepth 2 -type f -name "$3" | head -1)"
-    [[ -n "$inner" ]] || aw_die "$3: no binary named '$3' inside the tarball"
-    chmod 0755 "$inner"
-    mv "$inner" "${BIN_DIR}/$3"
-    rm -rf "$tmp" "/tmp/atomic-ws-$3.tar.gz"
 }
 
 install_jar() { # url sha name version
@@ -218,8 +200,6 @@ install_gitdata() { # url target-relative-path
     cp -a "${tmp}/repo/." "${dest}/"
     rm -rf "$tmp"
 }
-
-# ── CLI ────────────────────────────────────────────────────────────────────
 
 MODE="install"
 FORCE=0
@@ -313,7 +293,7 @@ install)
         want_app "$name" || continue
 
         case "$kind" in
-        binary|appimage|tarball)
+        binary|appimage)
             if [[ -e "${BIN_DIR}/${name}" && $FORCE -eq 0 ]]; then
                 aw_ok "$name already installed ($(installed_version "$name" || echo present)) — use --force to reinstall"
                 continue
@@ -335,7 +315,6 @@ install)
         case "$kind" in
         binary) install_binary "$url" "$sha" "$name" ;;
         appimage) install_appimage "$url" "$sha" "$name" ;;
-        tarball) install_tarball "$url" "$sha" "$name" ;;
         jar) install_jar "$url" "$sha" "$name" "$(sed -n 's|.*/r8-\([0-9.]*\)\.jar|\1|p' <<<"$url")" ;;
         goinstall) install_go "$url" ;;
         gitdata) install_gitdata "$url" "$(app_field "$entry" 3)" ;;

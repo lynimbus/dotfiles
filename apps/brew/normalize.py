@@ -58,7 +58,7 @@ def read_leaves(path: str) -> set[str]:
 def group(raw_path: str, leaves: set[str]) -> tuple[dict[str, list], list[str]]:
     """Return {manager: [(sort_key, lines)]} plus any trailing stray comments."""
     groups: dict[str, list[tuple[str, list[str]]]] = {}
-    pending: list[str] = []  # comments/blanks awaiting the entry they describe
+    pending: list[str] = []
 
     with open(raw_path, encoding="utf-8") as fh:
         for line in fh:
@@ -70,7 +70,6 @@ def group(raw_path: str, leaves: set[str]) -> tuple[dict[str, list], list[str]]:
 
             match = ENTRY.match(line)
             if not match:
-                # Unknown directive: keep it verbatim, sorted by its own text.
                 groups.setdefault("other", []).append((line, pending + [line]))
                 pending = []
                 continue

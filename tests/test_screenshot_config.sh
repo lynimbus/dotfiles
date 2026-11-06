@@ -97,9 +97,6 @@ t_case "chezmoi dot_config/ maps to ~/.config/"
 rel="${CFG#"${REPO_ROOT}/home/chezmoi/"}"
 assert_eq "target path" ".config/swappy/config" "$(printf '%s' "$rel" | sed -E 's#^dot_config/#.config/#')"
 
-t_case "no stray chezmoi attribute prefixes on the file itself"
-assert_eq "file component" "config" "$(basename "$rel")"
-
 t_case "config header documents the deployed path ~/.config/swappy/config"
 # shellcheck disable=SC2088 # literal target path, not a shell tilde to expand
 assert_contains "deploy target in comments" "~/.config/swappy/config" "$CFG"

@@ -36,15 +36,10 @@
 save_dir=$HOME/Pictures/Screenshots
 # strftime(3) template for that file — keep in sync with niri's screenshot-path.
 save_filename_format=Screenshot from %Y-%m-%d %H-%M-%S.png
-# Show the annotation panel on startup.
 show_panel=true
-# Default stroke width, 1..50.
 line_size=5
-# Default text size, 10..50.
 text_size=20
-# Pango font description used by the text tool.
 text_font=Maple Mono NF CN 13
-# Tool selected on startup: brush|text|rectangle|ellipse|arrow|blur.
 paint_mode=brush
 # The key this file exists for: quit after Save or Copy, restoring satty's
 # --actions-on-enter="save-to-clipboard,exit" one-confirm-and-done behaviour.

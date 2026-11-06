@@ -2,11 +2,8 @@
 
 set -ouex pipefail
 
-# Copy the contents of system_files/ of the git repo to /
 cp -avf "/ctx/system_files"/. /
 
-### Install packages
-#
 # Port of the NixOS system layer on the main branch of this repo
 # (system/desktop-niri.nix, fonts.nix, input-method.nix, audio.nix,
 # ollama.nix, hardware.nix …). Package names are the base
@@ -75,8 +72,6 @@ dnf5 -y install \
     openssh-server \
     tuned
 
-### Fonts Fedora does not package
-#
 # main branch system/fonts.nix carries maple-mono."NF-CN" and
 # nerd-fonts.jetbrains-mono; Fedora has neither (its `nerd-fonts` package is
 # symbols-only). Both ship official release archives with sidecar hashes, so
@@ -104,8 +99,6 @@ unzip -o -q /tmp/JetBrainsMono.zip -d "${FONTS_DIR}/JetBrainsMono-NerdFont"
 rm -f "${FONTS_DIR}/JetBrainsMono-NerdFont/LICENSE" \
       "${FONTS_DIR}/JetBrainsMono-NerdFont/"*.md 2>/dev/null || true
 
-### kero — terminal (Mod+Return), GitHub release only
-#
 # Same tarball pkgs/kero.nix fetches on the main branch. The Go binary locates
 # its bundled libghostty-vt.so relative to /proc/self/exe, so the whole tree
 # goes to /usr/lib/kero and /usr/bin/kero is a symlink into it.
@@ -123,8 +116,6 @@ ln -sfn /usr/lib/kero/kero /usr/bin/kero
 install -Dm644 /usr/lib/kero/kero.desktop /usr/share/applications/kero.desktop
 install -Dm644 /usr/lib/kero/kero.png /usr/share/pixmaps/kero.png
 
-### strata — file manager + FileChooser portal, GitHub release only
-#
 # Ports system/desktop-niri.nix's `strata-file-manager` / `strata-portal`
 # pair (they install exactly these files out of the same tarball on NixOS).
 # The release install.sh targets $HOME; for the image we place everything
@@ -150,12 +141,9 @@ sed "s|@STRATA_EXECUTABLE@|/usr/bin/strata|g" \
 install -Dm644 /usr/lib/strata/portal/strata.portal \
     /usr/share/xdg-desktop-portal/portals/strata.portal
 
-### Refresh font + icon caches so the new entries resolve on first boot
 fc-cache -f || true
 gtk-update-icon-cache -q -t -f /usr/share/icons/hicolor 2>/dev/null || true
 
-### ollama — pinned upstream release, NOT the Fedora package
-#
 # Why not `dnf install ollama-base ollama-vulkan`? Fedora 45 still ships
 # ollama 0.24.0 (checked 2026-11; rawhide too), while the model this machine
 # loads (`kev:4b-q4_K_M`) declares `"requires":"0.40.4"` in its registry
@@ -191,8 +179,6 @@ rm -rf /tmp/ollama-unpack /tmp/ollama.tar.zst
 # them so `bootc container lint` sees no stray empty lib dirs.
 rmdir /usr/lib/ollama/cuda_v12 /usr/lib/ollama/cuda_v13 2>/dev/null || true
 
-### QQ — Tencent payload + linuxqq-wayland-fix, NOT the com.qq.QQ Flatpak
-#
 # QQ still ships as the com.qq.QQ Flatpak, but upstream
 # (SHORiN-KiWATA/linuxqq-wayland-fix) does not support that build: the fix
 # injects a Wayland screen-share capture thread and an X11 clipboard
@@ -255,8 +241,6 @@ sed -i '/^\[Desktop Entry\]$/a NoDisplay=true' /usr/share/applications/linuxqq-w
 # image content — same reason as the archive cleanup at the end of the script.
 rm -rf /tmp/linuxqq-deb /tmp/linuxqq.deb /tmp/linuxqq-wayland-fix.rpm
 
-### Services
-#
 # Port of system/ollama.nix (service enabled, host/env baked — models are
 # runtime state, pulled via `ujust atomic-ws-ollama-pull`), system/ssh.nix
 # (hardening drop-in ships in system_files/, enable the daemon) and tuned
@@ -267,8 +251,6 @@ systemctl enable ollama.service || true
 systemctl enable sshd.service || true
 systemctl enable tuned.service || true
 
-### Clean up build scratch space
-#
 # The release archives and the dnf/rpm scratch dirs are build inputs, not
 # image content: leaving them behind ships ~330 MB of dead weight and trips
 # `bootc container lint` (nonempty-run-tmp). The Containerfile also mounts a
@@ -281,6 +263,3 @@ rm -f /tmp/MapleMono-NF-CN.zip /tmp/JetBrainsMono.zip \
 # makes `bootc container lint` stop reporting untracked /var content
 # (`var-tmpfiles: d /var/lib/dnf/repos/…`, plus `countme` counter files).
 rm -rf /run/dnf /run/dnf5 /var/lib/dnf /var/cache/libdnf5/* /var/cache/dnf/* 2>/dev/null || true
-
-#### Example for enabling a System Unit File
-# systemctl enable <unit>

@@ -15,7 +15,6 @@ if status is-interactive
     fish_vi_key_bindings
 end
 
-# ~/.local/bin — GitHub-release apps (magpie, ghostty, opengrep, …) live here
 fish_add_path -g ~/.local/bin
 
 # Homebrew. Bazzite's /usr/share/fish/vendor_conf.d/ublue-brew.fish already
@@ -29,7 +28,6 @@ if test -d /home/linuxbrew/.linuxbrew/bin
     fish_add_path --append --global --path /home/linuxbrew/.linuxbrew/bin /home/linuxbrew/.linuxbrew/sbin
 end
 
-# aliases (ported from NixOS)
 alias la 'ls -a'
 alias lla 'ls -la'
 alias c 'clear'

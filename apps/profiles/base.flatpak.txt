@@ -1,48 +1,29 @@
-# base.flatpak.txt — first-boot seed list (one flatpak ID per line).
-# Install:  just flatpak-seed  (detects the flathub scope; do NOT force --user)
+# Install: `just flatpak-seed` detects the flathub scope; do NOT force --user.
 #
-# Rebuilt 2026-11 by merging THIS machine's captured inventory (QQ, Firefox,
-# Fcitx5, the KDE utilities, the Bazzite add-ons) with the GUI half of the
-# NixOS config on main (home/packages/gui.nix):
-#   ungoogled-chromium, wechat-uos, obs-studio  → flathub
-#   ddcutil wlsunset wl-clipboard tmux xwayland-satellite → image (dnf)
-#   strata kero magpie → image / scripts/install-user-apps.sh
-#   ayugram-desktop folia-major grok-bot → no flathub/repo build, see
-#       docs/nixos-port-map.md
-# meld is the jj merge editor from home/programs/jujutsu.nix.
-# Your REAL inventory is captured afterwards into
-# apps/flatpak/inventory/<profile>.json — that file wins over this seed.
+# QQ is image-owned: build_files/build.sh installs the native Tencent payload
+# in /usr/lib/QQ plus the linuxqq-wayland-fix wrapper. The flathub QQ would
+# break clipboard, screenshots and screen share (the sandbox proxy does not
+# forward wlr-data-control / ext-image-copy-capture) and shadow the native
+# build, so its app ID must not be re-seeded here.
+#
+# No fcitx5 flatpak either: the flathub "Fcitx 5" is a separate sandboxed
+# daemon that races the image's host fcitx5 for the fcitx5 D-Bus name and hides
+# the rime dictionary behind ~/.var/app/<app-id>.
 
-# ── browsers (main: ungoogled-chromium; machine reality: Firefox) ──
 io.github.ungoogled_software.ungoogled_chromium
 org.mozilla.firefox
 
-# ── chat (QQ is IMAGE-OWNED: native Tencent payload in /usr/lib/QQ + the
-# linuxqq-wayland-fix wrapper, both installed by build_files/build.sh — the
-# flathub QQ app ID must NOT be re-seeded here: the sandbox proxy does not
-# forward wlr-data-control / ext-image-copy-capture, so clipboard, screenshots
-# and screen share break, and the flatpak would shadow the native build) ──
 com.tencent.WeChat
 
-# ── editors / utilities from the machine's captured inventory ──
 org.kde.okular
 org.kde.gwenview
 org.kde.haruna
 org.kde.kcalc
 org.gnome.meld
 
-# ── input method ──
-# NOTHING HERE ON PURPOSE. The image bakes the host fcitx5 (+rime) and the
-# niri session spawns it; /etc/environment.d/60-fcitx5.conf points the
-# toolkits at it. The flathub "Fcitx 5" app is a *separate sandboxed
-# daemon* for hosts that have no fcitx5 — installing it on this image makes
-# two daemons race for the fcitx5 D-Bus name and hides the rime dictionary
-# in ~/.local/share/fcitx5/rime behind ~/.var/app/<app-id>.
 
-# ── media / recording (main: obs-studio) ──
 com.obsproject.Studio
 
-# ── workstation plumbing actually installed on this machine ──
 com.github.tchx84.Flatseal
 io.github.flattool.Warehouse
 it.mijorus.gearlever

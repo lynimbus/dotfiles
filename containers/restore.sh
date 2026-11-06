@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # restore.sh — create missing distrobox containers from containers/distrobox.ini
 #
-# ADDITIVE by design: existing containers are never destroyed or replaced.
 # Bootstrap scripts (containers/bootstrap/<name>.sh) run inside containers
 # that were created by THIS invocation (skipped for already-existing ones).
 # --dry-run only prints what would happen (no distrobox calls that mutate).
@@ -39,7 +38,6 @@ if [[ ! -f "$INI" ]]; then
     exit 0
 fi
 
-# helpers: list container names from the ini / from distrobox
 ini_names() { grep -oE '^\[[^]]+\]' "$1" | tr -d '[]'; }
 live_names() {
     distrobox list --no-color 2>/dev/null |
@@ -67,7 +65,6 @@ fi
 aw_step "creating missing distrobox containers (declared in containers/distrobox.ini)"
 distrobox assemble create --file "$INI"
 
-# Run bootstrap scripts only for containers created by THIS invocation.
 AFTER="$(live_names)"
 while IFS= read -r name; do
     [[ -z "$name" ]] && continue

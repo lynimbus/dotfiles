@@ -11,7 +11,6 @@ Type=oneshot
 ExecStart=%h/dotfiles/scripts/inventory.sh capture
 # Never push from the timer — pushing is manual (scripts/sync.sh --push)
 Environment=NO_COLOR=1
-# Failure logging: everything lands in the journal
 StandardOutput=journal
 StandardError=journal
 SuccessExitStatus=0

@@ -1,5 +1,3 @@
-# /usr/lib/systemd/system/ollama.service — atomic-workstation
-#
 # Shipped by this repo because build_files/build.sh no longer installs Fedora's
 # `ollama-base` package: Fedora 45 ships ollama 0.24.0 while the configured
 # model (`kev:4b-q4_K_M`) requires >= 0.40.4, so the payload comes from the

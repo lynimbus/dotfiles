@@ -16,7 +16,6 @@ fail() {
     FAILS=$((FAILS + 1))
 }
 
-# ── user context ───────────────────────────────────────────────────
 # The one check that needs root is `bootc status`, so the documented
 # invocation is `sudo ./scripts/doctor.sh` (or `ujust atomic-ws-doctor` run
 # with sudo). Root's HOME and root's `systemd --user` manager then make every
@@ -49,7 +48,6 @@ aw_user() {
     fi
 }
 
-# ── system layer ───────────────────────────────────────────────────
 aw_step "system"
 if aw_have bootc; then
     aw_ok "bootc available"
@@ -67,7 +65,6 @@ else
     aw_warn "not a bootc/ostree host — system-layer features unavailable here (normal on NixOS/other)"
 fi
 
-# ── session layer ──────────────────────────────────────────────────
 aw_step "niri session"
 # grim + slurp + swappy + wl-copy make up the screenshot chain that the Print
 # bind drives, so a missing swappy/wl-copy silently breaks annotation and a
@@ -87,7 +84,6 @@ else
     aw_warn "xdg-desktop-portal-gnome missing — screenshots/screen-share may not work in niri"
 fi
 
-# ── application layer ──────────────────────────────────────────────
 aw_step "application sources"
 if aw_have flatpak; then
     aw_ok "flatpak $(flatpak --version 2>/dev/null | head -1)"
@@ -120,7 +116,6 @@ BREWFILE="${ATOMIC_WS_ROOT}/apps/brew/inventory/${PROFILE}/Brewfile"
 if [[ -f "$FLATPAK_INV" ]]; then aw_ok "flatpak inventory for '${PROFILE}' exists"; else aw_warn "no flatpak inventory for '${PROFILE}' — run: ./scripts/inventory.sh capture"; fi
 if [[ -f "$BREWFILE" ]]; then aw_ok "Brewfile for '${PROFILE}' exists"; else aw_warn "no Brewfile for '${PROFILE}' — run: ./scripts/inventory.sh capture"; fi
 
-# ── distrobox ──────────────────────────────────────────────────────
 aw_step "distrobox"
 if aw_have distrobox; then
     aw_ok "distrobox $(distrobox --version 2>/dev/null | head -1)"
@@ -133,7 +128,6 @@ else
     aw_warn "distrobox not installed"
 fi
 
-# ── chezmoi ────────────────────────────────────────────────────────
 aw_step "chezmoi"
 CHEZMOI_SRC="${ATOMIC_WS_ROOT}/home/chezmoi"
 if aw_have chezmoi; then
@@ -147,7 +141,7 @@ else
     fail "chezmoi missing — required to manage user configuration (brew install chezmoi)"
 fi
 
-# ── xdg defaults (port of home/core.nix xdg.mimeApps) ─────────────
+# xdg defaults (port of home/core.nix xdg.mimeApps)
 # run_once_10-xdg-and-units.sh only runs once, and the usual install order
 # (apply config on stock Bazzite → bootc switch → reboot) makes it run BEFORE
 # strata exists. Re-checking here is the recovery path.
@@ -163,7 +157,6 @@ else
     aw_warn "xdg-mime missing — cannot check the file-manager default"
 fi
 
-# ── timer ──────────────────────────────────────────────────────────
 aw_step "systemd user timer"
 if command -v systemctl >/dev/null 2>&1; then
     # `systemctl is-enabled` prints the state ("not-found") to STDOUT and ALSO
@@ -182,7 +175,6 @@ else
     aw_warn "systemctl unavailable — cannot check the user timer"
 fi
 
-# ── git ────────────────────────────────────────────────────────────
 aw_step "git"
 if aw_git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     aw_ok "repo at ${ATOMIC_WS_ROOT}"
@@ -196,7 +188,6 @@ else
     fail "not a git repo — clone it properly"
 fi
 
-# ── summary ────────────────────────────────────────────────────────
 echo >&2
 if [[ $FAILS -gt 0 ]]; then
     aw_error "doctor: ${FAILS} failure(s) — fix the [FAIL] lines above"

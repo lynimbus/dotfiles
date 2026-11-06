@@ -24,7 +24,6 @@ t_enable_mock distrobox
 t_case "capture records name, image and bootstrap script presence"
 distrobox assemble create --file "${REPO_ROOT}/containers/distrobox.ini" >/dev/null 2>&1
 bash "$CAPTURE" >/dev/null 2>&1
-assert_file_exists "inventory written" "$INV"
 assert_contains "name recorded" '"name": "fedora-dev"' "$INV"
 assert_contains "image recorded" 'fedora-toolbox:42' "$INV"
 assert_contains "bootstrap recorded" '"bootstrap": "containers/bootstrap/fedora-dev.sh"' "$INV"

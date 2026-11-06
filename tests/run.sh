@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # run.sh — run the whole atomic-workstation test suite.
-#   ./tests/run.sh          everything (mocked e2e + unit-file checks)
-#   ./tests/run.sh flatpak  just one suite (flatpak|brew|distrobox|git|systemd)
+#   ./tests/run.sh          every discovered tests/test_*.sh suite
+#   ./tests/run.sh flatpak  just one discovered suite (by name)
 set -uo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${HERE}/.." && pwd)"
@@ -17,7 +17,7 @@ if [[ ! -d "${TMPDIR:-/tmp}" || ! -w "${TMPDIR:-/tmp}" ]]; then
     export TMPDIR=/tmp
 fi
 
-SUITES=(flatpak brew distrobox inventory git systemd ujust image_integration dotfiles screenshot screenshot_config screenshot_wiring qq_desktop qq_migration)
+mapfile -t SUITES < <(cd "$HERE" && printf '%s\n' test_*.sh | sed 's/^test_//; s/\.sh$//' | LC_ALL=C sort)
 if [[ ${1:-} != "" ]]; then
     SUITES=("$1")
 fi

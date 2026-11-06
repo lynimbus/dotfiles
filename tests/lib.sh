@@ -16,7 +16,7 @@ t_fail() {
     printf 'FAIL: %s\n' "$*" >&2
 }
 
-assert_contains() { # assert_contains <desc> <needle> <haystack (string or file path)>
+assert_contains() {
     local desc="$1" needle="$2" haystack="$3"
     if [[ -f "$haystack" ]]; then haystack="$(cat "$haystack")"; fi
     if grep -qF -- "$needle" <<<"$haystack"; then t_ok; else t_fail "$desc: missing [$needle]"; fi
@@ -32,7 +32,8 @@ assert_eq() {
 assert_file_exists() {
     if [[ -e "$2" ]]; then t_ok; else t_fail "$1: $2 does not exist"; fi
 }
-assert_rc() { # assert_rc <expected> <desc> — checks $? of the LAST command; call right after
+# Capture $? first: assert_rc must be called immediately after the command.
+assert_rc() {
     local want="$1" got="$?" desc="$2"
     if [[ "$got" == "$want" ]]; then t_ok; else t_fail "$desc: expected rc=$want, got rc=$got"; fi
 }
@@ -66,11 +67,11 @@ t_disable_mock() {
     rm -f "$T_SANDBOX/bin/$1"
     t_disable_cmd "$1"
 }
-t_disable_cmd() { # t_disable_cmd <name> — treat <name> as not installed
+t_disable_cmd() {
     local cur=" ${AW_DISABLE_CMDS:-} "
     [[ "$cur" == *" $1 "* ]] || export AW_DISABLE_CMDS="${AW_DISABLE_CMDS:+${AW_DISABLE_CMDS} }$1"
 }
-t_undisable_cmd() { # t_undisable_cmd <name>
+t_undisable_cmd() {
     local out="" c
     for c in ${AW_DISABLE_CMDS:-}; do
         [[ "$c" == "$1" ]] && continue

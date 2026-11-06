@@ -216,7 +216,6 @@ assert_file_exists "landed under \$XDG_CONFIG_HOME/QQ" "$XDG_CONFIG_HOME/QQ/mark
 
 # ── 10. ujust wiring ──────────────────────────────────────────────────────
 t_case "ujust recipe atomic-ws-qq-migrate wraps the script"
-assert_file_exists "recipe file present" "$RECIPE_FILE"
 assert_contains "recipe defined" "atomic-ws-qq-migrate *args:" "$RECIPE_FILE"
 assert_contains "recipe in the atomic-workstation group" \
     "[group('atomic-workstation')]" "$RECIPE_FILE"

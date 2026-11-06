@@ -8,7 +8,6 @@ if [ -d "${HOME}/.linuxbrew" ]; then
     eval "$(${HOME}/.linuxbrew/bin/brew shellenv)"
 fi
 
-# ~/.local/bin (pipx, cargo, pip --user, etc.)
 if [ -d "${HOME}/.local/bin" ]; then
     case ":${PATH}:" in
         *":${HOME}/.local/bin:"*) ;;

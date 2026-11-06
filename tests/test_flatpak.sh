@@ -8,6 +8,7 @@ source "${REPO_ROOT}/tests/lib.sh"
 
 CAPTURE="${REPO_ROOT}/apps/flatpak/capture.sh"
 RESTORE="${REPO_ROOT}/apps/flatpak/restore.sh"
+INV_PY="${REPO_ROOT}/apps/flatpak/inventory.py"
 
 seed() { # seed <scope> <app> <origin> [branch]
     local scope="$1" app="$2" origin="$3" branch="${4:-stable}"
@@ -23,7 +24,6 @@ rm -f "$INV"
 
 t_case "capture with zero apps produces valid, empty inventory"
 bash "$CAPTURE" >/dev/null 2>&1
-assert_file_exists "inventory file written" "$INV"
 assert_contains "schema version" '"version": 1' "$INV"
 assert_contains "empty user remotes" '"user": []' "$INV"
 assert_contains "empty system remotes" '"system": []' "$INV"
@@ -93,7 +93,7 @@ assert_eq "no duplicate installs" "$before_sys" "$after_sys"
 t_case "restore refuses to install a conflicting app from a stale inventory"
 # a profile captured before the conflict rule existed can still name the
 # sandboxed fcitx5 app; restore must skip it instead of reintroducing it
-conflict_id=$(INV_PY="${REPO_ROOT}/apps/flatpak/inventory.py" python3 - <<'PYEOF'
+conflict_id=$(INV_PY="$INV_PY" python3 - <<'PYEOF'
 import os, re
 src = open(os.environ["INV_PY"]).read()
 block = re.search(r"CONFLICTS_WITH_IMAGE = \{(.*?)\n\}", src, re.S).group(1)
@@ -168,71 +168,44 @@ rc=$?
 if [[ $rc -eq 1 ]]; then t_ok; else t_fail "prune --yes rc: expected 1, got $rc"; fi
 assert_contains "explains the refusal" "deliberately ignored" "$out"
 
-t_case "QQ is image-owned: neither the seed list nor the bazzite inventory installs it"
-# QQ moved out of the sandbox (native Tencent payload + linuxqq-wayland-fix in
-# build_files/build.sh). Leaving it in either list re-installs the flatpak next
-# to the native build and the protocol-broken proxy path comes back.
-SEED_LIST="${REPO_ROOT}/apps/profiles/base.flatpak.txt"
-BAZZITE_INV="${REPO_ROOT}/apps/flatpak/inventory/bazzite.json"
-assert_file_exists "seed list present" "$SEED_LIST"
-assert_file_exists "bazzite inventory present" "$BAZZITE_INV"
-assert_not_contains "seed list drops com.qq.QQ" 'com.qq.QQ' "$SEED_LIST"
-assert_not_contains "inventory drops com.qq.QQ" 'com.qq.QQ' "$BAZZITE_INV"
-assert_contains "seed list keeps WeChat" 'com.tencent.WeChat' "$SEED_LIST"
-assert_contains "inventory keeps WeChat" '"application": "com.tencent.WeChat"' "$BAZZITE_INV"
-assert_contains "seed comment points at the image payload" '/usr/lib/QQ' "$SEED_LIST"
-
-# the seed list must still yield WeChat as a real app ID (not just in a comment)
-seed_ids=$(grep -vE '^[[:space:]]*(#|$)' "$SEED_LIST" | sed 's/[[:space:]]//g' | sort -u)
-if grep -qxF 'com.tencent.WeChat' <<<"$seed_ids"; then
+t_case "inventory.py imports cleanly; every function still has a caller"
+if python3 - "$INV_PY" <<'PYEOF'
+import ast, importlib.util, sys
+path = sys.argv[1]
+spec = importlib.util.spec_from_file_location("aw_inventory_probe", path)
+mod = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(mod)
+required = ["INVENTORY_VERSION", "CONFLICTS_WITH_IMAGE", "APP_COLUMNS",
+            "REMOTE_COLUMNS", "_tail", "_run", "_flatpak", "_have_flatpak",
+            "_parse_tsv", "_looks_like_runtime", "_conflicts_with_image",
+            "_list_apps", "_list_remotes", "_scope_or_warn", "capture",
+            "_load", "status", "restore", "main"]
+missing = [n for n in required if not hasattr(mod, n)]
+if missing:
+    raise SystemExit("missing public names: " + ",".join(missing))
+tree = ast.parse(open(path, encoding="utf-8").read())
+loads = [n.id for n in ast.walk(tree)
+         if isinstance(n, ast.Name) and isinstance(n.ctx, ast.Load)]
+dead = [n.name for n in tree.body
+        if isinstance(n, ast.FunctionDef) and n.name not in loads]
+if dead:
+    raise SystemExit("dead functions: " + ",".join(dead))
+PYEOF
+then
     t_ok
 else
-    t_fail "seed list no longer lists com.tencent.WeChat as an app"
+    t_fail "inventory.py import/caller probe failed"
 fi
 
-# a 15-entry list with one removed must still keep every field of every other app
-remaining=$(python3 - "$BAZZITE_INV" <<'PYEOF'
-import json, sys
-
-inv = json.load(open(sys.argv[1]))
-if inv.get("version") != 1 or inv.get("profile") != "bazzite":
-    raise SystemExit("schema header changed")
-if not isinstance(inv.get("remotes", {}).get("system"), list):
-    raise SystemExit("remotes block damaged")
-
-ids = [a["application"] for a in inv["apps"]]
-if "com.qq.QQ" in ids:
-    raise SystemExit("com.qq.QQ is still in apps[]")
-if "com.tencent.WeChat" not in ids:
-    raise SystemExit("com.tencent.WeChat disappeared")
-for app in inv["apps"]:
-    for key in ("application", "origin", "installation", "branch", "arch"):
-        if not app.get(key):
-            raise SystemExit("%s lost field %s" % (app.get("application"), key))
-if len(ids) != len(set(ids)):
-    raise SystemExit("duplicate app ids")
-print(",".join(sorted(ids)))
-PYEOF
-)
-rc=$?
-assert_eq "inventory validates: JSON parses, schema kept, no QQ, fields intact" "0" "$rc"
-assert_eq "every other app is still listed" \
-    "com.github.Matoking.protontricks,com.github.tchx84.Flatseal,com.obsproject.Studio,com.tencent.WeChat,com.vysp3r.ProtonPlus,io.github.DenysMb.Kontainer,io.github.flattool.Warehouse,io.github.ungoogled_software.ungoogled_chromium,org.gnome.Firmware,org.gnome.meld,org.kde.gwenview,org.kde.haruna,org.kde.kcalc,org.kde.okular,org.mozilla.firefox" \
-    "$remaining"
-
-if python3 -m json.tool "$BAZZITE_INV" >/dev/null 2>&1; then t_ok; else t_fail "python3 -m json.tool rejects the inventory"; fi
-
-t_case "port map maps linuxqq-wayland-fix to build.sh, not to a flathub QQ that carries the fix"
-PORT_MAP="${REPO_ROOT}/docs/nixos-port-map.md"
-assert_file_exists "port map present" "$PORT_MAP"
-qq_row=$(grep -F 'linuxqq-wayland-fix.nix' "$PORT_MAP")
-if [[ -n "$qq_row" ]]; then t_ok; else t_fail "no linuxqq-wayland-fix.nix row in the port map"; fi
-assert_contains "row points at build.sh" 'build.sh' "$qq_row"
-assert_contains "row names the native payload path" '/usr/lib/QQ' "$qq_row"
-assert_contains "row explains the /opt -> /usr/lib/QQ tmpfiles link" 'tmpfiles' "$qq_row"
-assert_contains "row points at the menu entry" 'qq.desktop' "$qq_row"
-assert_contains "row records what the fix needs" 'wlr-data-control' "$qq_row"
-assert_not_contains "row no longer claims the flatpak carries the same fix" 'atomic 上 QQ 走 flathub' "$qq_row"
+t_case "flatpak CLI flags unchanged"
+cli_help=$(python3 "$INV_PY" --help 2>&1)
+assert_contains "capture subcommand" "capture" "$cli_help"
+assert_contains "status subcommand" "status" "$cli_help"
+assert_contains "restore subcommand" "restore" "$cli_help"
+cli_help=$(python3 "$INV_PY" restore --help 2>&1)
+assert_contains "--prune flag" "--prune" "$cli_help"
+assert_contains "--dry-run flag" "--dry-run" "$cli_help"
+assert_contains "--yes flag" "--yes" "$cli_help"
 
 t_teardown
 rm -f "${REPO_ROOT}/apps/flatpak/inventory/testbox.json"

@@ -1,8 +1,6 @@
-// Window rules let you adjust behavior for individual windows.
 // Find more information on the wiki:
 // https://yalter.github.io/niri/Configuration:-Window-Rules
 
-// Floating terminal (Mod+Shift+Return) - opens on the active workspace
 window-rule {
     match app-id="^com[.]mitchellh[.]ghostty[.]float$"
     open-floating true
@@ -15,7 +13,6 @@ window-rule {
     }
 }
 
-// Terminal applications - open in workspace 1, with blur
 window-rule {
     match app-id="com.mitchellh.ghostty"
     exclude app-id="[.]float$"
@@ -26,7 +23,6 @@ window-rule {
     }
 }
 
-// Web browsers - open in workspace 2
 window-rule {
     match app-id="firefox"
     open-on-workspace "2browser"
@@ -43,7 +39,6 @@ window-rule {
     open-maximized true
 }
 
-// Chat applications - open in workspace 3
 window-rule {
     // match app-id="org.telegram.desktop"
     match title="^Telegram"
@@ -62,7 +57,6 @@ window-rule {
     open-on-workspace "3chat"
 }
 
-// Entertainment applications - open in workspace 4
 window-rule {
     match app-id="steam"
     open-on-workspace "4entertainment"
@@ -84,12 +78,10 @@ window-rule {
     open-on-workspace "4entertainment"
 }
 window-rule {
-    // Run anime games on Linux
     match app-id="^moe.launcher"
     open-on-workspace "4entertainment"
 }
 window-rule {
-    // All *.exe (Windows applications)
     match app-id=".exe$"
     open-on-workspace "4entertainment"
 }
@@ -98,7 +90,6 @@ window-rule {
     open-on-workspace "4entertainment"
 }
 
-// Utility applications - open in workspace 5
 window-rule {
     match app-id="com.github.johnfactotum.Foliate"
     open-on-workspace "5utility"
@@ -117,7 +108,6 @@ window-rule {
     open-on-workspace "5utility"
 }
 
-// Other applications - open in workspace 0
 window-rule {
     match app-id="BambuStudio"
     open-on-workspace "0other"
@@ -128,13 +118,11 @@ window-rule {
 }
 window-rule {
     match app-id="Zoom Workplace"
-    // Zoom Home Page
     match title="^(Zoom Workplace)( - Free account)?$"
     open-on-workspace "0other"
 }
 window-rule {
     match app-id="Zoom Workplace"
-    // Zoom - other windows
     exclude title="^(Zoom Workplace)( - Free account)?$"
     open-on-workspace "0other"
     open-floating true
@@ -153,7 +141,6 @@ window-rule {
     open-fullscreen true
 }
 
-// Notifications shows bottom right
 window-rule {
    // match exactly empty string, avoid to be the default behavior
     match app-id="^$"

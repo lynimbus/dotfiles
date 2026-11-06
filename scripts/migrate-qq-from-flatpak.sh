@@ -139,7 +139,6 @@ aw_step "QQ profile migration (Flatpak -> native)"
 aw_info "source: ${FROM}"
 aw_info "target: ${TO}"
 
-# ── 1. is there anything to migrate? ─────────────────────────────────────
 # An already-native machine (no Flatpak QQ, or an empty sandbox profile) is a
 # perfectly normal state, not an error.
 if [[ ! -d "$FROM" ]]; then
@@ -169,7 +168,6 @@ if [[ "$FROM_REAL" == "$TO_REAL" ]]; then
     exit 2
 fi
 
-# ── 2. --dry-run: report, change nothing ─────────────────────────────────
 if [[ "$DRY_RUN" == "1" ]]; then
     aw_ok "dry run: would copy ${FILE_COUNT} files (${SIZE})"
     aw_info "from: ${FROM}"
@@ -185,7 +183,6 @@ if [[ "$DRY_RUN" == "1" ]]; then
     exit 0
 fi
 
-# ── 3. guard a non-empty target ──────────────────────────────────────────
 if [[ -e "$TO" ]] && [[ -n "$(find "$TO" -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null)" ]]; then
     if [[ "$FORCE" != "1" ]]; then
         aw_error "target already exists and is not empty: ${TO}"
@@ -198,7 +195,6 @@ if [[ -e "$TO" ]] && [[ -n "$(find "$TO" -mindepth 1 -maxdepth 1 -print -quit 2>
     aw_warn "merging over the existing target: ${TO} (nothing is deleted)"
 fi
 
-# ── 4. the copy ──────────────────────────────────────────────────────────
 # cp -a of the source DIRECTORY onto the target path: cp -a "$FROM" "$TO"
 # would nest it as "$TO/QQ" when $TO already exists, so copy the contents of
 # the source into the target directory instead. Contents-level copy keeps the
@@ -207,7 +203,6 @@ mkdir -p "$TO"
 cp -a "${FROM}/." "${TO}/"
 aw_ok "copied ${FILE_COUNT} files (${SIZE}) into ${TO}"
 
-# ── 5. what now? ─────────────────────────────────────────────────────────
 aw_step "next steps"
 cat >&2 <<EOF
   1. Quit QQ completely (both the Flatpak build and the native one) so no

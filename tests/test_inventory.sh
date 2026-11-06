@@ -61,6 +61,52 @@ t_case "sync reports the git state of the inventory files"
 out=$(bash "$INV" sync "prof1" 2>&1)
 assert_contains "mentions inventory state" "inventory" "$out"
 
+# Ablation contracts: the shared library keeps its live helpers (and their
+# behaviour), loses the two unused ones, and the scripts lose only comments
+# that restated the code.
+t_case "common.sh still exports the helper contract with unchanged behaviour"
+COMMON="${REPO_ROOT}/scripts/lib/common.sh"
+HELPER_REPO="${T_SANDBOX}/common-repo"
+mkdir -p "$HELPER_REPO"
+git -C "$HELPER_REPO" init -q
+helper_out=$(
+    ATOMIC_WS_ROOT="$HELPER_REPO" WORKSTATION_PROFILE=helperbox NO_COLOR=1 \
+        bash -c '
+            source "$1" || exit 99
+            for fn in aw_ok aw_warn aw_error aw_info aw_step aw_die aw_have \
+                      aw_profile aw_git aw_git_dirty aw_git_in_merge aw_confirm; do
+                declare -F "$fn" >/dev/null || printf "MISSING:%s\n" "$fn"
+            done
+            d1="aw_inventory""_dirs"
+            d2="aw_confirm""_destructive"
+            for fn in "$d1" "$d2"; do
+                declare -F "$fn" >/dev/null && printf "DEAD:%s\n" "$fn"
+            done
+            printf "profile=%s\n" "$(aw_profile)"
+            if aw_have bash; then echo "have=1"; else echo "have=0"; fi
+            if AW_DISABLE_CMDS=bash aw_have bash; then echo "disabled=1"; else echo "disabled=0"; fi
+            if AW_ASSUME_YES=1 aw_confirm "go?"; then echo "confirm_yes=1"; else echo "confirm_yes=0"; fi
+            if aw_confirm "go?" 2>/dev/null; then echo "confirm_no=1"; else echo "confirm_no=0"; fi
+            printf "dirty_clean=%s\n" "$(aw_git_dirty)"
+            : >"$ATOMIC_WS_ROOT/untracked"
+            printf "dirty_changed=%s\n" "$(aw_git_dirty)"
+        ' _ "$COMMON" 2>/dev/null
+)
+assert_not_contains "all required helpers are still defined" "MISSING:" "$helper_out"
+assert_not_contains "the ablated helpers are absent" "DEAD:" "$helper_out"
+assert_contains "aw_profile honours WORKSTATION_PROFILE" "profile=helperbox" "$helper_out"
+assert_contains "aw_have finds a present command" "have=1" "$helper_out"
+assert_contains "AW_DISABLE_CMDS still hides a command" "disabled=0" "$helper_out"
+assert_contains "aw_confirm honours AW_ASSUME_YES" "confirm_yes=1" "$helper_out"
+assert_contains "aw_confirm still defaults to no" "confirm_no=0" "$helper_out"
+assert_contains "aw_git_dirty reports a clean tree" "dirty_clean=0" "$helper_out"
+assert_contains "aw_git_dirty reports untracked changes" "dirty_changed=1" "$helper_out"
+
+t_case "--list output is unchanged"
+list_out="$(bash "${REPO_ROOT}/scripts/install-user-apps.sh" --list 2>/dev/null)"
+expected_list=$'magpie     v0.1.2909    binary    https://github.com/yetone/magpie/releases/download/v0.1.2909/magpie-linux-amd64\nghostty    v1.4.0       appimage  https://github.com/pkgforge-dev/ghostty-appimage/releases/download/v1.4.0/Ghostty-1.4.0-x86_64.AppImage\nopengrep   v1.33.1      binary    https://github.com/opengrep/opengrep/releases/download/v1.33.1/opengrep_manylinux_x86\nr8         9.5.28       jar       https://dl.google.com/android/maven2/com/android/tools/r8/9.5.28/r8-9.5.28.jar\nmygo       v0.7.3       goinstall github.com/egoist/mygo/cmd/mygo@v0.7.3\nrime-ice                gitdata   https://github.com/iDvel/rime-ice'
+assert_eq "--list prints the same manifest" "$expected_list" "$list_out"
+
 t_teardown
 rm -f "${REPO_ROOT}/apps/flatpak/inventory/prof1.json"
 rm -rf "${REPO_ROOT}/apps/brew/inventory/prof1" "${REPO_ROOT}/containers/inventory/prof1.json"

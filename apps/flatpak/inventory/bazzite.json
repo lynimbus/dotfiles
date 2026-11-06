@@ -34,13 +34,6 @@
       "arch": "x86_64"
     },
     {
-      "application": "com.qq.QQ",
-      "origin": "flathub",
-      "installation": "system",
-      "branch": "stable",
-      "arch": "x86_64"
-    },
-    {
       "application": "com.tencent.WeChat",
       "origin": "flathub",
       "installation": "system",

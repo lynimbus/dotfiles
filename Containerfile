@@ -34,17 +34,8 @@ COPY system_files /system_files
 
 FROM ${BASE_IMAGE}
 
-## Other possible base images include:
-# FROM ghcr.io/ublue-os/bazzite:testing
-# FROM ghcr.io/ublue-os/base-main:latest
-# FROM ghcr.io/ublue-os/fedora-bootc:44
-
-# Overlay system_files/ into the image and install the niri session stack:
-# Fedora-packaged compositors/shell first (niri, noctalia, foot fallback),
-# then the release-tarball apps that only ship GitHub binaries (kero,
-# strata), then fonts Fedora does not carry (Maple Mono NF CN, JetBrainsMono
-# Nerd Font). Every package below exists in Fedora repositories or is pinned
-# by sha256 in build_files/build.sh (verified against rawhide 2026-11).
+# Every package installed by build.sh exists in Fedora repositories or is
+# pinned by sha256 in build_files/build.sh (verified against rawhide 2026-11).
 RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
     --mount=type=tmpfs,dst=/tmp \
     --mount=type=cache,dst=/var/cache \

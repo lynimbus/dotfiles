@@ -1,5 +1,3 @@
-# QQ menu entry.
-#
 # WHY this is the only .desktop for QQ: two entries (one bare, one fixed) make
 # the launcher pick a coin flip. The fix's launcher only adds
 # --ozone-platform=wayland and forwards the rest of argv, so the IME flags the

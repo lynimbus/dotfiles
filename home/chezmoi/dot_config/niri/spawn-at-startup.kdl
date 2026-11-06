@@ -1,5 +1,4 @@
 // Port of home/desktop/niri/conf/spawn-at-startup.kdl (main branch).
-// Three adaptations for the atomic (Bazzite) base:
 //  - polkit: the NixOS config ran polkit-gnome as a home-manager systemd
 //    service; Bazzite already ships KDE's agent, so start that instead.
 //    Plasma 6 moved the binary under /usr/libexec/kf6/ — the pre-kf6 path

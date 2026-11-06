@@ -34,7 +34,6 @@ done
 
 PROFILE="${WORKSTATION_PROFILE:-$(aw_profile)}"
 
-# Refuse to auto-commit in the middle of a merge/rebase — stop and report.
 if [[ "$(aw_git_in_merge)" == "1" ]]; then
     aw_error "a merge or rebase is in progress in ${ATOMIC_WS_ROOT}"
     aw_info "finish it first:  git -C ${ATOMIC_WS_ROOT} status"
@@ -42,10 +41,8 @@ if [[ "$(aw_git_in_merge)" == "1" ]]; then
     exit 1
 fi
 
-# 1-3. capture flatpak / brew / distrobox state
 "${ATOMIC_WS_ROOT}/scripts/inventory.sh" capture "${PROFILE}"
 
-# 4-5. what changed?
 aw_step "git state of the inventory"
 INV_PATHS=(apps/flatpak/inventory apps/brew/inventory containers/inventory)
 if ! CHANGED="$(aw_git status --porcelain -- "${INV_PATHS[@]}")" || [[ -z "$CHANGED" ]]; then
@@ -59,14 +56,12 @@ if [[ $DO_COMMIT -eq 0 ]]; then
     exit 0
 fi
 
-# 6. commit ONLY the inventory files (pathspec commit: other staged work
-#    is untouched; untracked inventory files need the explicit add first)
+# Pathspec commit: other staged work is untouched; untracked inventory files need the explicit add first.
 aw_git add -- "${INV_PATHS[@]}"
 MSG="chore(inventory): capture ${PROFILE} @ $(date +%Y-%m-%dT%H:%M:%S%z)"
 aw_git commit -m "$MSG" -- "${INV_PATHS[@]}" >/dev/null
 aw_ok "committed inventory for '${PROFILE}'"
 
-# 7. push (manual only)
 if [[ $DO_PUSH -eq 1 ]]; then
     if ! aw_git remote | grep -q .; then
         aw_warn "no git remote configured — skipping push"

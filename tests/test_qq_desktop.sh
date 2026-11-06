@@ -38,8 +38,6 @@ assert_eq "shebang" "#!/bin/sh" "$first_line"
 
 t_case "launcher execs /opt/QQ/qq and forwards \"\$@\""
 assert_contains "exec line" 'exec /opt/QQ/qq "$@"' "$LAUNCHER"
-# ...and it must be the execing form, not a forking run with an ignored rc.
-assert_contains "uses exec" 'exec ' "$LAUNCHER"
 
 t_case "launcher never calls linuxqq-wayland-fix (would recurse)"
 assert_not_contains "no fix recursion" "linuxqq-wayland-fix" "$LAUNCHER"
@@ -74,11 +72,6 @@ exec_line="$(grep -m 1 '^Exec=' "$DESKTOP" 2>/dev/null || true)"
 assert_eq "Exec line" \
     "Exec=linuxqq-wayland-fix --enable-wayland-ime --wayland-text-input-version=3 %U" \
     "$exec_line"
-# Broken out so a regression names the flag that went missing.
-assert_contains "runs the wayland fix" "linuxqq-wayland-fix" "$exec_line"
-assert_contains "wayland IME enabled" "--enable-wayland-ime" "$exec_line"
-assert_contains "text-input v3" "--wayland-text-input-version=3" "$exec_line"
-assert_contains "forwards URLs/files" "%U" "$exec_line"
 
 t_case "desktop entry carries icon, terminal, category and WM class"
 assert_contains "Icon" "Icon=qq" "$DESKTOP"
@@ -118,7 +111,6 @@ assert_contains "rule line" "L+ /var/opt/QQ - - - - /usr/lib/QQ" "$TMPFILES"
 t_case "the rule is the only non-comment line in the drop-in"
 mapfile -t rules < <(grep -vE '^[[:space:]]*(#|$)' "$TMPFILES" 2>/dev/null || true)
 assert_eq "rule count" "1" "${#rules[@]}"
-assert_eq "rule text" "L+ /var/opt/QQ - - - - /usr/lib/QQ" "${rules[0]:-}"
 
 t_case "systemd-tmpfiles parses the drop-in and plans the symlink"
 if command -v systemd-tmpfiles >/dev/null 2>&1; then

@@ -5,7 +5,6 @@ output "eDP-1" {
     position x=0 y=0
 }
 
-// ============= Named Workspaces =============
 workspace "1terminal" { open-on-output "eDP-1"; }
 workspace "2browser" { open-on-output "eDP-1"; }
 workspace "3chat" { open-on-output "eDP-1"; }

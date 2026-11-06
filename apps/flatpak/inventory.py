@@ -32,8 +32,6 @@ from pathlib import Path
 INVENTORY_VERSION = 1
 
 
-# ── subprocess plumbing ────────────────────────────────────────────────────
-
 def _tail(text, lines=3):
     """Last few lines of a possibly-None command output, as a plain string."""
     if not text:
@@ -73,7 +71,6 @@ def _flatpak(args, check=False, dry=False):
 def _have_flatpak():
     return _run(["flatpak", "--version"]).returncode == 0
 
-# ── capture ────────────────────────────────────────────────────────────────
 
 APP_COLUMNS = ("application", "origin", "installation", "branch", "arch")
 REMOTE_COLUMNS = ("name", "url", "options")
@@ -214,8 +211,6 @@ def capture(profile, out_file):
     print(f"[OK]    flatpak inventory → {out_path} ({len(inv['apps'])} apps)", file=sys.stderr)
     return 0
 
-# ── status / diff ──────────────────────────────────────────────────────────
-
 
 def _load(path):
     """Load an inventory JSON; None if missing, ValueError if corrupt."""
@@ -272,8 +267,6 @@ def status(profile, inv_file):
     )
     return 0
 
-# ── restore ────────────────────────────────────────────────────────────────
-
 
 def restore(profile, inv_file, prune=False, dry=False, assume_yes=False):
     if not _have_flatpak():
@@ -294,7 +287,6 @@ def restore(profile, inv_file, prune=False, dry=False, assume_yes=False):
 
     errors = []
 
-    # 1. Remotes: make sure every origin referenced by the inventory exists.
     current_remotes = {
         inst: {r["name"]: r for r in _scope_or_warn(_list_remotes, inst, "remotes")}
         for inst in ("user", "system")
@@ -331,7 +323,6 @@ def restore(profile, inv_file, prune=False, dry=False, assume_yes=False):
         else:
             current_remotes[inst][origin] = meta
 
-    # 2. Apps: install anything missing (additive — never uninstall here).
     installed = set()
     for installation in ("user", "system"):
         for row in _scope_or_warn(_list_apps, installation, "apps"):
@@ -386,7 +377,6 @@ def restore(profile, inv_file, prune=False, dry=False, assume_yes=False):
         else:
             installed.add(key)
 
-    # 3. Prune (opt-in, interactive confirmation, never implied by restore).
     if prune:
         extra = sorted(
             installed
@@ -436,9 +426,6 @@ def restore(profile, inv_file, prune=False, dry=False, assume_yes=False):
         return 1
     print(f"[OK]    flatpak restore complete (profile '{profile}').", file=sys.stderr)
     return 0
-
-
-# ── cli ────────────────────────────────────────────────────────────────────
 
 
 def main(argv=None):

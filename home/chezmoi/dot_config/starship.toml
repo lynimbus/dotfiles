@@ -4,7 +4,6 @@
 # distrobox container (starship is installed via Homebrew on the host and in
 # the dev container bootstrap). Lines commented out are opt-in extras.
 
-# Left prompt: directory + git
 format = """
 $directory$git_branch$git_status$python$nodejs$rust$golang$cmd_duration
 $character"""

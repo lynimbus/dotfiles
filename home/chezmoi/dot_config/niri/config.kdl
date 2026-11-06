@@ -3,7 +3,6 @@
 // Check the wiki for a full description of the configuration:
 // https://yalter.github.io/niri/Configuration:-Introduction
 
-// This is the main configuration file that includes all other config files
 include "./keybindings.kdl"
 include "./windowrules.kdl"
 include "./niri-hardware.kdl"
@@ -12,7 +11,6 @@ include "./spawn-at-startup.kdl"
 
 spawn-sh-at-startup "bash ~/.config/niri/reorder-workspaces.sh"
 
-// Input device configuration.
 // Find the full list of options on the wiki:
 // https://yalter.github.io/niri/Configuration:-Input
 input {
@@ -44,7 +42,6 @@ input {
         // track-layout "global"
     }
 
-    // Next sections include libinput settings.
     // Omitting settings disables them, or leaves them at their default values.
     // All commented-out settings here are examples, not defaults.
     touchpad {
@@ -72,11 +69,9 @@ input {
     // focus-follows-mouse max-scroll-amount="0%"
 }
 
-// Settings that influence how windows are positioned and sized.
 // Find more information on the wiki:
 // https://yalter.github.io/niri/Configuration:-Layout
 layout {
-    // Set gaps around windows in logical pixels.
     gaps 8
 
     // When to center a column when changing focus, options are:
@@ -87,7 +82,6 @@ layout {
     //   together with the previously focused column.
     center-focused-column "never"
 
-    // You can customize the widths that "switch-preset-column-width" (Mod+R) toggles between.
     preset-column-widths {
         // Proportion sets the width as a fraction of the output width, taking gaps into account.
         // For example, you can perfectly fit four windows sized "proportion 0.25" on an output.
@@ -100,7 +94,6 @@ layout {
         // fixed 1920
     }
 
-    // You can change the default width of the new windows.
     default-column-width { proportion 0.500000; }
     // If you leave the brackets empty, the windows themselves will decide their initial width.
     // default-column-width {}
@@ -116,12 +109,10 @@ layout {
     // Alternatively, you can override it with a window rule called
     // `draw-border-with-background`.
 
-    // You can change how the focus ring looks.
     focus-ring {
         // Uncomment this line to disable the focus ring.
         // off
 
-        // How many logical pixels the ring extends out from the windows.
         width 4
 
         // Colors can be set in a variety of ways:
@@ -129,11 +120,8 @@ layout {
         // - RGB hex: "#rgb", "#rgba", "#rrggbb", "#rrggbbaa"
         // - CSS-like notation: "rgb(255, 127, 0)", rgba(), hsl() and a few others.
 
-        // Color of the ring on the active monitor.
         active-color "#7fc8ff"
 
-        // Color of the ring on inactive monitors.
-        //
         // The focus ring only draws around the active window, so the only place
         // where you can see its inactive-color is on other monitors.
         inactive-color "#505050"
@@ -164,7 +152,6 @@ layout {
         active-color "#ffc87f"
         inactive-color "#505050"
 
-        // Color of the border around windows that request your attention.
         urgent-color "#9b0000"
 
         // Gradients can use a few different interpolation color spaces.
@@ -215,7 +202,6 @@ screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 // You can also set this to null to disable saving screenshots to disk.
 // screenshot-path null
 
-// Animation settings.
 // The wiki explains how to configure individual animations:
 // https://yalter.github.io/niri/Configuration:-Animations
 animations {
@@ -226,7 +212,6 @@ animations {
     // slowdown 3.0
 }
 
-// Window rules let you adjust behavior for individual windows.
 // Find more information on the wiki:
 // https://yalter.github.io/niri/Configuration:-Window-Rules
 

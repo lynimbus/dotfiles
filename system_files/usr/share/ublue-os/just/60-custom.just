@@ -1,4 +1,3 @@
-# ═══════════════════════════════════════════════════════════════════
 # atomic-workstation helpers — ujust recipes baked into the image.
 #
 # The FILE NAME is load-bearing. `ujust` does not glob
@@ -16,7 +15,6 @@
 # These recipes wrap the scripts in the dotfiles repo (default ~/dotfiles,
 # override with the ATOMIC_WORKSTATION_DIR environment variable).
 # See docs/software-management.md and docs/nixos-port-map.md.
-# ═══════════════════════════════════════════════════════════════════
 
 # Health check of the atomic-workstation setup (bootc/niri/apps/git state)
 [group('atomic-workstation')]

@@ -60,8 +60,6 @@ t_case "fcitx5 profile is create_private_ (self-rewriting app)"
 # chmods the file 0600. A plain `dot_config/.../profile` therefore shows
 # permanent chezmoi drift (and a mode-only diff). `create_private_` seeds it
 # once, forces mode 0600 and then leaves the app's own output alone.
-assert_file_exists "create_private_profile" \
-    "${REPO_ROOT}/home/chezmoi/dot_config/fcitx5/create_private_profile"
 # A plain `profile` entry would be re-applied over fcitx5's own output forever.
 if [[ -e "${REPO_ROOT}/home/chezmoi/dot_config/fcitx5/profile" ]]; then
     t_fail "plain profile file shadows create_private_profile"
