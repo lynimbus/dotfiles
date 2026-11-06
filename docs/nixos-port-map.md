@@ -108,6 +108,20 @@
   托管，而**不是**普通 `dot_config` 文件：fcitx5 每次运行都会重写该文件
   （删掉注释、强制 0600），普通托管会造成永久 drift（且 diff 只有 mode 一行）。
   `create_private_` 只在缺失时种下内容、强制 0600，之后不再覆盖应用自己的输出
+* `fonts.nix` 的 Maple Mono NF CN 是**终端字体**，其汉字步进 1.2em
+  （两个 0.6em 拉丁格）——在终端网格里正确，用作正文却宽 20%。它声明了
+  `ja`/`zh-cn`/`zh-sg`，字符集又比 Noto CJK 大，所以凡是**缺少
+  「优先 Noto CJK」规则**的 fontconfig 环境都会把它选成通用 CJK 字体。
+  宿主机有 Fedora 的 `65-google-noto-sans-cjk-fonts.conf` 等规则，
+  Maple 排到第 53 位、无影响；**flatpak 沙箱用的是 runtime 自己的
+  `/etc/fonts`（上游默认，没有 Noto-CJK 偏好）**，Maple 直接排第 1——于是
+  Firefox 里每个汉字都被撑宽 20%，看起来就是「有些汉字中间间隔很大」。
+  修法：`system_files/…/conf.avail/69-atomic-workstation-terminal-fonts.conf`
+  在 **scan 阶段**剥掉 Maple 的三个 CJK lang 标签。必须是 scan 而不是
+  pattern 阶段——只有 scan 期修改会写进字体缓存，而 build.sh 的
+  `fc-cache -f` 建的缓存被 flatpak 以 `/run/host/fonts-cache` 只读挂进
+  沙箱，这正是修复能到浏览器里的唯一通路。字体本身不受影响：终端按族名
+  请求 `Maple Mono NF CN` 时仍然匹配（汉字仍是 1.2em，终端对齐不变）
 * noctalia 的两条残留 WRN 属正常：`~/.face` 已改为指向
   adwaita `avatar-default.svg` 的 chezmoi symlink（消掉
   "failed to decode image"）；`secret-store … provider-unavailable`

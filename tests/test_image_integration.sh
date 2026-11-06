@@ -63,6 +63,35 @@ assert_file_exists "symlink_dot_face" "${REPO_ROOT}/home/chezmoi/symlink_dot_fac
 assert_contains "points at the packaged avatar" "/usr/share/icons/Adwaita/" \
     "${REPO_ROOT}/home/chezmoi/symlink_dot_face"
 
+t_case "terminal font is not a generic CJK font (fontconfig)"
+# Maple Mono NF CN advances CJK glyphs 1.2em (two 0.6em Latin cells) — right
+# for a monospace terminal grid, 20% too wide for running text. It declares
+# ja / zh-cn / zh-sg, and its charset is larger than Noto CJK's, so fontconfig
+# picked it for *every* generic CJK lookup inside flatpak (the sandbox gets
+# the runtime's /etc/fonts, which has no Noto-CJK preference). Firefox then
+# rendered Chinese 20% too wide — "big gaps between the characters".
+# The rule below is a scan-time edit, so it lands in the font cache that
+# build.sh's `fc-cache -f` writes; flatpak bind-mounts that cache read-only
+# as /run/host/fonts-cache, which is how it reaches the sandbox too.
+CJKCONF="${REPO_ROOT}/system_files/usr/share/fontconfig/conf.avail/69-atomic-workstation-terminal-fonts.conf"
+CJK_LINK="${REPO_ROOT}/system_files/etc/fonts/conf.d/69-atomic-workstation-terminal-fonts.conf"
+assert_file_exists "fontconfig rule" "$CJKCONF"
+assert_file_exists "rule is enabled via conf.d" "$CJK_LINK"
+assert_contains "targets the terminal font" "Maple Mono NF CN" "$CJKCONF"
+assert_contains "strips zh-cn" "<string>zh-cn</string>" "$CJKCONF"
+assert_contains "strips ja" "<string>ja</string>" "$CJKCONF"
+# A scan-time (not pattern-time) edit is the whole point: only scan-time
+# edits are baked into the cache, and only the cache reaches flatpak.
+assert_contains "edits at scan time, not match time" 'target="scan"' "$CJKCONF"
+
+t_case "font cache is rebuilt after system_files is overlaid"
+# system_files/ (which now carries /etc/fonts/conf.d) must be copied before
+# fc-cache runs, otherwise the rule misses the cache baked into the image.
+copy_line=$(grep -n 'cp -avf "/ctx/system_files"/\. /' "$BUILD" | head -1 | cut -d: -f1)
+cache_line=$(grep -n 'fc-cache -f' "$BUILD" | head -1 | cut -d: -f1)
+assert_eq "system_files copied before fc-cache" "yes" \
+    "$([[ -n "$copy_line" && -n "$cache_line" && "$copy_line" -lt "$cache_line" ]] && echo yes || echo no)"
+
 t_case "emulator + PATH docs stay in step with the config"
 assert_file_exists "fish config" "${REPO_ROOT}/home/chezmoi/dot_config/fish/config.fish"
 assert_contains "fish adds ~/.local/bin" "fish_add_path" \
