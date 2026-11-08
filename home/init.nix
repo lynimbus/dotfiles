@@ -1,6 +1,5 @@
 {
   imports = [
-    ./secrets.nix
     ./modules/magpie.nix
     ./core.nix
     ./packages/cli.nix
@@ -8,7 +7,6 @@
     ./packages/archive.nix
     ./packages/gui.nix
     ./programs/fish.nix
-    ./programs/gram.nix
     ./programs/jujutsu.nix
     ./programs/git.nix
     ./programs/ssh.nix
