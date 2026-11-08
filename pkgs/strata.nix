@@ -36,8 +36,8 @@
   # The release tarball is the only source: the version and its hash name it
   # both, and `just bump strata` (nix-update) moves the two literals to
   # the latest release together.
-  version ? "1.1.1",
-  hash ? "sha256-4FUuB3L83tE6gohHR7KPCzIiCjKTHNpuVfg1dbvlBzQ=",
+  version ? "1.2.0",
+  hash ? "sha256-HLaEKNYHlHOGJSPw/zXkj/CSx+0hzXK1NjVvbFHfRuM=",
 }:
 
 let

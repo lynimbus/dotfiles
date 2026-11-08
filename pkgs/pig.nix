@@ -10,8 +10,8 @@
   # The release tarball is the only source: the version and its hash name it
   # both, and `just bump pig` (nix-update) moves the two literals to the
   # latest release together.
-  version ? "0.5.3",
-  hash ? "sha256-HkXl5ZGgbQh1h9XwnSttYWc6HiYssmCeYYne//1a5+w=",
+  version ? "0.7.0",
+  hash ? "sha256-C1q3y19oDn0zU72qOhAYhjw8NVL4i+xzA3BmjlgZmVo=",
   archiveSuffix ? "linux-amd64",
 }:
 
