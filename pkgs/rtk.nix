@@ -4,8 +4,8 @@
   fetchurl,
   # The release tarball is the only source: `just bump rtk` (nix-update)
   # moves the version and its hash to the latest release together.
-  version ? "1.1.0",
-  hash ? "sha256-lFStG5SJ2qV6sKn06+L6r03IK4oPJsnlE1FRq9fJN40=",
+  version ? "1.2.0",
+  hash ? "sha256-cP7ntKVIxD3elMd+IzVVCYGwvC+wE2kdjIEJtb0O2jc=",
   archiveSuffix ? "x86_64-unknown-linux-musl",
 }:
 

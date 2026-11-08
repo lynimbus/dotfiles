@@ -37,11 +37,11 @@
   # and the source hash are functions of the release tag alone: `just bump
   # kero` (nix-update) moves them in lockstep, and the archive is the
   # `--custom-dep tarball` of that run.
-  version ? "2.1.31",
-  hash ? "sha256-lhCdEPCuBkPWZznIeSoFPxfhxqjEt3uC6xPjWXRdrEg=",
+  version ? "2.1.35",
+  hash ? "sha256-O1HyygzXJeSkpRo4OgVvypn3QsUi5A4ahD6t9PNm4V8=",
   archiveSuffix ? "linux-amd64",
-  archiveHash ? "sha256-peiEdxTdTeYBNEV0JWe7QUJt9G2pE5MRxdRcCWuDUhE=",
-  vendorHash ? "sha256-KiVj3Neaot04qgHKP1XDhuxK8jlK7ALkmSSdBRqjRV4=",
+  archiveHash ? "sha256-Wl9G6QC9ZH9CKjp5OCFXgUAwIAswruVTxSXzhLWUCMQ=",
+  vendorHash ? "sha256-T8w8GyJd3uP63RdeCGlOOazPCnnqBjrBgpwrokel5Bc=",
 }:
 
 let
