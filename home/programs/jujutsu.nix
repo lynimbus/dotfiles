@@ -19,8 +19,10 @@
       user.name = username;
       user.email = email;
       git = {
-        sign-on-push = true;
         private-commits = "description(glob:'wip:*') | description(glob:'private:*')";
+      };
+      revsets = {
+        git-sign-on-push = "~signed() & mine()";
       };
       ui = {
         default-command = "log";
