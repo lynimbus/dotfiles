@@ -1,27 +1,17 @@
 #!/usr/bin/env bash
+# Niri keeps a separate workspace index sequence per output, and picks the order
+# it created them in. This puts them in the order niri-hardware.kdl declares, so
+# a new workspace is one edit there and nothing here.
 set -euo pipefail
 
-# Niri keeps a separate workspace index sequence on each output.
-case "$(hostname)" in
-  nixos)
-    workspace_order=(
-      "1terminal:1"
-      "2browser:2"
-      "3chat:3"
-      "4entertainment:4"
-      "5utility:5"
-      "0other:6"
-    )
-    ;;
-  *)
-    printf 'No workspace order configured for host %s\n' "$(hostname)" >&2
-    exit 0
-    ;;
-esac
+# The script runs from ~/.config/niri, next to that file.
+config="$(dirname "$(readlink -f "$0")")/niri-hardware.kdl"
+[ -r "$config" ] || { echo "no $config to read the workspace order from" >&2; exit 1; }
 
-for entry in "${workspace_order[@]}"; do
-  workspace="${entry%%:*}"
-  index="${entry##*:}"
+index=0
+while IFS= read -r workspace; do
+  [ -n "$workspace" ] || continue
+  index=$((index + 1))
   printf 'Moving workspace %s to index %s\n' "$workspace" "$index"
   niri msg action move-workspace-to-index "$index" --reference "$workspace"
-done
+done < <(sed -n 's/^workspace "\([^"]*\)".*/\1/p' "$config")

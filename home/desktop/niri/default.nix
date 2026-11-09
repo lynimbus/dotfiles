@@ -7,31 +7,24 @@
 }:
 
 let
-  mkSymlink = config.lib.file.mkOutOfStoreSymlink;
-
-  repoFile = path: mkSymlink "${repoRoot}/home/desktop/niri/${path}";
-
-  linkFiles =
-    dir: files:
-    builtins.listToAttrs (
-      map (file: {
-        name = "niri/${file}";
-        value.source = repoFile "${dir}/${file}";
-      }) files
-    );
+  repo = import ../../lib.nix { inherit config repoRoot; };
 in
 {
   xdg.configFile = {
-    "niri/reorder-workspaces.sh".source = repoFile "reorder-workspaces.sh";
+    "niri/reorder-workspaces.sh" = repo.liveFile "desktop/niri/reorder-workspaces.sh";
   }
-  // linkFiles "conf" [
-    "config.kdl"
-    "keybindings.kdl"
-    "niri-hardware.kdl"
-    "noctalia-shell.kdl"
-    "spawn-at-startup.kdl"
-    "windowrules.kdl"
-  ];
+  // repo.liveFiles {
+    from = "desktop/niri/conf";
+    into = "niri";
+    files = [
+      "config.kdl"
+      "keybindings.kdl"
+      "niri-hardware.kdl"
+      "noctalia-shell.kdl"
+      "spawn-at-startup.kdl"
+      "windowrules.kdl"
+    ];
+  };
 
   systemd.user.services.pyclipsync = {
     Unit = {

@@ -1,30 +1,30 @@
+# One package per file in pkgs/, named after the file: adding a package means
+# adding a file, and every consumer (nix-update, the bump script, the scaffold)
+# reads the same list. callPackage only gets this repo's checkout path for the
+# packages whose arguments ask for it.
+{ lib, repoRoot }:
+let
+  names = map (lib.removeSuffix ".nix") (
+    builtins.filter (lib.hasSuffix ".nix") (builtins.attrNames (builtins.readDir ./pkgs))
+  );
+
+  call =
+    final: name:
+    let
+      file = ./pkgs + "/${name}.nix";
+      wantsRepoRoot = builtins.functionArgs (import file) ? repoRoot;
+    in
+    final.callPackage file (lib.optionalAttrs wantsRepoRoot { inherit repoRoot; });
+in
 {
-  inputs,
-  system,
-  repoRoot,
-}:
-final: _prev: {
-  kero = final.callPackage ./pkgs/kero.nix { };
+  inherit names;
 
-  magpie = final.callPackage ./pkgs/magpie.nix { };
-
-  mygo = final.callPackage ./pkgs/mygo.nix { };
-
-  opengrep = final.callPackage ./pkgs/opengrep.nix { };
-
-  pig = final.callPackage ./pkgs/pig.nix { };
-
-  r8 = final.callPackage ./pkgs/r8.nix { };
-
-  rtk = final.callPackage ./pkgs/rtk.nix { };
-
-  sing-box = final.callPackage ./pkgs/sing-box.nix { };
-
-  strata = final.callPackage ./pkgs/strata.nix {
-    inherit repoRoot;
-  };
-
-  strata-file-manager = final.callPackage ./pkgs/strata-file-manager.nix { };
-
-  strata-portal = final.callPackage ./pkgs/strata-portal.nix { };
+  overlay =
+    final: _prev:
+    builtins.listToAttrs (
+      map (name: {
+        inherit name;
+        value = call final name;
+      }) names
+    );
 }

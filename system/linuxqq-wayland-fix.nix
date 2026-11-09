@@ -1,7 +1,7 @@
 { ... }:
 
 {
-  # qq 本体也由这个模块装（programs.linuxqq-wayland-fix.qq 默认取 pkgs.qq），
-  # 所以 home/packages/gui.nix 里不再单独装。
+  # The module installs qq itself (programs.linuxqq-wayland-fix.qq defaults to
+  # pkgs.qq), so home/packages.nix does not list it.
   programs.linuxqq-wayland-fix.enable = true;
 }

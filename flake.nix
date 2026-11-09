@@ -9,16 +9,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    sops-nix = {
-      url = "github:Mic92/sops-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    llm-agents = {
-      url = "github:numtide/llm-agents.nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     nixos-hardware = {
       url = "github:NixOS/nixos-hardware";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -65,33 +55,56 @@
 
       sshKey = "${homeDirectory}/.ssh/id_ed25519";
 
-      localOverlay = import ./overlay.nix { inherit inputs system repoRoot; };
-    in
-    {
-      # 自建包在这里暴露给属性路径求值：nix-update 按它找到要改写的包文件，
-      # `nix build .#legacyPackages.${system}.<pkg>` 也能直接单包构建。
-      # 不复用 nixosConfigurations 的那套 pkgs（它绑着 home-manager 等模块的
-      # 求值路径，逐包求值既慢又绕），但 allowUnfree 与 system/nix.nix 对齐，
-      # 否则 rtk/strata 这些 BSL 包在这里过不了 checkMeta。
-      legacyPackages.${system} = import nixpkgs {
-        inherit system;
-        config.allowUnfree = true;
-        overlays = [ localOverlay ];
+      local = import ./overlay.nix {
+        inherit repoRoot;
+        lib = nixpkgs.lib;
       };
 
-      nixosConfigurations.${hostname} = nixpkgs.lib.nixosSystem {
-        specialArgs = {
-          inherit
-            inputs
-            hostname
-            username
-            homeDirectory
-            repoRoot
-            ;
+      # One set of arguments for the system and the home modules, so a value
+      # reaches whichever module needs it without a second list to maintain.
+      moduleArgs = {
+        inherit
+          inputs
+          hostname
+          username
+          email
+          homeDirectory
+          repoRoot
+          sshKey
+          ;
+      };
+    in
+    {
+      # nix-update rewrites a package through this attribute path, and
+      # `nix build .#legacyPackages.${system}.<pkg>` builds one package on its
+      # own. It is deliberately not the nixosConfigurations pkgs set: that one
+      # hangs off the module fixpoint and is slow to evaluate per package.
+      # allowUnfree mirrors system/nix.nix, or the BSL packages (rtk, strata)
+      # would fail checkMeta here.
+      legacyPackages.${system} =
+        import nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+          overlays = [ local.overlay ];
+        }
+        // {
+          # Per package, the nix-update flags its file declares in
+          # passthru.bump, or null for a package that does not track a release of
+          # its own. docs/bump-packages.sh runs from this, so adding a package
+          # never means editing the script.
+          bumpMatrix = builtins.listToAttrs (
+            map (name: {
+              inherit name;
+              value = self.legacyPackages.${system}.${name}.passthru.bump or null;
+            }) local.names
+          );
         };
+
+      nixosConfigurations.${hostname} = nixpkgs.lib.nixosSystem {
+        specialArgs = moduleArgs;
         modules = [
           {
-            nixpkgs.overlays = [ localOverlay ];
+            nixpkgs.overlays = [ local.overlay ];
           }
           inputs.nixos-hardware.nixosModules.mechrevo-gm5hg0a
           inputs.mangowm.nixosModules.mango
@@ -101,16 +114,7 @@
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.extraSpecialArgs = {
-              inherit
-                inputs
-                username
-                email
-                homeDirectory
-                repoRoot
-                sshKey
-                ;
-            };
+            home-manager.extraSpecialArgs = moduleArgs;
             home-manager.users.${username} = ./home/init.nix;
             home-manager.backupFileExtension = "old";
           }

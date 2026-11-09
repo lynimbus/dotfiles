@@ -1,16 +1,19 @@
 /*
- * GTK4 Material You 主题模板
- * 移植自 HyprYou gtk4.scss，SCSS 已展平为纯 CSS + Noctalia Jinja2 模板。
- * 转换规则与维护指南见 notes/gtk-material-you-port.md
+ * GTK4 Material You theme template.
+ * Ported from HyprYou's gtk4.scss, with the SCSS flattened to plain CSS on top
+ * of the Noctalia Jinja2 template variables.
  *
- * 由 Noctalia 在壁纸/明暗切换时渲染到 ~/.config/gtk-4.0/gtk.css
+ * Noctalia renders this to ~/.config/gtk-4.0/gtk.css whenever the wallpaper or
+ * the light/dark preference changes.
  *
- * 所有 M3 配色与 widget 规则包在 @media (prefers-color-scheme: dark/light)
- * 两个块中，让 GTK4/libadwaita 应用在 portal color-scheme 切换时即时跟随，
- * 无需重启。libadwaita 自身的 libadwaita.css 也采用相同结构。
+ * Every M3 color and widget rule sits in one of the two
+ * @media (prefers-color-scheme: dark/light) blocks, so a GTK4/libadwaita app
+ * follows a portal color-scheme change immediately, without a restart.
+ * libadwaita's own libadwaita.css has the same structure.
  */
 
-/* --- 语义色（模式无关，不应跟随壁纸） --- */
+/* --- Semantic colors (mode independent: they must not follow the
+ * wallpaper) --- */
 @define-color warning_color                    #FDD633;
 @define-color success_color                    #81C995;
 @define-color success_bg_color           #C5E1A5;
@@ -22,7 +25,8 @@
 @define-color shade_color                rgba(0, 0, 0, 0.36);
 @define-color scrollbar_outline_color    rgba(0, 0, 0, 0.5);
 
-/* --- GTK3 legacy named colors（GTK4 不读，留外无害，供 GTK3 兼容） --- */
+/* --- GTK3 legacy named colors: GTK4 does not read them, they are harmless
+ * here and keep GTK3 apps working --- */
 @define-color theme_fg_color                   {{ colors.on_background.default.hex }};
 @define-color theme_text_color                 {{ colors.on_background.default.hex }};
 @define-color theme_bg_color                   {{ colors.background.default.hex }};
@@ -54,7 +58,7 @@
 @define-color placeholder_text_color           {{ colors.on_surface.default.hex }};
 @define-color text_view_bg                     {{ colors.surface_container_low.default.hex }};
 
-/* --- M3 调色板参照色（模式无关） --- */
+/* --- M3 palette reference colors (mode independent) --- */
 @define-color STRAWBERRY_100             #FF9262;
 @define-color STRAWBERRY_300             #FF793E;
 @define-color STRAWBERRY_500             #F15D22;
@@ -106,17 +110,19 @@
 @define-color BLACK_700                  #33302F;
 @define-color BLACK_900                  #2B2928;
 
-/* --- windowcontrols 图标内圆去除（模式无关） ---
- * GtkButton 在子部件是图标时自动加 .image-button（gtkbutton.c:
- * update_style_classes_from_child_type），GtkWindowControls 的
- * minimize/maximize/close 按钮塞了 GtkImage、不带 .flat → 自动获得 .image-button。
- * 于是我们的 .image-button 规则给按钮 secondary_container 底色 + 100% 圆角
- * = 大圆（这是要保留的 M3 image-button 外观）；但 libadwaita 又给
- * windowcontrols > button > image 加了 background-color + border-radius:100%
- * = 图标内的小圆 → 大圆套小圆 = 同心圆。这里只清掉 image 的内圆（底色 +
- * 圆角），保留按钮大圆，让窗口按钮和其它 image-button 一致。user CSS
- * (USER=800) 压过 libadwaita (THEME)，一条 base 规则即覆盖其 :hover/:active
- * 内圆；不动 image 的 padding（libadwaita 的 4px），图标仍在圆心。
+/* --- Drop the inner circle of the windowcontrols icons (mode independent) ---
+ * When a GtkButton's child is an icon it gains .image-button automatically
+ * (gtkbutton.c: update_style_classes_from_child_type), and the
+ * minimize/maximize/close buttons of GtkWindowControls hold a GtkImage without
+ * .flat, so they get it too. Our .image-button rule then paints them with the
+ * secondary_container color and a 100% radius: the big M3 circle, which is
+ * wanted. libadwaita additionally gives windowcontrols > button > image a
+ * background-color and border-radius: 100%: a small circle inside the big one.
+ * This clears only the inner circle (background and radius) and leaves the
+ * button's own radius alone, so the window buttons match every other
+ * image-button. User CSS wins over libadwaita's THEME priority (USER=800), so a
+ * single base rule also covers its :hover/:active versions; the image padding
+ * (libadwaita's 4px) stays, which keeps the icon centered.
  */
 windowcontrols > button > image {
     background: none;
@@ -124,7 +130,7 @@ windowcontrols > button > image {
 }
 
 /* ============================================================ */
-/*  Dark mode — M3 配色 + widget 规则                            */
+/*  Dark mode: M3 colors and widget rules                       */
 /* ============================================================ */
 @media (prefers-color-scheme: dark) {
 
@@ -596,7 +602,7 @@ spinbutton button.up {
 } /* end @media dark */
 
 /* ============================================================ */
-/*  Light mode — M3 配色 + widget 规则                           */
+/*  Light mode: M3 colors and widget rules                      */
 /* ============================================================ */
 @media (prefers-color-scheme: light) {
 

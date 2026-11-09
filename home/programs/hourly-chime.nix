@@ -5,14 +5,14 @@ let
     ${pkgs.libnotify}/bin/notify-send \
       --app-name=hourly-chime \
       --icon=clock \
-      "整点报时" "$(${pkgs.coreutils}/bin/date +%H:%M)"
+      "Hourly chime" "$(${pkgs.coreutils}/bin/date +%H:%M)"
     exec ${pkgs.pipewire}/bin/pw-play \
       ${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/complete.oga
   '';
 in
 {
   systemd.user.services.hourly-chime = {
-    Unit.Description = "整点报时通知与提示音";
+    Unit.Description = "Hourly chime notification and sound";
     Service = {
       Type = "oneshot";
       ExecStart = "${hourlyChime}";
@@ -20,7 +20,7 @@ in
   };
 
   systemd.user.timers.hourly-chime = {
-    Unit.Description = "每小时整点触发整点报时";
+    Unit.Description = "Fires the hourly chime at every full hour";
     Timer = {
       OnCalendar = "*-*-* 08..23:00:00";
       AccuracySec = "1s";

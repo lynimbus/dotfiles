@@ -1,4 +1,5 @@
-// 本机只有一个内屏输出，名称/模式用 `niri msg outputs` 确认
+// This machine has a single internal output; confirm its name and mode with
+// "niri msg outputs".
 output "eDP-1" {
     mode "2560x1600@240.000"
     scale 1.75

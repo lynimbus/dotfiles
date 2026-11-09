@@ -1,16 +1,31 @@
 {
   email,
-  username,
   pkgs,
+  username,
   sshKey,
   ...
 }:
 
+let
+  # The commit message drafter lives with the rest of the commit-style tooling
+  # in docs/, and checks what it drafts with the linter next to it.
+  jjmsg = pkgs.writeShellApplication {
+    name = "jjmsg";
+    runtimeInputs = with pkgs; [
+      jj
+      pig
+      coreutils
+      gnugrep
+    ];
+    text = builtins.readFile ../../docs/jjmsg.sh;
+  };
+in
 {
   home.packages = with pkgs; [
     meld
     difftastic
     delta
+    jjmsg
   ];
 
   programs.jujutsu = {
@@ -26,7 +41,6 @@
       };
       ui = {
         default-command = "log";
-        editor = "hx";
         diff-formatter = "difft";
         diff-editor = ":builtin";
         merge-editor = "meld";

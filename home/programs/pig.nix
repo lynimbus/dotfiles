@@ -24,17 +24,19 @@ let
 in
 {
   # The package wrapper points PiG at Pi's ~/.pi/agent, where the settings
-  # below, the sops-injected auth.json, the sessions and the npm packages
-  # already live. PiG's own state stays in ~/.pig.
+  # below, the sessions and the npm packages already live. PiG's own state stays
+  # in ~/.pig.
   home.packages = [ pkgs.pig ];
 
   home.activation.pigSettingsMerge = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     target="$HOME/.pi/agent/settings.json"
+    merged="$(mktemp)"
     if [ -f "$target" ]; then
-      merged=$(${lib.getExe pkgs.jq} -s '.[0] * .[1]' "$target" "${ownedSettings}")
-      $DRY_RUN_CMD printf '%s\n' "$merged" > "$target"
+      ${lib.getExe pkgs.jq} -s '.[0] * .[1]' "$target" "${ownedSettings}" > "$merged"
     else
-      $DRY_RUN_CMD install -m 0644 "${ownedSettings}" "$target"
+      cp "${ownedSettings}" "$merged"
     fi
+    $DRY_RUN_CMD install -m 0644 "$merged" "$target"
+    rm -f "$merged"
   '';
 }

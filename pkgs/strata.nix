@@ -174,6 +174,8 @@ buildFHSEnv {
   passthru = {
     inherit app version src;
     unwrapped = app;
+
+    bump = [ ];
   };
 
   meta = {

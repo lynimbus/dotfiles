@@ -1,8 +1,10 @@
-{ pkgs, lib, ... }:
+{ ... }:
 
 {
   programs.niri.enable = true;
 
+  # Portal preferences live in system/xdg.nix, together with the portal packages
+  # both desktops install.
   systemd.user.services.niri = {
     overrideStrategy = "asDropin";
     environment = {
@@ -11,14 +13,7 @@
     };
   };
 
+  # niri would otherwise pull nautilus in for its own file-manager needs; strata
+  # is what this machine uses.
   programs.niri.useNautilus = false;
-
-  xdg.portal = {
-    config.niri = {
-      "org.freedesktop.impl.portal.FileChooser" = lib.mkForce "strata;gtk";
-    };
-    extraPortals = [ pkgs.strata-portal ];
-  };
-
-  environment.systemPackages = [ pkgs.strata-file-manager ];
 }

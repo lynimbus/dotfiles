@@ -81,6 +81,8 @@ stdenv.mkDerivation {
 
   passthru = {
     inherit archiveSuffix;
+
+    bump = [ ];
   };
 
   meta = {
