@@ -7,6 +7,7 @@
     wl-clipboard
     tmux
     xwayland-satellite
+    librewolf
     ungoogled-chromium
     ayugram-desktop
     wechat-uos
