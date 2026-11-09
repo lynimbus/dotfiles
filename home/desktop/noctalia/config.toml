@@ -13,7 +13,7 @@ order = ["bar"]
 background_opacity = 0.0
 border_width = 0.0
 capsule = true
-capsule_border = "outline"
+capsule_border = "outline_variant"
 capsule_foreground = "secondary"
 capsule_opacity = 0.79
 enabled = true
@@ -35,7 +35,7 @@ start = ["launcher", "workspaces", "group:g1"]
 
 [[bar.bar.capsule_group]]
 enabled = true
-fill = "surface_variant"
+fill = "surface_container"
 foreground = "secondary"
 id = "g1"
 members = ["sysmon", "ram"]
@@ -160,12 +160,6 @@ output_path = "$XDG_CONFIG_HOME/gtk-3.0/gtk.css"
 index = 4
 input_path = "$XDG_CONFIG_HOME/noctalia/templates/gtk-4.0.css"
 output_path = "$XDG_CONFIG_HOME/gtk-4.0/gtk.css"
-
-[theme.templates.user.nyxuri_mango]
-index = 5
-input_path = "$XDG_CONFIG_HOME/noctalia/templates/mango.conf"
-output_path = "$XDG_CONFIG_HOME/mango/noctalia.conf"
-post_hook = "mmsg dispatch reload_config 2>/dev/null || true"
 
 [theme.templates.user.nyxmellow_theme]
 index = 6

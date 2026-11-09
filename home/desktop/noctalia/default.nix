@@ -32,7 +32,6 @@ in
   xdg.configFile = linkFiles "templates" [
     "gtk-3.0.css"
     "gtk-4.0.css"
-    "mango.conf"
     "fcitx5"
   ];
 }
