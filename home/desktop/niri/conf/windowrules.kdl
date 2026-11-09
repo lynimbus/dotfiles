@@ -38,6 +38,11 @@ window-rule {
     open-maximized true
 }
 window-rule {
+    match app-id="librewolf"
+    open-on-workspace "2browser"
+    open-maximized true
+}
+window-rule {
     match app-id="chromium-browser"
     open-on-workspace "2browser"
     open-maximized true
