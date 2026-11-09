@@ -1,23 +1,12 @@
 {
-  inputs,
   config,
+  inputs,
   repoRoot,
   ...
 }:
 
 let
-  mkSymlink = config.lib.file.mkOutOfStoreSymlink;
-
-  repoFile = path: mkSymlink "${repoRoot}/home/desktop/noctalia/${path}";
-
-  linkFiles =
-    dir: files:
-    builtins.listToAttrs (
-      map (file: {
-        name = "noctalia/${dir}/${file}";
-        value.source = repoFile "${dir}/${file}";
-      }) files
-    );
+  repo = import ../../lib.nix { inherit config repoRoot; };
 in
 {
   imports = [
@@ -29,9 +18,13 @@ in
     settings = ./config.toml;
   };
 
-  xdg.configFile = linkFiles "templates" [
-    "gtk-3.0.css"
-    "gtk-4.0.css"
-    "fcitx5"
-  ];
+  xdg.configFile = repo.liveFiles {
+    from = "desktop/noctalia/templates";
+    into = "noctalia/templates";
+    files = [
+      "gtk-3.0.css"
+      "gtk-4.0.css"
+      "fcitx5"
+    ];
+  };
 }

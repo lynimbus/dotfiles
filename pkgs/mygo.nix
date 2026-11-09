@@ -69,6 +69,8 @@ in
   doInstallCheck = true;
   nativeInstallCheckInputs = [ versionCheckHook ];
 
+  passthru.bump = [ ];
+
   meta = {
     description = "CLI that scaffolds, develops and packages MyGo desktop apps";
     homepage = "https://github.com/egoist/mygo";

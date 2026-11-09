@@ -11,6 +11,10 @@ let
       kernelBuild = "${prev.kernel.dev}/lib/modules/${prev.kernel.modDirVersion}/build";
     in
     {
+      # aggregateModules merges the .ko.cer of out-of-tree modules, and
+      # zenpower installs its module directly instead of going through
+      # modules_install, so the build failed without zenpower.ko.cer. See
+      # NixOS/nixpkgs#575192; this override goes away once upstream fixes it.
       zenpower = prev.zenpower.overrideAttrs (_: {
         installPhase = ''
           runHook preInstall

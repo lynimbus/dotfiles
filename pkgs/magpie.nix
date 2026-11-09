@@ -15,18 +15,16 @@
   versionCheckHook,
   xdg-utils,
   fetchFromGitHub,
-  # The icons and the licence are files of the source tree, not of the
-  # release archive: the tagged tree is a fetchFromGitHub of its own beside
-  # the binary, and `just bump magpie` (nix-update) moves the version, the
-  # asset hash and the tree hash in lockstep (`--custom-dep upstream`
-  # handles the tree).
+  # The icons and the licence are files of the source tree, not of the release
+  # archive, so the tagged tree is a fetchFromGitHub of its own beside the
+  # binary; passthru.bump below is what moves the asset and the tree hash in
+  # lockstep.
   version ? "0.1.3458",
   hash ? "sha256-dq+MP5M2FfxE1pQKBuszQkFtMukGSlugi4432WPXVA4=",
   upstreamHash ? "sha256-PLrs+hrTpCYZYZEVoPvF+d6AgH9x7oX+ox/5ZYaTomU=",
 }:
 
 let
-  # The source tree of the same tag the binary release names.
   upstream = fetchFromGitHub {
     owner = "yetone";
     repo = "magpie";
@@ -125,6 +123,17 @@ stdenv.mkDerivation {
     # nix-update's --custom-dep upstream rewrites the tree hash beside the
     # asset hash in the same file, so one bump moves the whole release.
     inherit upstream;
+
+    # Upstream pushes the tag before GitHub publishes the release, and the atom
+    # feed counts a bare tag: only the Releases API sees a release. --build
+    # runs versionCheckHook at bump time, so a CDN that still serves the
+    # previous asset under the new tag fails here instead of at switch time.
+    bump = [
+      "--custom-dep"
+      "upstream"
+      "--use-github-releases"
+      "--build"
+    ];
   };
 
   meta = {

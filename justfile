@@ -10,19 +10,21 @@ build:
 update:
     env NIX_CONFIG="access-tokens = github.com=$(gh auth token)" nix flake update
 
-# 把滚动发布的自建包升到上游最新 release（nix-update 改写包文件里的
-# version/hash/vendorHash 字面量；不带参数就全部包各跑一遍）
-#   just bump            # 全部
-#   just bump pig kero   # 指定包
+# Move the packages in pkgs/ that track an upstream release to that release's
+# latest version. The package file itself declares the version and hash
+# literals and the nix-update flags it needs (passthru.bump), so nothing here
+# knows which package needs what.
+#   just bump            # every package that tracks a release
+#   just bump pig kero   # just those
 bump *pkgs:
     docs/bump-packages.sh {{pkgs}}
 
+# Runs the flake checks, including the commit-style linter test.
 check:
-    nix flake check --no-build
+    nix flake check
 
-# 用 nix-init 生成新包骨架，直接落成 pkgs/ 里的同款形式（version/hash
-# 提为参数默认值、去掉 nix-update-script、按字母序接进 overlay.nix），
-# 版本可省略
+# Generate a package with nix-init and land it in pkgs/ in this repo's shape;
+# overlay.nix picks the file up as it is. version may be omitted.
 #   just scaffold https://github.com/owner/repo 1.2.3
 scaffold url version="":
     docs/scaffold-package.sh "{{url}}" "{{version}}"

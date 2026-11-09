@@ -1,48 +1,54 @@
 #!/usr/bin/env bash
-# 用 nix-init 生成新包骨架，直接落成 pkgs/ 里的同款形式：
+# Generate a package with nix-init and land it in pkgs/ in the shape the rest
+# of this repo uses:
 #
-#   - version/hash（含 vendorHash/cargoHash 这类依赖 hash）从包体字面量
-#     提为带默认值的函数参数。docs/bump-packages.sh 的 nix-update 按包文件
-#     整体改写，参数默认值和普通赋值一样能被它找到（pig/kero 全是这个
-#     形状），这是滚动包能一把 bump 的前提。
-#   - 去掉 nix-update-script（参数行 + passthru.updateScript）：bump 走
-#     `nix-update --flake legacyPackages.<system>.<attr>`，不靠包内
-#     updateScript；空的 maintainers 一并去掉（本仓库不维护该字段）。
-#   - finalAttrs 收拢为直接引用：version 已是参数，changelog 里的
-#     ${finalAttrs.src.tag} 换成同一个 tag 表达式，mkDerivation 的
-#     finalAttrs lambda 去掉（现有 pkgs/ 全是直引形状）。
-#   - 产物写进 pkgs/<name>.nix，按字母序接进 overlay.nix。
+#   - version and the hashes (vendorHash, cargoHash, ...) become function
+#     arguments with default values, and the literals in the body become
+#     inherit of those arguments. docs/bump-packages.sh drives nix-update over
+#     the file, and nix-update rewrites either form, but a parameter is what
+#     makes the value overridable and shows that it belongs to the release tag.
+#   - nix-update-script is dropped: bumping runs through nix-update --flake and
+#     takes its extra flags from passthru.bump, which this script writes as
+#     passthru.bump = [ ]; so a new package is bumpable with nix-update's
+#     defaults. Delete that line for a package that does not follow an upstream
+#     release (a wrapper, or one derived from another package). Empty
+#     maintainers is dropped too: this repo does not maintain the field.
+#   - finalAttrs is flattened into direct references, since version is a
+#     parameter by then, and a changelog written as ${finalAttrs.src.tag}
+#     becomes the same tag expression the fetch uses.
+#   - the result is written to pkgs/<name>.nix. overlay.nix turns every file in
+#     that directory into an attribute, so nothing else needs wiring.
 #
-# 用法：
+# Usage:
 #   docs/scaffold-package.sh https://github.com/owner/repo [version]
 #
-# 骨架只保证「能求值、能被 bump 改写」：构建阶段（installPhase 等）和
-# meta.description 由人按项目实际补——nix-init 对非编译型项目只会给出
-# 空骨架（noop 那种 bun 直跑的 TypeScript 就是）。
+# The skeleton only guarantees that it evaluates and that a bump can rewrite
+# it. The build phases and meta.description stay for whoever knows the project:
+# nix-init has no installer to invent for anything that is not a compiled
+# language, and leaves an empty skeleton there (magpie, a TypeScript app that
+# runs its bundle with bun, is that case).
 set -euo pipefail
-cd "$(jj root)" || exit 1
+# shellcheck source=docs/lib.sh
+source "$(dirname "$0")/lib.sh"
+cd "$repo_dir" || exit 1
 
-url="${1:?用法：docs/scaffold-package.sh <url> [version]}"
+url="${1:?usage: docs/scaffold-package.sh <url> [version]}"
 version="${2:-}"
 
-# nix-init 解析 rev 时先跑 nix flake prefetch，自己又直接调 GitHub API，
-# 两条路都是匿名 60 次/小时/IP；把 gh keyring 里的 token 交给 nix。
-if token="$(gh auth token 2>/dev/null)"; then
-  export NIX_CONFIG="access-tokens = github.com=$token"
-fi
+github_token
 
-# 属性名取 URL 末段（转小写、须是合法 Nix 标识符），只作 overlay 的键和
-# 文件名；pname 由 nix-init 按项目自己的构建元数据推导，两者可以不同。
+# The attribute name is the URL's last segment, lowercased, and must be a valid
+# Nix identifier: it is the overlay attribute and the file name. pname comes
+# from the project's own build metadata, which nix-init derives, so the two can
+# differ.
 name="$(basename "${url%/}")"
 name="${name%.git}"
 name="${name,,}"
 if [[ ! "$name" =~ ^[a-z][a-z0-9_-]*$ ]]; then
-  echo "从 URL 末段推不出合法属性名：$name（请手工放置并接进 overlay）" >&2
-  exit 1
+  die "no valid attribute name in the URL's last segment: $name (place the file by hand instead)"
 fi
 if [[ -e "pkgs/$name.nix" ]]; then
-  echo "pkgs/$name.nix 已存在，不覆盖" >&2
-  exit 1
+  die "pkgs/$name.nix already exists, not overwriting"
 fi
 
 extra=()
@@ -51,25 +57,31 @@ if [[ -n "$version" ]]; then
 fi
 
 work="$(mktemp -d)"
-# 生成的是手稿、本就无需选择；而 nix-init 的 tag 选择提问在没有 TTY 的
-# 运行方（agent、CI）里读到 EOF 直接退出，所以永远走 --headless。
+# The generated file is a draft, so no interactive choices are wanted; without a
+# TTY (an agent or CI running this) nix-init's tag prompt reads EOF and exits,
+# so always go --headless.
 if ! nix-init --headless -u "$url" "${extra[@]}" "$work/package.nix"; then
-  echo "生成失败，目录保留：$work" >&2
-  exit 1
+  die "nix-init failed; the directory is kept at $work"
 fi
 pkg="$work/package.nix"
 
-# ---- (1) nix-update-script：参数行和 passthru 行整行去掉 ----
-sed -i '/nix-update-script/d' "$pkg"
+# ---- (1) turn nix-update-script into the bump declaration ----
+# nix-init's only use of passthru is the update script, and this repo records the
+# same knowledge in passthru.bump instead.
+sed -i -e 's|^\([[:space:]]*\)updateScript = nix-update-script.*$|\1bump = [ ];|' \
+  -e '/nix-update-script/d' "$pkg"
 
-# ---- (2) version 字面量提为参数默认值 ----
+# ---- (2) version literal becomes a parameter default ----
+# The body keeps a binding to it: a derivation without version ends up named
+# after pname alone, which is not the file name nix-update looks for later.
 ver="$(sed -n 's/^  version = "\([^"]*\)";$/\1/p' "$pkg")"
-sed -i '/^  version = "/d' "$pkg"
+sed -i 's|^  version = "[^"]*";$|  inherit version;|' "$pkg"
 
-# ---- (3) hash 类字面量提为参数默认值，原位换成 inherit ----
-# fetcher 认 hash 这个通用名，sha256 一并并入 hash；vendorHash/cargoHash
-# 这类依赖 hash 各自成参数（kero 的形状）。同名出现多次时只提第一个，
-# 其余 inherit 指向同一个参数必然炸 hash，留给人工合并。
+# ---- (3) hash literals become parameter defaults, in place ----
+# The generic name for a fetcher is hash, so sha256 folds into it; vendorHash and
+# cargoHash (the kero shape) become parameters of their own. A name that appears
+# twice only becomes a parameter once: the other occurrence inherits the same
+# argument, which would collide on a differing value, so it is left for a human.
 names=()
 lines=()
 nlines=0
@@ -85,7 +97,7 @@ while read -r attr value; do
     fi
   done
   if ((dup)); then
-    echo "警告：$param 出现多次，只提第一个为参数，其余请人工合并" >&2
+    echo "warning: $param appears more than once; only the first became a parameter, merge the rest by hand" >&2
   else
     names+=("$param")
     lines+=("  $param ? \"$value\",")
@@ -94,43 +106,46 @@ while read -r attr value; do
   sed -i "s|^\([[:space:]]*\)$attr = \"$value\";|\1inherit $param;|" "$pkg"
 done < <(sed -n 's/^[[:space:]]*\(sha256\|[A-Za-z0-9_-]*[Hh]ash\) = "\(sha256-[^"]*\)";$/\1 \2/p' "$pkg")
 
-# 漏网的 sha256 字面量会让 bump 契约破洞（nix-update 改不到它），
-# 宁可当场失败也不静默留下写死的 hash。
+# A sha256 literal left behind is a hole in the bump contract, because
+# nix-update cannot rewrite what it does not recognise: fail here instead of
+# leaving it quietly.
 if grep -q '= "sha256-' "$pkg"; then
-  echo "有 sha256 字面量没提成参数，人工处理后再放置：" >&2
+  echo "some sha256 literal did not become a parameter, fix it by hand:" >&2
   grep -n '= "sha256-' "$pkg" >&2
-  echo "文件保留：$work" >&2
+  echo "the file is kept at $work" >&2
   exit 1
 fi
 
-# ---- (4) finalAttrs 收拢为直接引用 ----
+# ---- (4) flatten finalAttrs into direct references ----
 sed -i 's/finalAttrs\.version/version/g' "$pkg"
 tag_expr="$(sed -n -e 's/^[[:space:]]*tag = \(.*\);$/\1/p' -e 's/^[[:space:]]*rev = \(.*\);$/\1/p' "$pkg" | head -1)"
 if [[ -n "$tag_expr" ]]; then
   bare="${tag_expr%\"}"
   bare="${bare#\"}"
-  # changelog 里的引用是插值语境：裸标识符（如 version）要包回
-  # ${...}，已含插值（v${version}）或字面 tag 的原样使用。
+  # A changelog reference is interpolation: a bare identifier (version) has to
+  # be wrapped back into ${...}, while an expression that already interpolates
+  # (v${version}) or a literal tag is used as it stands.
   ident_re="^[a-zA-Z_][a-zA-Z0-9_-]*$"
   if [[ "$bare" =~ $ident_re ]]; then
     bare="\${$bare}"
   fi
   sed -i "s|\${finalAttrs\.src\.tag}|$bare|g" "$pkg"
-  # fetchFromGitHub 里 rev 与 tag 同值，nix-init 的 changelog 模板两种
-  # 引用都会用，统一换成同一个表达式。
+  # rev and tag hold the same value for fetchFromGitHub, and nix-init's
+  # changelog template uses either reference, so both become the same
+  # expression.
   sed -i "s|\${finalAttrs\.src\.rev}|$bare|g" "$pkg"
 fi
 sed -i -e 's/(finalAttrs: {/{/' -e '$s/^})$/}/' "$pkg"
 if grep -q 'finalAttrs' "$pkg"; then
-  echo "警告：仍有 finalAttrs 残留（如 rev 形式的 tag），人工核对 $pkg" >&2
+  echo "warning: finalAttrs is still referenced (a rev-shaped tag?), check $pkg by hand" >&2
 fi
 
-# ---- (5) 空 maintainers 去掉 ----
+# ---- (5) drop empty maintainers ----
 sed -i -E '/^[[:space:]]*maintainers = (with lib\.maintainers; )?\[ \];$/d' "$pkg"
 
-# ---- (6) 参数块插进函数头（工具参数之后、`}:` 之前） ----
+# ---- (6) insert the parameter block after the tool arguments, before '}:' ----
 {
-  printf '  # The version and every hash below are pinned by the same release\n  # tag: `just bump %s` (nix-update) rewrites all these literals in\n  # this file together.\n' "$name"
+  printf '  # The version and every hash below come from the same release tag:\n  # "just bump %s" (nix-update) rewrites these literals together.\n' "$name"
   if [[ -n "$ver" ]]; then
     echo "  version ? \"$ver\","
   fi
@@ -145,34 +160,28 @@ awk -v params="$work/params" '
   { print }
 ' "$pkg" > "$work/styled.nix" && mv "$work/styled.nix" "$pkg"
 
-# ---- (7) 落盘 + 按字母序接进 overlay.nix ----
-# 删行（version/passthru/maintainers）留下的连续空行收敛掉。
+# ---- (7) write the file where the overlay picks it up ----
+# The lines just deleted leave runs of blank lines behind; collapse them.
 cat -s "$pkg" > "$work/squeezed.nix" && mv "$work/squeezed.nix" "$pkg"
+
+# Whatever the template offered as passthru ends up declaring the bump flags:
+# inside the block it already has, or as an attribute of its own.
+if grep -qE '^  passthru = \{$' "$pkg"; then
+  grep -qE '^    bump = \[ \];$' "$pkg" ||
+    sed -i -e '0,/^  passthru = {$/s//  passthru = {\n    bump = [ ];/' "$pkg"
+else
+  sed -i -e '0,/^  meta = {/s//  passthru.bump = [ ];\n\n  meta = {/' "$pkg"
+fi
+
 mv "$pkg" "pkgs/$name.nix"
-
-line="  $name = final.callPackage ./pkgs/$name.nix { };"
-LC_ALL=C awk -v line="$line" -v name="$name" '
-  {
-    if (!done && /^  [A-Za-z0-9_-]+ = final\.callPackage/) {
-      cur = $0
-      sub(/^  /, "", cur)
-      sub(/ = .*/, "", cur)
-      if (cur > name) { print line; print ""; done = 1 }
-    }
-    # 排最后的属性名没有任何条目可比它大，收尾 } 前是它的位置。
-    if (!done && /^}$/) { print line; print ""; done = 1 }
-    print
-  }
-' overlay.nix > "$work/overlay.nix" && mv "$work/overlay.nix" overlay.nix
-
 rm -rf "$work"
 
 echo
-echo "已生成 pkgs/$name.nix 并接入 overlay.nix。"
+echo "wrote pkgs/$name.nix; overlay.nix picks it up as it is."
 if grep -q 'description = "";' "pkgs/$name.nix"; then
-  echo "⚠ meta.description 为空，记得补上。"
+  echo "warning: meta.description is empty, fill it in."
 fi
-echo "接下来："
-echo "  1. 按项目实际补构建阶段（骨架只保证求值形状，不保证能构建）"
-echo "  2. nix build .#legacyPackages.x86_64-linux.$name 验证"
-echo "  3. 若随上游滚动发布，把 $name 加进 docs/bump-packages.sh 的 ALL 列表"
+echo "next:"
+echo "  1. fill in the build phases; the skeleton only guarantees that it evaluates"
+echo "  2. nix build .#legacyPackages.x86_64-linux.$name"
+echo "  3. delete passthru.bump = [ ]; if the package does not follow a release"

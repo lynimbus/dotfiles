@@ -45,6 +45,8 @@ stdenv.mkDerivation {
   doInstallCheck = true;
   nativeInstallCheckInputs = [ versionCheckHook ];
 
+  passthru.bump = [ ];
+
   meta = {
     description = "Android dexer (d8) and shrinker/optimizer (r8) from Google Maven";
     homepage = "https://r8.googlesource.com/r8";

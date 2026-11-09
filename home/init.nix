@@ -1,25 +1,27 @@
 {
   imports = [
+    # Module definitions first, then the modules that use them.
     ./modules/magpie.nix
+
     ./core.nix
-    ./packages/cli.nix
-    ./packages/dev.nix
-    ./packages/archive.nix
-    ./packages/gui.nix
+    ./packages.nix
+
     ./programs/fish.nix
-    ./programs/jujutsu.nix
     ./programs/git.nix
+    ./programs/jujutsu.nix
     ./programs/ssh.nix
     ./programs/direnv.nix
     ./programs/zoxide.nix
+    ./programs/ghostty.nix
     ./programs/hourly-chime.nix
-    ./audio/rnnoise.nix
     ./programs/pig.nix
     ./programs/magpie.nix
+    ./audio/rnnoise.nix
+
     ./desktop/screenshot.nix
+    ./desktop/keyboard-backlight.nix
     ./desktop/niri/default.nix
     ./desktop/mango/default.nix
     ./desktop/noctalia/default.nix
-    ./programs/ghostty.nix
   ];
 }

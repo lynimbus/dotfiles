@@ -50,7 +50,6 @@ let
     hash = archiveHash;
   };
 
-  # The Go code is fetched from the release tag.
   src = fetchFromGitHub {
     owner = "egoist";
     repo = "kero";
@@ -174,6 +173,11 @@ in
     # nix-update's --custom-dep tarball rewrites the archive hash beside the
     # source hash in the same file, so one bump moves the whole release.
     inherit tarball;
+
+    bump = [
+      "--custom-dep"
+      "tarball"
+    ];
   };
 
   meta = {
