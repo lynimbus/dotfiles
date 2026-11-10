@@ -41,7 +41,8 @@ in
     wechat-uos
     strata
     kero
-    folia-major
+    mygo-music
+    mayoi
     obs-studio
 
     # Archives and conversion.
