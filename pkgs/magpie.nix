@@ -19,9 +19,9 @@
   # archive, so the tagged tree is a fetchFromGitHub of its own beside the
   # binary; passthru.bump below is what moves the asset and the tree hash in
   # lockstep.
-  version ? "0.1.3458",
-  hash ? "sha256-dq+MP5M2FfxE1pQKBuszQkFtMukGSlugi4432WPXVA4=",
-  upstreamHash ? "sha256-PLrs+hrTpCYZYZEVoPvF+d6AgH9x7oX+ox/5ZYaTomU=",
+  version ? "0.1.3631",
+  hash ? "sha256-SfEPpWPQwLCZixak+B/ixTfBARpOOLEqlGD10OjaxFQ=",
+  upstreamHash ? "sha256-EUTBYRKRuKUb4Ho0VwQ9LzI7SRqQjCAZCfBQcY4vLlw=",
 }:
 
 let

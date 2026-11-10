@@ -7,10 +7,11 @@
   versionCheckHook,
   # d8 and r8 exist only as the r8.jar artifact on Google Maven: there is no
   # GitHub release and no JSON manifest to pin them from — the version index
-  # is maven-metadata.xml — so the version and its hash live here and are
-  # bumped together. The jar runs on JDK 17, the JDK this environment pins.
-  version ? "9.5.28",
-  hash ? "sha256-OKn/quu9F9FRTj7L/1qFuYm7E8VRueIkx0CVFO6oT/U=",
+  # is maven-metadata.xml, which passthru.bump reads — so the version and its
+  # hash live here and are bumped together. The jar runs on JDK 17, the JDK
+  # this environment pins.
+  version ? "9.5.29",
+  hash ? "sha256-+Mdi/4RkCxAIO5NKRyeHWKdmWXfmGPqwySf/8AUh3qM=",
 }:
 
 stdenv.mkDerivation {
@@ -45,7 +46,15 @@ stdenv.mkDerivation {
   doInstallCheck = true;
   nativeInstallCheckInputs = [ versionCheckHook ];
 
-  passthru.bump = [ ];
+  # nix-update cannot enumerate a Maven repository, so the bump hands it the
+  # version instead: docs/bump-packages.sh reads this index and passes the
+  # newest stable version as a fixed --version. --build reruns
+  # versionCheckHook, so a bump that lands on a jar whose r8 --version does
+  # not match fails here rather than at switch time.
+  passthru.bump = [
+    "--bump-maven=https://dl.google.com/android/maven2/com/android/tools/r8/maven-metadata.xml"
+    "--build"
+  ];
 
   meta = {
     description = "Android dexer (d8) and shrinker/optimizer (r8) from Google Maven";

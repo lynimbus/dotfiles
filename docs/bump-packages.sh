@@ -10,7 +10,9 @@
 # Which packages track a release, and the extra nix-update flags each needs, is
 # declared by the package file itself in passthru.bump; flake.nix collects them
 # into legacyPackages.<system>.bumpMatrix. Adding a package therefore never
-# means editing this script.
+# means editing this script. One token there is not a nix-update flag but a
+# version index this script has to read itself, before nix-update runs: see
+# maven_latest_stable for the --bump-maven= form and why r8 needs it.
 #
 # Usage:
 #   docs/bump-packages.sh              # every package that tracks a release
@@ -30,6 +32,11 @@
 #     that and wrong for anything deterministic, hence the narrow match below:
 #     version detection, a regex that matches nothing, an eval failure or a
 #     failed --build behave the same on every attempt.
+#   - nix-update only knows how to enumerate releases from github, gitlab,
+#     gitea, codeberg, sourcehut, savannah, pypi, npm, crates.io and rubygems.
+#     A package published only to a Maven repository therefore has no version
+#     to find and the run dies in VersionError before it touches the file, so
+#     the package names its version index instead (--bump-maven=).
 #   - A prebuilt binary can be served stale inside the release window: about 10
 #     minutes into magpie v0.1.3370 the CDN still put the previous bytes behind
 #     the new tag's URL, so nix-update prefetched the old hash, wrote the new
@@ -52,6 +59,34 @@ BUMP_RETRIES="${BUMP_RETRIES:-2}"
 BUMP_RETRY_DELAY="${BUMP_RETRY_DELAY:-30}"
 
 command -v nix-update >/dev/null || die "nix-update is not on PATH (it comes from home/packages.nix)"
+
+# The newest stable version a Maven repository publishes, read out of its
+# maven-metadata.xml. nix-update has no Maven fetcher, so a package that only
+# ships to one (r8: the android tools repository on dl.google.com, no GitHub
+# release, no JSON manifest) declares the index URL in passthru.bump as
+# --bump-maven=<url> and gets the version handed to it as a fixed --version.
+# Fixed is the one mode where nix-update does not look for a release at all: it
+# takes the string as the new version and rewrites that and the hash in the
+# package file, which is everything a bump has to move.
+#
+# <release> and <latest> are not the answer despite being there: Google Maven
+# keeps both pointing at the newest upload, prereleases included (9.6.0-alpha12
+# while 9.5.29 is the newest stable). A Maven qualifier is hyphenated by
+# convention, so dropping hyphenated versions leaves the stable line, and -V
+# orders 9.5.29 above 9.5.9 where a plain sort would not.
+maven_latest_stable() {
+	local url="$1" xml version
+	xml="$(curl -fsSL --retry 2 --retry-delay 2 "$url")" || return 1
+	version="$(
+		grep -o '<version>[^<]\+</version>' <<<"$xml" |
+			sed -e 's/<[^>]*>//g' |
+			grep -E '^[0-9]+(\.[0-9]+)*$' |
+			sort -V |
+			tail -n 1
+	)"
+	[ -n "$version" ] || return 1
+	printf '%s\n' "$version"
+}
 
 matrix="$(nix eval --json ".#legacyPackages.$system.bumpMatrix")" ||
 	die "cannot evaluate .#legacyPackages.$system.bumpMatrix"
@@ -99,6 +134,33 @@ run_nix_update() {
 	done
 }
 
+# Turns what the package declared into the nix-update command line: the flags
+# pass through untouched, a version index is read first. It runs inside
+# run_nix_update's retry loop, so an index that 502s is retried on the same
+# terms as a release asset that does, and its error text is in the log the
+# retry match reads.
+bump_package() {
+	local p="$1"
+	shift
+	local arg url version
+	local -a pass=()
+	for arg in "$@"; do
+		case "$arg" in
+		--bump-maven=*)
+			url="${arg#--bump-maven=}"
+			if ! version="$(maven_latest_stable "$url")"; then
+				echo "[bump] $p: cannot read the version index $url" >&2
+				return 1
+			fi
+			echo "[bump] $p: $url publishes $version" >&2
+			pass+=("--version=$version")
+			;;
+		*) pass+=("$arg") ;;
+		esac
+	done
+	nix-update --flake "legacyPackages.$system.$p" "${pass[@]}"
+}
+
 fail=()
 for p in "${pkgs[@]}"; do
 	args=()
@@ -106,7 +168,7 @@ for p in "${pkgs[@]}"; do
 		args+=("$arg")
 	done < <(jq -r --arg p "$p" '.[$p][]' <<<"$matrix")
 
-	if run_nix_update "$p" nix-update --flake "legacyPackages.$system.$p" "${args[@]}"; then
+	if run_nix_update "$p" bump_package "$p" "${args[@]}"; then
 		echo "[bump] $p ok"
 	else
 		fail+=("$p")
