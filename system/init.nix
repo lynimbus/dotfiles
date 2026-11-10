@@ -11,6 +11,7 @@
     ./audio.nix
     ./hardware.nix
     ./users.nix
+    ./secrets.nix
     ./nix.nix
     ./nix-ld.nix
     ./packages.nix
