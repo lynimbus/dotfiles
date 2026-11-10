@@ -8,7 +8,10 @@ build:
     nh os build .
 
 update:
-    env NIX_CONFIG="access-tokens = github.com=$(gh auth token)" nix flake update
+    #!/usr/bin/env bash
+    . docs/lib.sh
+    github_token
+    nix flake update
 
 # Move the packages in pkgs/ that track an upstream release to that release's
 # latest version. The package file itself declares the version and hash
@@ -19,7 +22,6 @@ update:
 bump *pkgs:
     docs/bump-packages.sh {{pkgs}}
 
-# Runs the flake checks, including the commit-style linter test.
 check:
     nix flake check
 

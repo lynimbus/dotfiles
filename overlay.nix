@@ -1,6 +1,5 @@
-# One package per file in pkgs/, named after the file: adding a package means
-# adding a file, and every consumer (nix-update, the bump script, the scaffold)
-# reads the same list. callPackage only gets this repo's checkout path for the
+# Every consumer (nix-update, the bump script, the scaffold) reads the same
+# list of names. callPackage only gets this repo's checkout path for the
 # packages whose arguments ask for it.
 { lib, repoRoot }:
 let

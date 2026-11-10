@@ -98,7 +98,6 @@ in
   ];
 
   xdg.configFile."nix-init/config.toml".text = ''
-    # nixpkgs used to resolve builder arguments and prefetch hashes.
     nixpkgs = '${nixpkgs}'
 
     # Nothing here lives in a nixpkgs by-name tree, and this repository is

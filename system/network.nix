@@ -10,8 +10,5 @@
   networking.resolvconf.enable = false;
   environment.etc."resolv.conf".source = "/run/NetworkManager/resolv.conf";
 
-  networking.wireless = {
-    scanOnLowSignal = false;
-    extraConfig = "# D-Bus";
-  };
+  networking.wireless.scanOnLowSignal = false;
 }

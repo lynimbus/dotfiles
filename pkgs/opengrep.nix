@@ -103,11 +103,7 @@ stdenv.mkDerivation {
   doInstallCheck = true;
   nativeInstallCheckInputs = [ versionCheckHook ];
 
-  passthru = {
-    inherit archiveSuffix;
-
-    bump = [ ];
-  };
+  passthru.bump = [ ];
 
   meta = {
     description = "Open-source static analysis engine (Semgrep fork) with no login and no telemetry";
