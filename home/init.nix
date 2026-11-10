@@ -1,8 +1,5 @@
 {
   imports = [
-    # Module definitions first, then the modules that use them.
-    ./modules/magpie.nix
-
     ./core.nix
     ./packages.nix
 
