@@ -36,11 +36,7 @@ stdenv.mkDerivation {
     runHook postInstall
   '';
 
-  passthru = {
-    inherit archiveSuffix;
-
-    bump = [ ];
-  };
+  passthru.bump = [ ];
 
   meta = {
     description = "CLI proxy that shrinks the output of common dev commands before it reaches an LLM";

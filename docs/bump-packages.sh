@@ -44,9 +44,6 @@
 #     Packages whose hashes are release assets therefore carry --build, which
 #     builds the package (versionCheckHook included) as part of the bump;
 #     source-built packages have vendorHash covered by nix-update itself.
-#
-# BUMP_RETRIES (extra attempts, default 2) and BUMP_RETRY_DELAY (seconds,
-# default 30) tune the retries.
 # shellcheck source=docs/lib.sh
 source "$(dirname "$0")/lib.sh"
 cd "$repo_dir" || exit 1
@@ -55,8 +52,8 @@ github_token
 
 system=x86_64-linux
 NET_RETRY_RE='502|503|504|cannot download|failed to retrieve hash|timed out|Failed to connect|Connection reset|curl: \((6|7|22|28)\)'
-BUMP_RETRIES="${BUMP_RETRIES:-2}"
-BUMP_RETRY_DELAY="${BUMP_RETRY_DELAY:-30}"
+retries=2
+retry_delay=30
 
 command -v nix-update >/dev/null || die "nix-update is not on PATH (it comes from home/packages.nix)"
 
@@ -121,7 +118,7 @@ run_nix_update() {
 			rm -f "$log"
 			return 0
 		fi
-		if ((attempt > BUMP_RETRIES)); then
+		if ((attempt > retries)); then
 			rm -f "$log"
 			return "$rc"
 		fi
@@ -129,8 +126,8 @@ run_nix_update() {
 			rm -f "$log"
 			return "$rc"
 		fi
-		echo "[bump] $p hit a network error on attempt $attempt of $((BUMP_RETRIES + 1)); retrying in ${BUMP_RETRY_DELAY}s" >&2
-		sleep "$BUMP_RETRY_DELAY"
+		echo "[bump] $p hit a network error on attempt $attempt of $((retries + 1)); retrying in ${retry_delay}s" >&2
+		sleep "$retry_delay"
 	done
 }
 

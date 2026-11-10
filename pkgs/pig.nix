@@ -79,11 +79,7 @@ stdenv.mkDerivation {
     ln -s pig $out/bin/pi
   '';
 
-  passthru = {
-    inherit archiveSuffix;
-
-    bump = [ ];
-  };
+  passthru.bump = [ ];
 
   meta = {
     description = "Pi rebuilt in Go as one native binary, running Pi's TypeScript extensions unchanged";
