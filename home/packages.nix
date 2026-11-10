@@ -19,6 +19,7 @@ in
     nvd
     gh
     jjui
+    beads
     fd
     eza
     bat
