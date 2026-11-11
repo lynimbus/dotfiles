@@ -26,7 +26,12 @@ in
   # The package wrapper points PiG at Pi's ~/.pi/agent, where the settings
   # below, the sessions and the npm packages already live. PiG's own state stays
   # in ~/.pig.
-  home.packages = [ pkgs.pig ];
+  # pig-swarm fans pig out over one problem with a bd epic as the ledger, so it
+  # belongs wherever pig is installed.
+  home.packages = [
+    pkgs.pig
+    pkgs.pig-swarm
+  ];
 
   home.activation.pigSettingsMerge = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     target="$HOME/.pi/agent/settings.json"
