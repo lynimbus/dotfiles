@@ -20,6 +20,7 @@ in
     gh
     jjui
     beads
+    obelisk-cli
     fd
     eza
     bat
