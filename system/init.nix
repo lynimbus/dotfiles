@@ -19,6 +19,8 @@
     ./desktop-niri.nix
     ./desktop-mango.nix
     ./xdg.nix
+    ../defaults/terminal.nix
+    ../defaults/file-chooser.nix
   ];
 
   system.stateVersion = "26.05";
