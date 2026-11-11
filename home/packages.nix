@@ -22,6 +22,7 @@ in
     beads
     dolt
     obelisk-cli
+    antigravity-cli
     fd
     eza
     bat
