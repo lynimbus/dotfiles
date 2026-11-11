@@ -18,11 +18,4 @@
     Service.Restart = "on-failure";
     Service.RestartSec = 2;
   };
-
-  xdg.mimeApps = {
-    enable = true;
-    defaultApplications = {
-      "inode/directory" = [ "io.github.lgse.Strata.desktop" ];
-    };
-  };
 }

@@ -2,6 +2,7 @@
   imports = [
     ./core.nix
     ./packages.nix
+    ../defaults/mimeapps.nix
 
     ./programs/fish.nix
     ./programs/git.nix
