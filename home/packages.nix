@@ -20,6 +20,7 @@ in
     gh
     jjui
     beads
+    dolt
     obelisk-cli
     fd
     eza
