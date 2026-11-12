@@ -23,6 +23,7 @@ in
     dolt
     obelisk-cli
     antigravity-cli
+    herdr-core
     fd
     eza
     bat

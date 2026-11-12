@@ -131,6 +131,7 @@ let
       "pig"
       "pig-swarm"
       "kero"
+      "herdr-core"
       "alma"
       "antigravity-cli"
       "rtk"
