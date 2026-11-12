@@ -34,7 +34,13 @@ in
     systemd-boot = {
       enable = true;
       editor = false;
-      configurationLimit = 3;
+      # Boot counting consumes one entry per failed attempt, so the menu needs
+      # room for `tries` bad entries plus a generation to fall back to.
+      configurationLimit = 5;
+      bootCounting = {
+        enable = true;
+        tries = 3;
+      };
     };
     efi.canTouchEfiVariables = true;
   };

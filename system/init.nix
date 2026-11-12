@@ -2,6 +2,7 @@
   imports = [
     ./hardware-configuration.nix
     ./boot.nix
+    ./boot-complete.nix
     ./plymouth.nix
     ./network.nix
     ./ssh.nix
@@ -14,6 +15,8 @@
     ./secrets.nix
     ./nix.nix
     ./nix-ld.nix
+    ./comma.nix
+    ./fhs-compat.nix
     ./packages.nix
     ./linuxqq-wayland-fix.nix
     ./desktop-niri.nix

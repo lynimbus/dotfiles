@@ -35,6 +35,13 @@
     };
 
     noctalia.url = "github:noctalia-dev/noctalia/cachix";
+
+    # system/comma.nix uses the comma wrapper that carries a prebuilt nix-index
+    # database, so ", foo" resolves a program name without building an index.
+    nix-index-database = {
+      url = "github:nix-community/nix-index-database";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
