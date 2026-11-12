@@ -328,23 +328,18 @@ systemd.targets.boot-complete.wants = [
     <div class="chev">▶</div>
   </div>
   <div class="body">
-    <p><b>这是清单里「最像 AerynOS」的一项。</b>AerynOS 的 <code>/usr/bin</code> 是真的，NixOS 上 <code>/usr/bin</code> 目前是空目录（我实测：<code>/usr</code> 下只有 <code>bin/</code>，而 <code>/usr/bin</code> 是空的；<code>/bin</code> 里只有 <code>sh → bash</code> 一个符号链接）。</p>
-    <p><code>services.envfs.enable = true;</code>（我确认此 option 在你当前 nixpkgs 中存在，默认 false）会挂一个 FUSE 文件系统：</p>
+    <p><b>已实施。</b>新建 <code>system/envfs.nix</code>，一行开启：</p>
+    <pre>services.envfs.enable = true;</pre>
+    <p><b>做了什么：</b>把 <code>/usr/bin</code> 挂成 FUSE 视图，内容是「当前进程 PATH 里的所有可执行文件」的符号链接；<code>/bin</code> 再 bind 到 <code>/usr/bin</code>。于是 <code>#!/usr/bin/python3</code>、<code>#!/bin/bash</code> 这类写死路径的脚本直接能跑，不用 patchShebangs。</p>
+    <p><b>验证（从构建产物读，不看配置文件）：</b></p>
     <ul>
-      <li>把 <code>/usr/bin</code> 挂成 envfs，内容 = 「<b>发起请求的进程的 PATH</b> 里所有可执行文件」的符号链接</li>
-      <li>把 <code>/bin</code> bind-mount 到 <code>/usr/bin</code></li>
-      <li>顺手把 <code>usrbinenv</code> 和 <code>binsh</code> 的激活脚本清空（模块内部 <code>mkForce ""</code>），并在 initrd 里预建 <code>/sysroot/usr/bin</code> 和 <code>/sysroot/bin</code> 目录，避免 switch-root 时因为 <code>/usr</code> 为空而 fatal</li>
+      <li><code>$S/etc/fstab</code> 里有两条：<code>none /usr/bin envfs bind-mount=/bin,...,nofail</code> 和 <code>/usr/bin /bin none bind,nofail</code></li>
+      <li>fallback-path 目录里有 <code>env → coreutils/bin/env</code> 和 <code>sh → bash-interactive/bin/sh</code></li>
+      <li><code>usrbinenv</code> / <code>binsh</code> 激活脚本命中数 0（模块强制清空）</li>
+      <li>initrd 的 <code>50-envfs</code> tmpfiles 设置确实生成了 <code>/sysroot/usr/bin</code> 与 <code>/sysroot/bin</code> 两个目录</li>
     </ul>
-    <p><b>解决了什么：</b>那些写死 <code>#!/usr/bin/python3</code>、<code>#!/bin/bash</code>、<code>#!/usr/bin/env node</code> 的脚本可以直接跑，不需要 patchShebangs。这是 AerynOS 用户根本不会遇到的痛。</p>
-    <div class="note warn"><b>为什么标"风险 中"：</b>
-      <ul>
-        <li>它改的是 <code>/bin</code> 和 <code>/usr/bin</code> 的挂载方式，属于「系统底层布局」级别改动。模块里那段 initrd tmpfiles 的注释明确写了这是在绕开 systemd 的 <code>Refusing to run in unsupported environment where /usr/ is not populated</code> —— 说明这块有过历史血泪。</li>
-        <li>FUSE 需要 <code>/dev/fuse</code> 可用，且挂载带 <code>nofail</code>，失败会静默降级（不致命，但也意味着你可能没察觉它没生效）。</li>
-        <li>你用的是 <b>systemd-initrd（scripted initrd 已移除）</b>，模块里有专门的 <code>boot.initrd.systemd.tmpfiles.settings</code> 分支处理这种情况，属于适配路径，不是主路径。</li>
-      </ul>
-      <b>建议：单独一次 rebuild 只加这一项，确认能正常开机后再叠加别的。</b>
-    </div>
-    <p><b>验证：</b>重建后 <code>ls -l /usr/bin/bash</code> 应能解析到某个 store 路径；<code>findmnt /usr/bin</code> 应显示 <code>fuse.envfs</code>。</p>
+    <div class="note warn"><b>这是清单里最接近「系统底层布局」改动的一项。</b>模块注释明确写了那段 initrd tmpfiles 是在绕开 systemd 的 <code>Refusing to run in unsupported environment where /usr/ is not populated</code> —— 没有那两个目录，开机时 systemd 会直接拒绝启动。挂载全部带 <code>nofail</code>，FUSE 起不来会静默降级，不会卡死。</div>
+    <div class="note good"><b>回退：</b>删掉 <code>system/envfs.nix</code> 那一行并去掉 import 即可，没有任何持久化状态被改动。</div>
   </div>
 </article>
 
@@ -393,36 +388,22 @@ systemd.targets.boot-complete.wants = [
     <div class="chev">▶</div>
   </div>
   <div class="body">
-    <p>这是 NixOS 上最接近 AerynOS「<code>/etc</code> 100% 归用户、永不产生 <code>.rpmnew</code> 冲突」的机制。</p>
-    <p><b>你当前的 /etc 状态（实测）：</b>几乎全是 <code>→ /etc/static/...</code> 的符号链接，<code>/etc/static → /nix/store/qwqr7pp...-etc/etc</code>，也就是只读的 store 路径。<code>/etc/static</code> 根本不在 store 目录内部（我确认过它不存在），它是<b>由激活脚本现场创建的软链</b>。所以你写不进任何受管文件。</p>
+    <p><b>已实施。</b>新建 <code>system/etc-overlay.nix</code>：</p>
     <pre>system.etc.overlay = {
-  enable = true;    <span class="c"># 默认 false</span>
-  mutable = true;   <span class="c"># 默认 true —— 挂可写 upperdir</span>
+  enable = true;
+  mutable = true;   <span class="c"># 默认就是 true，写出来是为了让意图显式</span>
 };</pre>
-    <p><b>开启后的语义：</b></p>
+    <p><b>做了什么：</b>Nix 生成的 <code>/etc</code> 变成 overlay 的只读下层，你的手改落到 <code>/.rw-etc/upper</code>。升级只重写下层，改动不被覆盖也不产生冲突；删掉 upper 里那个文件就回到生成版本。</p>
+    <p><b>验证（从 <code>activate</code> 脚本读）：</b></p>
     <ul>
-      <li>Nix 生成的 <code>/etc</code> 变成 overlay 的 <b>lowerdir</b>（只读，位于 <code>/.rw-etc/</code> 之外的 erofs 元数据镜像 + basedir）</li>
-      <li>你的手改落在 <b><code>/.rw-etc/upper</code></b>（可写、跨 reboot 保留）</li>
-      <li>升级时 Nix 改 lowerdir，你的改动仍在，<b>不会覆盖也不会冲突</b></li>
-      <li>切世代时 overlay 被 <b>原子替换</b>，且 upperdir 里改过的文件不会被新下层覆盖（官方文档原话：<i>"files that have been modified will NOT be overwritten"</i>）</li>
-      <li>想回默认：删掉 <code>/.rw-etc/upper</code> 里那个文件即可 —— 这就是 AerynOS 的「删 /etc 配置 → factory default」</li>
+      <li>出现 <code>mkdir --parents /.rw-etc/upper /.rw-etc/work</code></li>
+      <li>两次 <code>mount --type overlay</code>，带 <code>lowerdir=...etc-lowerdir</code>、<code>upperdir=/.rw-etc/upper</code>、<code>redirect_dir=on</code>、<code>metacopy=on</code></li>
+      <li>调用 <code>nixos-init/bin/clear-etc-opaque</code> 清理上层残留的 opaque 标记（否则改过的目录会整片遮住下层）</li>
+      <li><code>/etc/static</code> 命中数 <b>0</b> —— 旧的符号链接森林确实没有了</li>
+      <li>1847 条 assertion 全过；initrd 自动带上 <code>erofs</code>、<code>overlay</code>、<code>loop</code></li>
     </ul>
-    <p><b>顺带收益：</b>官方文档说能省掉 perl 依赖、激活快几秒。</p>
-    <div class="note warn"><b>硬前提，我已逐条在你的配置上验证：</b>
-      <ul>
-        <li>内核 ≥ 6.6 —— 你是 <b>7.3.3</b> ✓</li>
-        <li><code>CONFIG_EROFS_FS</code> —— 你是 <code>=m</code> ✓，模块会自动加进 <code>boot.initrd.availableKernelModules</code>（我实测求值后 <code>erofs</code> 确实在列表里）</li>
-        <li>需要 <code>overlay</code> + <code>loop</code> 进 initrd —— 模块自动处理 ✓</li>
-        <li><code>!mutable</code> 时才需要 <code>systemd.sysusers</code> 或 <code>services.userborn</code>；你 <code>mutable = true</code>，两个都是 false 也不触发（我把 1845 条 assertion 全求真，<b>零失败</b>）</li>
-      </ul>
-    </div>
-    <div class="note bad"><b>必须知情的两个坑：</b>
-      <ul>
-        <li>nixpkgs 把这个 option 标注为 <b>experimental</b>，原文：<i>"Only enable this option if you're confident that you can recover your system if it breaks."</i> 万一 <code>/etc</code> 挂不上，你得会进 initrd/救援 shell。</li>
-        <li>你的 <code>system/network.nix</code> 里有 <code>environment.etc."resolv.conf".source = "/run/NetworkManager/resolv.conf";</code> 和 <code>keyfile.path</code> 指向 <code>/var/lib/nixos/...</code>。overlay 之后 <code>/etc/resolv.conf</code> 会是指向 <code>/run/...</code> 的 <b>lowerdir 软链</b>，行为正常；但如果你以后手改了 <code>/etc/resolv.conf</code>，那份改动会进 upperdir <b>永久盖住</b> NetworkManager 的写入 —— 这正是你想要的语义，只是要心里有数。</li>
-        <li>和 AerynOS 的剩余差距：AerynOS 是「<b>打包层面禁止</b>包写 /etc」；NixOS 是「<b>运行时覆盖</b>」。约束力不同 —— 你的 <code>environment.etc</code> 声明仍然生效，只是被 overlay 挡住。</li>
-      </ul>
-    </div>
+    <div class="note bad"><b>nixpkgs 把它标为 experimental</b>，原文：<i>"Only enable this option if you're confident that you can recover your system if it breaks."</i> 万一 <code>/etc</code> 挂不上，需要能进 initrd 或救援 shell。</div>
+    <div class="note warn"><b>一个需要心里有数的语义变化：</b>你的 <code>system/network.nix</code> 里 <code>/etc/resolv.conf</code> 指向 <code>/run/NetworkManager/resolv.conf</code>。overlay 之后这条软链在下层，行为正常；但如果你以后手改 <code>/etc/resolv.conf</code>，那份改动会进上层并<b>永久压住</b> NetworkManager 的写入。这正是 overlay 的语义，只是要知道。</div>
   </div>
 </article>
 
@@ -474,30 +455,30 @@ systemd.targets.boot-complete.wants = [
     <div class="chev">▶</div>
   </div>
   <div class="body">
-    <p><b>这是唯一一项「不编译就能拿到优化二进制」的性能改动</b>，性价比最高。</p>
-    <p>你现在的 <code>system/boot.nix</code> 用 <code>pkgs.linuxPackages_latest</code>（7.3.3）扩展出 <code>zenpower</code>。nixpkgs 里没有 <code>linux_cachyos</code>（我查过 <code>pkgs/os-specific/linux/kernel/</code> 与 <code>all-packages.nix</code>，只有 <code>latest / testing / xanmod / zen</code>）。所以要走 <code>xddxdd/nix-cachyos-kernel</code> flake，它提供：</p>
-    <pre>linux-cachyos-latest
-linux-cachyos-latest-lto
-linux-cachyos-latest-x86_64-v3
-linux-cachyos-latest-x86_64-v4      <span class="c"># ← 你的 8845H 支持 avx512，可以吃这个</span>
-linux-cachyos-latest-zen4
-linux-cachyos-latest-lto-x86_64-v4
-…</pre>
-    <p>你的 CPU 实测 flags 含 <code>avx512f avx512dq avx512ifma avx512cd avx512bw avx512vl avx512vbmi avx512_vnni avx512_bfloat16 …</code>，是完整 Zen4，<b>可以上 <code>-x86_64-v4</code> 或 <code>-zen4</code> 变体</b>。</p>
-    <pre><span class="c"># flake.nix</span>
-nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel";
-nix-cachyos-kernel.inputs.nixpkgs.follows = "nixpkgs";
+    <p><b>已实施。</b>内核换成 CachyOS 的 <code>linux-cachyos-latest-lto-zen4</code>（7.3.1），Clang + ThinLTO + znver4。</p>
+    <p><b>为什么是 <code>release</code> 分支而不是默认分支：</b>实测两条分支代价差几小时。</p>
+    <pre><span class="c">release 分支</span>  7.3.1   derivations-to-build=0     <span class="c">← 全在二进制缓存</span>
+<span class="c">master 分支</span>   7.3.4   derivations-to-build=18    <span class="c">← 本地编 LTO 内核，1-3h</span></pre>
+    <p>你选了 release：内核比原来的 7.3.4 低三个补丁版本，但带 CachyOS 补丁集 + LTO + znver4 优化，仍然是「更优化的内核」。要版本对齐随时可以换分支重编。</p>
+    <pre><span class="c"># system/boot.nix</span>
+kernelPackages =
+  inputs.nix-cachyos-kernel.legacyPackages.${pkgs.stdenv.hostPlatform.system}
+    ."linuxPackages-cachyos-latest-lto-zen4".extend (...)</pre>
+    <div class="note bad"><b>踩到一个真 bug，已修：</b>nixos-hardware 的 <code>zenpower</code> 模块编译不过，报<br><code>error: unknown warning option '-Wimplicit-fallthrough=3'</code><br>根因是它的 <code>Makefile:5</code> 硬编码了 <code>KBUILD_CFLAGS += -Wimplicit-fallthrough=3</code>，这是 GCC 专属写法；而 CachyOS 内核用 Clang 编译，未知警告选项在 <code>-Werror</code> 下直接失败。修法是 <code>postPatch</code> 把这个标志删掉 —— 它只控制警告等级，不影响代码生成。</div>
+    <p><b>顺带简化了旧 override：</b>原来那段替换 <code>installPhase</code> 的代码是为 nixpkgs#575192 的 <code>.ko.cer</code> 聚合问题准备的。实测 CachyOS 的包集<b>没有 <code>aggregateModules</code></b>（<code>hasAggregate=false</code>），而且默认 <code>installPhase</code> 自己就生成了 <code>zenpower.ko.cer</code>，所以那段可以删掉，只留 Makefile 补丁。</p>
+    <p><b>缓存必须一起改，否则前功尽弃：</b><code>system/nix.nix</code> 的 substituters 加了 <code>https://cache.lantian.pub/lantian</code> 和对应公钥。这是内核「零编译」的唯一原因 —— 不加就是几小时本地编译。</p>
+    <p><b>验证：</b></p>
+    <ul>
+      <li><code>boot.kernelPackages.kernel.version</code> = <b>7.3.1</b>，name = <code>linux-cachyos-latest-lto-zen4-7.3.1</code></li>
+      <li><code>hardware.nvidia.package</code> = <code>nvidia-x11-595.112.07</code>，<code>open = true</code>，与原来版本一致（CachyOS 包集的 <code>nvidiaPackages.stable</code> 恰好也是 595.112.07）</li>
+      <li><code>boot.extraModulePackages</code> = <code>zenpower5</code> + <code>nvidia-open-595.112.07-7.3.1</code>（后者跟着内核重建）</li>
+      <li>1847 条 assertion 全过，<code>battery-saver</code> specialisation 仍在</li>
+      <li>整个 toplevel 构建成功</li>
+    </ul>
+    <div class="note warn"><b>唯一不能零编译的部分：</b><code>zenpower</code>（约 10 秒）和 <code>nvidia-open</code> 内核模块（约 5 分钟，403 MiB）必须本地构建，因为它们要对新内核编译。内核本体是下载的。</div>
+    <div class="note good"><b>安全网：</b>A1 的 boot counting 已经开着。内核起不来会自动回退到上一代，不需要手动进 boot 菜单。</div>
+    <div class="note bad"><b>第一次重建有个先后顺序问题，我实测踩到了。</b>把 substituter 写进 <code>system/nix.nix</code> 只改了下一次激活后的 <code>/etc/nix/nix.conf</code>；<b>当前运行中的 nix-daemon 还不知道 lantian 缓存</b>。于是第一次构建会把 LTO 内核本地重编 —— 我起了一次构建，8 分钟后发现它在跑 <code>clang ... -flto=thin ... net/core/netpoll.c</code>，正是本地编译内核。上游 README 也写了这一点：<i>"after adding binary cache to your NixOS configuration, please apply your settings once before enabling CachyOS kernel"</i>。<br><br>两种顺序都对：<br>① 先只提交缓存那半（<code>nix.nix</code> 的 substituter + 公钥），<code>nh os boot</code> 一次让 daemon 认得缓存；再提交内核那半，第二次构建就走下载。<br>② 或者先用手动方式把内核灌进 store：<code>sudo NIX_CONFIG="extra-substituters = https://cache.lantian.pub/lantian&#10;extra-trusted-public-keys = ..." nix build ...</code>，然后再正常 <code>nh os switch</code>。</div>'
 
-<span class="c"># system/boot.nix</span>
-boot.kernelPackages =
-  inputs.nix-cachyos-kernel.packages.${pkgs.stdenv.hostPlatform.system}.linux-cachyos-latest-lto-zen4;</pre>
-    <div class="note warn"><b>两个必须注意的点：</b>
-      <ul>
-        <li>你的 <code>kernelPackages.extend</code> 里那段 <code>zenpower</code> override（注释提到 NixOS/nixpkgs#575192 的 <code>.ko.cer</code> 聚合问题）是绑在 <code>linuxPackages_latest</code> 上的，换 kernel 包集后要重新验证 out-of-tree 模块能否编译 —— 换句话说 <b>这一次 rebuild 很可能需要真编译</b>，不是纯下载。</li>
-        <li>换内核 = 新 boot entry = 新 initrd（约 72M）。确认 <code>/boot</code> 有空间（现在 179M/2.0G，够）。</li>
-      </ul>
-    </div>
-    <div class="note"><b>更保守的替代：</b>只开 <code>linuxPackages_zen</code>（nixpkgs 自带、cache.nixos.org 有缓存、零编译），性能收益小一些但完全无风险。我可以把 D1 拆成「D1a 保守版 / D1b 激进版」两档。</div>
   </div>
 </article>
 
@@ -597,17 +578,21 @@ boot.kernelPackages =
     <div class="chev">▶</div>
   </div>
   <div class="body">
-    <p>你已经开了 <code>nix.settings.auto-optimise-store = true</code>。但 Nix 的去重是 <b>文件级硬链接</b>，不是 AerynOS 那种「安装时就按内容哈希落盘」的 CAS。两者的差距：</p>
-    <ul>
-      <li><b>AerynOS/moss</b>：<code>.stone</code> 包内自带去重，跨包共享未变文件；快照能低成本存在正是因为有 CAS</li>
-      <li><b>Nix</b>：寻址单位是 <b>NAR</b>（整个 derivation 输出的归档）。<code>auto-optimise-store</code> 在写入时扫描并硬链接相同文件，能省 25–35%，但<b>与世代快照无关</b>，也不减少下载量</li>
-    </ul>
-    <p>能补的一点：把完整优化也排上日程（<code>nix.optimise.automatic = true</code>，默认 false，我确认 option 存在）。</p>
+    <p><b>已实施。</b><code>system/nix.nix</code>：</p>
     <pre>nix.optimise = {
   automatic = true;
-  dates = [ "03:45" ];   <span class="c"># 默认就是 03:45</span>
+  dates = [ "03:45" ];   <span class="c"># 默认值，写出来便于以后改</span>
 };</pre>
-    <div class="note"><b>为什么收益低：</b><code>auto-optimise-store</code> 已经把「新写入」覆盖了，定期全量 <code>nix store optimise</code> 主要回收历史遗留。你的 <code>justfile</code> 里已经有 <code>gc:</code> 目标跑 <code>nix store optimise</code>，手动跑也行。<br><b>注意：</b>全量 optimise 在 65G store 上要跑几分钟且吃 IO，放凌晨合理。</div>
+    <p><b>做了什么：</b><code>auto-optimise-store</code> 只对「从现在起写入的」内容做硬链接去重，已经躺在 store 里几个月的重复文件它不管。<code>optimise.automatic</code> 排一个全量扫过去。</p>
+    <p><b>验证（从产物读）：</b></p>
+    <ul>
+      <li><code>nix-optimise.service</code> 与 <code>nix-optimise.timer</code> 都已生成</li>
+      <li>timer：<code>OnCalendar=03:45</code>、<code>Persistent=true</code>、<code>RandomizedDelaySec=1800</code>（nixpkgs 自带的随机抖动，避免和其他机器同一秒开跑）</li>
+      <li>service 自带 <code>ConditionACPower=true</code> —— 用电池时不会跑，这条是 nixpkgs 给的，正好</li>
+      <li>service 里 <code>CPUSchedulingPolicy=idle</code>、<code>IOSchedulingClass=idle</code>、<code>Nice=19</code>，全量扫不会和你抢资源</li>
+    </ul>
+    <div class="note"><b>和 AerynOS 的差距没变：</b>Nix 的寻址单位是整个 derivation 输出（NAR），<code>.stone</code> 那种「包内自带去重 + 安装时按内容哈希落盘」的 CAS 做不到。这一项只是把已有能力用满，不改变模型。</div>
+    <div class="note good"><b>想立刻跑一次：</b><code>sudo systemctl start nix-optimise.service</code>，或继续用 <code>just gc</code>。</div>
   </div>
 </article>
 
@@ -667,14 +652,23 @@ programs.comma.enable = true;</pre>
     <div class="chev">▶</div>
   </div>
   <div class="body">
-    <p>AerynOS 的卖点之一是「<code>moss</code> 是 Rust 写的，毫秒级」。NixOS 的 rebuild 慢主要在 evaluation，但也能压一部分。</p>
-    <p>实测你当前的 nix 配置：<code>max-jobs = 16</code>、<code>cores = 0</code>、<code>sandbox = true</code>、<code>eval-cache = true</code>（已开）、<code>auto-optimise-store = true</code>。</p>
-    <pre>nix.daemonCPUSchedPolicy = "batch";   <span class="c"># 默认 "other"；让 nix-daemon 降低抢占，桌面不卡</span>
-nix.settings = {
-  max-jobs = 8;      <span class="c"># 你有 16 线程但只有 22G 内存（已用 8.6G）</span>
-  cores = 0;         <span class="c"># 已默认，等于用满每 job 的核</span>
-};</pre>
-    <div class="note warn"><b>关于 <code>max-jobs = 8</code>：</b>现在是 16，理论上并行度最高，但编译 GCC/LLVM 这类大包时 16 路并行 + 每路多线程会<b>直接 OOM</b>。这是社区里反复出现的踩坑点。8 是个更稳的默认值，具体看你 D2 要不要开。<br>这是「体验优化」不是「功能」，可跳过。</div>
+    <p><b>已实施。</b><code>system/nix.nix</code> 三处改动：</p>
+    <pre><span class="c"># 1. 并行度：16 线程 / 22G 内存，别再让 16 个 job 各自跑满所有核</span>
+max-jobs = 8;
+cores = 2;
+
+<span class="c"># 2. daemon 自己降调度等级，编译不再抢你正在打字的会话</span>
+nix.daemonCPUSchedPolicy = "batch";
+nix.daemonIOSchedClass = "best-effort";
+nix.daemonIOSchedPriority = 6;</pre>
+    <p><b>为什么是 8×2 而不是 16×0：</b>原配置是 <code>max-jobs=auto</code>（解析成 16）配 <code>cores=0</code>（每个 job 用满所有核），等于最坏情况 16×16 线程抢 16 个核，再叠上 <code>22G</code> 内存里已用 9G 的现状 —— 大包必然 swap。8 个 job × 2 核 = 16，正好吃满而不超卖。</p>
+    <p><b>为什么 <code>batch</code> 而不是 <code>idle</code>：</b>nixpkgs 文档明说 <code>idle</code> 可能「slow down and potentially starve crucial configuration updates」。rebuild 本身就是修系统的手段，把它饿死是自伤。文档给的判断标准正是「间歇性高负载的桌面/笔记本用 <code>idle</code>」，这里取折中的 <code>batch</code>。</p>
+    <p><b>验证（从产物读）：</b></p>
+    <ul>
+      <li><code>$S/etc/nix/nix.conf</code> 里确实是 <code>max-jobs = 8</code>、<code>cores = 2</code></li>
+      <li>nix-daemon 的 drop-in 里有 <code>CPUSchedulingPolicy=batch</code>、<code>IOSchedulingClass=best-effort</code>、<code>IOSchedulingPriority=6</code>（注意：这些在 <code>.d/overrides.conf</code> 里，不在主 unit 文件里 —— 我第一次验证时看错文件，误判成没生效）</li>
+    </ul>
+    <div class="note warn"><b>真话：</b>这一项让编译「更安静」，不一定让单次 rebuild 更快 —— 并行度降了，总吞吐可能略低。换来的是编译期间机器可用，以及不会因为 OOM 整次构建失败重来。如果你更在意墙钟时间，把 <code>max-jobs</code> 调回 16、<code>cores</code> 保持 1。</div>
   </div>
 </article>
 
@@ -761,7 +755,7 @@ just gens    <span class="c"># nixos-rebuild list-generations</span></pre>
 
   // Items already implemented in this repo, marked by the page itself so the
   // list stays useful as a record of what is left.
-  const DONE = ['A1','A2','B1','B3','E1','E3'];
+  const DONE = ['A1','A2','B1','B3','E1','E3','B2','C1','D1','D4','E2'];
   const onlySelBtn = document.getElementById('btnOnlySel');
   let onlySelected = false;
 

@@ -15,6 +15,8 @@
     ./users.nix
     ./secrets.nix
     ./nix.nix
+    ./etc-overlay.nix
+    ./envfs.nix
     ./nix-ld.nix
     ./comma.nix
     ./fhs-compat.nix

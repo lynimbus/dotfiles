@@ -1,32 +1,35 @@
 {
+  inputs,
   lib,
   pkgs,
   ...
 }:
 
 let
-  kernelPackages = pkgs.linuxPackages_latest.extend (
-    final: prev:
-    let
-      kernelBuild = "${prev.kernel.dev}/lib/modules/${prev.kernel.modDirVersion}/build";
-    in
-    {
-      # aggregateModules merges the .ko.cer of out-of-tree modules, and
-      # zenpower installs its module directly instead of going through
-      # modules_install, so the build failed without zenpower.ko.cer. See
-      # NixOS/nixpkgs#575192; this override goes away once upstream fixes it.
-      zenpower = prev.zenpower.overrideAttrs (_: {
-        installPhase = ''
-          runHook preInstall
-          make -C ${kernelBuild} M=$PWD \
-            ${lib.escapeShellArgs final.kernelModuleMakeFlags} \
-            modules_install INSTALL_MOD_PATH=$out INSTALL_MOD_STRIP=1 \
-            INSTALL_MOD_DIR=kernel/drivers/hwmon/zenpower
-          runHook postInstall
-        '';
-      });
-    }
-  );
+  # CachyOS ships this kernel built with Clang and ThinLTO, tuned for znver4
+  # (this machine is a Zen 4 part). The `release` branch of the kernel flake is
+  # the revision its Hydra builds and pushes to the cache configured in
+  # system/nix.nix, so this downloads rather than compiling a kernel locally.
+  #
+  # It comes from the flake's own nixpkgs, not this repo's, which is what makes
+  # the cached builds match. The kernel package set is therefore the only thing
+  # in this configuration evaluated against that revision.
+  kernelPackages =
+    inputs.nix-cachyos-kernel.legacyPackages.${pkgs.stdenv.hostPlatform.system}."linuxPackages-cachyos-latest-lto-zen4".extend
+      (
+        final: prev: {
+          # nixos-hardware adds this out-of-tree module for the Zen temperature
+          # sensors. Its Makefile passes -Wimplicit-fallthrough=3, which only GCC
+          # accepts; this kernel is compiled with Clang, where the unknown
+          # warning option fails the build under -Werror. The flag is a warning
+          # level, so dropping it changes nothing but whether the module builds.
+          zenpower = prev.zenpower.overrideAttrs (old: {
+            postPatch = (old.postPatch or "") + ''
+              substituteInPlace Makefile --replace-fail "-Wimplicit-fallthrough=3" ""
+            '';
+          });
+        }
+      );
 in
 {
   boot.loader = {

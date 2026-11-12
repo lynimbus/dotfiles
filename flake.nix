@@ -42,6 +42,13 @@
       url = "github:nix-community/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # system/boot.nix takes its kernel from here. The `release` branch is the one
+    # this project builds on its own Hydra and pushes to the cache in
+    # system/nix.nix, so the kernel downloads instead of compiling. Its nixpkgs
+    # input is deliberately not followed: the kernel patches and the cached
+    # builds both assume the revision this flake pins.
+    nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
   };
 
   outputs =
