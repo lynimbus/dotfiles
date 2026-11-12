@@ -10,9 +10,23 @@
 # Which packages track a release, and the extra nix-update flags each needs, is
 # declared by the package file itself in passthru.bump; flake.nix collects them
 # into legacyPackages.<system>.bumpMatrix. Adding a package therefore never
-# means editing this script. One token there is not a nix-update flag but a
-# version index this script has to read itself, before nix-update runs: see
-# maven_latest_stable for the --bump-maven= form and why r8 needs it.
+# means editing this script.
+#
+# Three tokens there are not nix-update flags but indices this script reads
+# itself, before nix-update runs:
+#
+#   --bump-maven=<url>    a Maven repository to take the version from; see
+#                         maven_latest_stable and why r8 needs it.
+#   --bump-feed=<url>     a release feed that states the version, every asset's
+#                         SHA-256, and (from 0.1.3862 on) an ed25519 signature
+#                         over the release's checksum list. The version and the
+#                         asset hash both come out of it, so the asset is never
+#                         downloaded to derive them; see feed_release.
+#   --bump-asset=<name>   which asset of that feed this package ships.
+#
+# A package that declares --bump-feed= must also declare --no-src: the hash is
+# written by write_src_hash from the feed, and --no-src is what stops nix-update
+# from downloading the asset to re-derive it.
 #
 # Usage:
 #   docs/bump-packages.sh              # every package that tracks a release
@@ -85,6 +99,127 @@ maven_latest_stable() {
 	printf '%s\n' "$version"
 }
 
+# The release a feed announces: version on one line, the asset SHA-256 on the next.
+#
+# The feed (usemagpie.ai/api/latest, and any other that answers in its shape)
+# states the version and every asset SHA-256 in one answer, which is what makes
+# --no-src possible: nix-update is told the version and writes it, and never
+# downloads the 82MB asset to re-derive a hash it was already given.
+#
+# The hash is then checked against the list upstream signed, not against the
+# bytes: it is the release SHA256SUMS, delivered in the same answer, and from
+# 0.1.3862 on it carries an ed25519 signature over "magpie release <version>",
+# a newline, and that text. Verifying it here rather than inferring it from a
+# successful build is what closes the stale-CDN window: a feed that served the
+# previous release list under the new version name fails at the signature,
+# before anything is written to the package file. A feed published before the
+# signing era (or a different feed entirely) has no signature to check, and the
+# hash then stands as the feed gave it.
+# True when the first version is newer than the second, comparing the numeric
+# parts of a dotted version rather than the text: 0.1.3937 sorts above 0.1.3936
+# as numbers but so would 0.1.400 have to sort above 0.1.3936, which a string
+# comparison gets wrong. A leading "v" and any suffix after the numbers are
+# ignored, so a tag and a pinned version answer the same question.
+version_newer() {
+	local a="$1" b="$2" i x y
+	local -a as bs
+	IFS=. read -r -a as <<<"${a#v}"
+	IFS=. read -r -a bs <<<"${b#v}"
+	for ((i = 0; i < ${#as[@]} || i < ${#bs[@]}; i++)); do
+		x="${as[i]:-0}"
+		y="${bs[i]:-0}"
+		# A suffix (a -rc1, a date) is dropped; the digits before it are what
+		# compared. %%[!0-9]* keeps the whole string when it is already all digits,
+		# and an empty part counts as 0, so a shorter version is not "newer".
+		case "$x" in *[!0-9]*) x="${x%%[!0-9]*}" ;; esac
+		case "$y" in *[!0-9]*) y="${y%%[!0-9]*}" ;; esac
+		x="${x:-0}"
+		y="${y:-0}"
+		((10#$x > 10#$y)) && return 0
+		((10#$x < 10#$y)) && return 1
+	done
+	return 1
+}
+
+feed_release() {
+	local url="$1" asset="$2" json version hash signed_hash
+	local dir
+	dir="$(mktemp -d)" || return 1
+	trap 'rm -rf "$dir"' RETURN
+	
+	json="$(curl -fsSL --retry 2 --retry-delay 2 "$url")" || return 1
+	version="$(jq -r '.version // empty' <<<"$json")"
+	hash="$(jq -r --arg a "$asset" '.assets[$a].sha256 // empty' <<<"$json")"
+	[ -n "$version" ] && [ -n "$hash" ] || return 1
+	
+	# jq -j rather than a shell variable: the signature covers the exact bytes of
+	# this text, trailing newline included, and $(...) would eat it. The list goes
+	# to a file once and both the check and the lookup read that file.
+	jq -j '.signed.sums // empty' <<<"$json" >"$dir/sums"
+	jq -j '.signed.sig // empty' <<<"$json" >"$dir/sig"
+	if [ -s "$dir/sums" ] && [ -s "$dir/sig" ]; then
+		feed_verify "$version" "$dir/sums" "$dir/sig" || return 1
+		signed_hash="$(awk -v a="$asset" '$2 == a { print $1 }' "$dir/sums")"
+		if [ -n "$signed_hash" ] && [ "$signed_hash" != "$hash" ]; then
+			echo "[bump] the $asset hash the feed gives is not the one it signed" >&2
+			return 1
+		fi
+	fi
+	
+	printf '%s\n%s\n' "$version" "$hash"
+}
+
+# Checks a release signed SHA256SUMS against the key upstream builds into its
+# binary, and fails when it cannot. The key lives in internal/update/signed.go
+# as raw base64 bytes, which openssl reads once wrapped in an ed25519 SPKI
+# header: the fixed 12-byte prefix below, then those 32 bytes.
+#
+# Not verifying is only right when the feed claims no signature. A signature
+# that is there and does not check is a tampered or broken feed, and taking its
+# hash would defeat the point of reading the signed list at all.
+feed_verify() {
+	local version="$1" sumsfile="$2" sigfile="$3" key dir ossl
+	if ! ossl="$(nix build --no-link --print-out-paths ".#legacyPackages.$system.openssl.bin" 2>/dev/null)/bin/openssl"; then
+		echo "[bump] cannot build openssl, so the release signature cannot be checked" >&2
+		return 1
+	fi
+	# The key is read from the tagged source, so a release that rotates it is
+	# checked with the key that release shipped rather than with a literal here
+	# that would have to be edited in the same commit as every version. GitHub's
+	# API answers when raw.githubusercontent.com does not: the raw host was the one
+	# refusing TLS on the network this was written for, and curl's --retry does
+	# not cover that failure.
+	key="$(curl -fsSL --retry 2 --retry-delay 2 \
+		"https://api.github.com/repos/yetone/magpie/contents/internal/update/signed.go?ref=v$version" |
+		jq -r '.content // empty' | base64 -d 2>/dev/null |
+		grep -o 'var signingKey = "[^"]*"' | head -1 | cut -d'"' -f2)" || key=""
+	if [ -z "$key" ]; then
+		key="$(curl -fsSL --retry 2 --retry-delay 2 \
+			"https://raw.githubusercontent.com/yetone/magpie/v$version/internal/update/signed.go" |
+			grep -o 'var signingKey = "[^"]*"' | head -1 | cut -d'"' -f2)" || key=""
+	fi
+	if [ -z "$key" ]; then
+		echo "[bump] the feed signed $version but its key could not be read from the source" >&2
+		return 1
+	fi
+	
+	dir="$(mktemp -d)" || return 1
+	trap 'rm -rf "$dir"' RETURN
+	base64 -d <<<"$key" >"$dir/key.raw" || return 1
+	# 30 2a 30 05 06 03 2b 65 70 03 21 00 is the SPKI header of an ed25519 key.
+	{ printf '\060\052\060\005\006\003\053\145\160\003\041\000'; cat "$dir/key.raw"; } >"$dir/key.der"
+	# The message upstream signs is this line, a newline, then the list verbatim.
+	{ printf 'magpie release %s\n' "$version"; cat "$sumsfile"; } >"$dir/msg"
+	# The feed carries the signature base64-encoded; openssl wants the 64 bytes.
+	base64 -d <"$sigfile" >"$dir/sig" || return 1
+	
+	if ! "$ossl" pkeyutl -verify -pubin -inkey "$dir/key.der" -keyform DER -rawin \
+		-in "$dir/msg" -sigfile "$dir/sig" >/dev/null 2>&1; then
+		echo "[bump] the signature on $version does not check against its own key" >&2
+		return 1
+	fi
+}
+
 matrix="$(nix eval --json ".#legacyPackages.$system.bumpMatrix")" ||
 	die "cannot evaluate .#legacyPackages.$system.bumpMatrix"
 
@@ -139,23 +274,86 @@ run_nix_update() {
 bump_package() {
 	local p="$1"
 	shift
-	local arg url version
+	local arg url version feed="" asset="" hash="" out current
 	local -a pass=()
+	# Two flags name a version index instead of passing through to nix-update,
+	# and both are read here, inside the retry loop: an index that 502s is then
+	# retried on the same terms as a release asset that does, and its error text
+	# is in the log the retry match reads.
 	for arg in "$@"; do
 		case "$arg" in
-		--bump-maven=*)
-			url="${arg#--bump-maven=}"
-			if ! version="$(maven_latest_stable "$url")"; then
-				echo "[bump] $p: cannot read the version index $url" >&2
-				return 1
-			fi
-			echo "[bump] $p: $url publishes $version" >&2
-			pass+=("--version=$version")
-			;;
+		--bump-maven=*) url="${arg#--bump-maven=}" ;;
+		--bump-feed=*) feed="${arg#--bump-feed=}" ;;
+		--bump-asset=*) asset="${arg#--bump-asset=}" ;;
 		*) pass+=("$arg") ;;
 		esac
 	done
-	nix-update --flake "legacyPackages.$system.$p" "${pass[@]}"
+
+	if [ -n "$feed" ]; then
+		if [ -z "$asset" ]; then
+			echo "[bump] $p: --bump-feed= needs --bump-asset=" >&2
+			return 1
+		fi
+		if ! out="$(feed_release "$feed" "$asset")"; then
+			echo "[bump] $p: cannot read $asset out of $feed" >&2
+			return 1
+		fi
+		version="$(sed -n 1p <<<"$out")"
+		hash="$(sed -n 2p <<<"$out")"
+		echo "[bump] $p: $feed publishes $version" >&2
+		# The feed trails the releases. It answered 0.1.3936 while 0.1.3937 was
+		# already out, because it is rebuilt from a release rather than being what a
+		# release is cut from. Following it downwards would undo a bump the releases
+		# had already made, so a feed older than the pin is not a version to move to.
+		current="$(nix eval --raw ".#legacyPackages.$system.$p.version")" || return 1
+		if ! version_newer "$version" "$current"; then
+			echo "[bump] $p: at $current, not older than the feed's $version" >&2
+			return 0
+		fi
+		pass+=("--version=$version")
+	elif [ -n "$url" ]; then
+		if ! version="$(maven_latest_stable "$url")"; then
+			echo "[bump] $p: cannot read the version index $url" >&2
+			return 1
+		fi
+		echo "[bump] $p: $url publishes $version" >&2
+		pass+=("--version=$version")
+	fi
+
+	nix-update --flake "legacyPackages.$system.$p" "${pass[@]}" || return
+
+	# The asset hash is written here rather than prefetched: the feed stated it and
+	# it matched the list upstream signed. --no-src is what keeps nix-update from
+	# downloading the asset to re-derive it.
+	if [ -n "$hash" ]; then write_src_hash "$p" "$hash" || return; fi
+}
+
+# Replaces the src hash literal in a package file with the SRI form of a feed
+# hex digest. nix-update cannot do this without prefetching the asset, which is
+# exactly the download the feed makes unnecessary.
+#
+# The file comes from the derivation (meta.position names it) and so does the
+# old value (src.outputHash), so the replacement cannot land on another hash
+# that happens to sit in the same file.
+write_src_hash() {
+	local p="$1" hex="$2" file old sri store
+	file="$(nix eval --raw ".#legacyPackages.$system.$p.meta.position")" || return 1
+	file="${file%:*}"
+	# meta.position names the file in the flake source as nix copied it into the
+	# store, which is read-only. The same path under the checkout is the one
+	# nix-update just rewrote.
+	store="$(nix flake metadata --json | jq -r .path)" || return 1
+	file="$repo_dir/${file#"$store"/}"
+	[ -f "$file" ] || { echo "[bump] $p: $file is not in the checkout" >&2; return 1; }
+	old="$(nix eval --raw ".#legacyPackages.$system.$p.src.outputHash")" || return 1
+	sri="$(nix hash convert --hash-algo sha256 --to sri "$hex")" || return 1
+	[ "$old" != "$sri" ] || return 0
+	if ! grep -qF -- "$old" "$file"; then
+		echo "[bump] $p: $file carries no src hash $old" >&2
+		return 1
+	fi
+	OLD="$old" NEW="$sri" perl -pi -e 's/\Q$ENV{OLD}\E/$ENV{NEW}/g' "$file"
+	echo "[bump] $p: src -> $sri" >&2
 }
 
 fail=()

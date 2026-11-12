@@ -14,23 +14,36 @@
   rtk,
   versionCheckHook,
   xdg-utils,
-  fetchFromGitHub,
-  # The icons and the licence are files of the source tree, not of the release
-  # archive, so the tagged tree is a fetchFromGitHub of its own beside the
-  # binary; passthru.bump below is what moves the asset and the tree hash in
-  # lockstep.
-  version ? "0.1.3631",
-  hash ? "sha256-SfEPpWPQwLCZixak+B/ixTfBARpOOLEqlGD10OjaxFQ=",
-  upstreamHash ? "sha256-EUTBYRKRuKUb4Ho0VwQ9LzI7SRqQjCAZCfBQcY4vLlw=",
+  # The release asset and the four files upstream keeps in the source tree
+  # rather than in it. docs/bump-packages.sh reads the release feed and hands
+  # every literal here its new value in one run, so no release has a version or
+  # a hash that can drift from the others.
+  version ? "0.1.3938",
+  hash ? "sha256-AIftHH4vbysF47dgOuyeQJR4dg5HA/1WVYqFrPGdQaM=",
+  icon256Hash ? "sha256-V0N8ZZbgWo/PxC1CiMAwqgDthraf411GTWnXAmFQxwQ=",
+  icon1024Hash ? "sha256-SdkOjSz4AFXXjmLCQj9BRo6r82SRBLBsJLleR1yFDUc=",
+  iconSvgHash ? "sha256-fT50MnUFiN0JxQqsNMF2NWQExwhiJmb8WYPxFR4mv/U=",
+  licenseHash ? "sha256-edLIREcV1LxFPsT4oKryBRpMHuWsCPW9LlhIrvh8dXI=",
 }:
 
 let
-  upstream = fetchFromGitHub {
-    owner = "yetone";
-    repo = "magpie";
-    tag = "v${version}";
-    hash = upstreamHash;
-  };
+  # fetchFromGitHub downloads the whole tree — 89MB of Go source — to reach four
+  # files that add up to 45KB, and puts ~85s and one more failure into every
+  # bump. raw.githubusercontent.com serves those files at the tag instead. They
+  # were byte-identical across every release measured (300 of them, v0.1.3631 to
+  # v0.1.3930), so their hashes move far less often than the version does; the
+  # bump re-reads them anyway, in case upstream redraws an icon.
+  treeFile =
+    name: hash:
+    fetchurl {
+      url = "https://raw.githubusercontent.com/yetone/magpie/v${version}/${name}";
+      inherit hash;
+    };
+
+  license = treeFile "LICENSE" licenseHash;
+  icon256 = treeFile "internal/gui/icon-256.png" icon256Hash;
+  icon1024 = treeFile "internal/gui/icon-1024.png" icon1024Hash;
+  iconSvg = treeFile "build/icon/magpie.svg" iconSvgHash;
 
   runtimeLibs = [
     gtk3
@@ -105,34 +118,49 @@ stdenv.mkDerivation {
     runHook preInstall
 
     install -Dm755 $src $out/bin/magpie
-    install -Dm644 ${upstream}/internal/gui/icon-256.png \
-      $out/share/icons/hicolor/256x256/apps/magpie.png
-    install -Dm644 ${upstream}/internal/gui/icon-1024.png \
-      $out/share/icons/hicolor/1024x1024/apps/magpie.png
-    install -Dm644 ${upstream}/build/icon/magpie.svg \
-      $out/share/icons/hicolor/scalable/apps/magpie.svg
-    install -Dm644 ${upstream}/LICENSE $out/share/licenses/magpie/LICENSE
+    install -Dm644 ${license} $out/share/licenses/magpie/LICENSE
+    install -Dm644 ${icon256} $out/share/icons/hicolor/256x256/apps/magpie.png
+    install -Dm644 ${icon1024} $out/share/icons/hicolor/1024x1024/apps/magpie.png
+    install -Dm644 ${iconSvg} $out/share/icons/hicolor/scalable/apps/magpie.svg
 
     runHook postInstall
   '';
+
+  # nix-update's --custom-dep takes a flat attribute path and prefetches
+  # ${drv}.${name}.outputHash, so the four tree files have to be attributes of
+  # the derivation. installPhase reads the let-bindings above, not these.
+  inherit
+    icon256
+    icon1024
+    iconSvg
+    license
+    ;
 
   doInstallCheck = true;
   nativeInstallCheckInputs = [ versionCheckHook ];
 
   passthru = {
-    # nix-update's --custom-dep upstream rewrites the tree hash beside the
-    # asset hash in the same file, so one bump moves the whole release.
-    inherit upstream;
-
-    # Upstream pushes the tag before GitHub publishes the release, and the atom
-    # feed counts a bare tag: only the Releases API sees a release. --build
-    # runs versionCheckHook at bump time, so a CDN that still serves the
-    # previous asset under the new tag fails here instead of at switch time.
+    # The feed carries the release's version and every asset's SHA-256 in one
+    # answer, and signs the release's SHA256SUMS from 0.1.3862 on. Reading it
+    # drops both of this package's old bump costs: the 89MB tree (gone with
+    # fetchFromGitHub above) and the 82MB asset that nix-update prefetched to
+    # re-derive a hash the feed already states.
+    #
+    # --no-src is what stops that prefetch; docs/bump-packages.sh writes src's
+    # hash from the feed instead. The tree files still go through nix-update,
+    # which prefetches each of them: 45KB in total.
     bump = [
+      "--no-src"
+      "--bump-feed=https://usemagpie.ai/api/latest"
+      "--bump-asset=magpie-linux-amd64"
       "--custom-dep"
-      "upstream"
-      "--use-github-releases"
-      "--build"
+      "icon256"
+      "--custom-dep"
+      "icon1024"
+      "--custom-dep"
+      "iconSvg"
+      "--custom-dep"
+      "license"
     ];
   };
 
