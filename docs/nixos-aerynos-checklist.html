@@ -1,0 +1,928 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NixOS 复刻 AerynOS 特性 · 勾选清单</title>
+<style>
+  :root{
+    --bg:#0e1116; --bg2:#151a21; --bg3:#1b222b; --line:#252e3a;
+    --fg:#d7dde5; --dim:#8b97a6; --dim2:#65707e; --acc:#7fb2ff;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);
+    font:15px/1.65 -apple-system,"SF Pro Text","Segoe UI","Noto Sans CJK SC","PingFang SC",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  code,pre,.mono{font-family:"JetBrains Mono","SF Mono",Menlo,Consolas,"Noto Sans Mono CJK SC",monospace}
+
+  header.top{position:sticky;top:0;z-index:50;background:rgba(14,17,22,.95);
+    backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:14px 22px 12px}
+  h1{margin:0;font-size:17px;font-weight:650;letter-spacing:.2px}
+  h1 .sub{color:var(--dim2);font-weight:400;font-size:12.5px;margin-left:10px}
+  .facts{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+  .fact{font-size:11.5px;color:var(--dim);background:var(--bg3);
+    border:1px solid var(--line);border-radius:5px;padding:2px 8px;white-space:nowrap}
+  .fact b{color:var(--fg);font-weight:600}
+  .fact.hot{border-color:#4a3c17;color:#d9b356}
+  .fact.hot b{color:#f0cd72}
+
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:11px}
+  button{font:inherit;font-size:12.5px;background:var(--bg3);color:var(--fg);
+    border:1px solid var(--line);border-radius:6px;padding:5px 11px;cursor:pointer;transition:.12s}
+  button:hover{background:#202934;border-color:#334052}
+  button.primary{background:#1d3a5c;border-color:#2c5480;color:#cfe3ff}
+  button.primary:hover{background:#234669}
+  .counter{font-size:12.5px;color:var(--dim);margin-left:auto}
+  .counter b{color:var(--acc);font-size:15px}
+  .toast{position:fixed;left:50%;bottom:78px;transform:translateX(-50%) translateY(14px);
+    background:#1d3a5c;border:1px solid #2c5480;color:#dcebff;padding:9px 18px;
+    border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:.2s;z-index:200}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  main{padding:8px 22px 150px;max-width:940px;margin:0 auto}
+  h2.grp{font-size:12px;letter-spacing:1.4px;text-transform:uppercase;color:var(--dim2);
+    margin:34px 0 10px;padding-bottom:7px;border-bottom:1px solid var(--line);font-weight:600}
+  h2.grp:first-of-type{margin-top:16px}
+  h2.grp span{color:#5a6674;text-transform:none;letter-spacing:0;margin-left:8px;font-weight:400}
+
+  article.item{background:var(--bg2);border:1px solid var(--line);border-radius:9px;
+    margin:0 0 10px;overflow:hidden;transition:.12s}
+  article.item.on{border-color:#2c5480;background:#141c26}
+  article.item.hide{display:none}
+  .head{display:flex;gap:11px;align-items:flex-start;padding:13px 15px 11px;cursor:pointer;user-select:none}
+  .head:hover{background:rgba(255,255,255,.017)}
+  .head input[type=checkbox]{appearance:none;width:17px;height:17px;flex:0 0 17px;margin:2px 0 0;
+    border:1.5px solid #3a4757;border-radius:4px;background:#0d1219;cursor:pointer;
+    position:relative;transition:.12s}
+  .head input[type=checkbox]:checked{background:var(--acc);border-color:var(--acc)}
+  .head input[type=checkbox]:checked::after{content:"";position:absolute;left:5px;top:1.5px;
+    width:4px;height:8px;border:solid #0e1116;border-width:0 2px 2px 0;transform:rotate(42deg)}
+  .titlewrap{flex:1;min-width:0}
+  .idline{font-size:10.5px;color:var(--dim2);letter-spacing:.6px;margin-bottom:2px}
+  .ttl{font-size:14.5px;font-weight:600;letter-spacing:.1px}
+  .on .ttl{color:#eaf2ff}
+  .tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+  .tag{font-size:10.5px;padding:1px 6px;border-radius:4px;border:1px solid transparent;white-space:nowrap}
+  .tag.file{background:#161c24;color:#7f8b9a;border-color:#2a3340}
+  .tag.r1{background:#122b1c;color:#68c98d;border-color:#1e4530}
+  .tag.r2{background:#2e2610;color:#d9b356;border-color:#4a3c17}
+  .tag.r3{background:#331618;color:#e0838d;border-color:#522225}
+  .tag.gain{background:#16283d;color:#84b7f0;border-color:#223a55}
+  .chev{color:var(--dim2);font-size:11px;margin-top:4px;transition:.15s;flex:0 0 auto}
+  .item.open .chev{transform:rotate(90deg)}
+
+  .body{padding:2px 16px 15px 43px;display:none}
+  .item.open .body{display:block}
+  .body p{margin:9px 0 0;font-size:13.5px;color:#c2cbd6}
+  .body p b{color:var(--fg);font-weight:600}
+  .body ul{margin:8px 0 0;padding-left:19px;font-size:13.5px;color:#c2cbd6}
+  .body li{margin:4px 0}
+  .body li b{color:var(--fg)}
+  pre{margin:10px 0 0;padding:11px 13px;background:#0a0e13;border:1px solid var(--line);
+    border-radius:7px;overflow-x:auto;font-size:12.3px;line-height:1.62;color:#b8c6d6}
+  pre .c{color:#5d6c7c}
+  pre .r{color:#e0838d}
+  .note{margin:10px 0 0;padding:9px 12px;border-radius:7px;font-size:13px;
+    background:#191d24;border-left:3px solid #334052;color:#b3bec9}
+  .note.warn{background:#211c10;border-left-color:#8a6d20;color:#d9c08a}
+  .note.bad{background:#211315;border-left-color:#7a2a30;color:#e0a0a6}
+  .note.good{background:#0f1e16;border-left-color:#2a6a44;color:#95cfae}
+  .note b{color:inherit;font-weight:600}
+  .verdict{display:inline-block;font-size:11px;padding:1px 7px;border-radius:4px;
+    margin-left:7px;font-weight:600;vertical-align:1px}
+  .v-yes{background:#122b1c;color:#68c98d}
+  .v-part{background:#2e2610;color:#d9b356}
+  .v-no{background:#331618;color:#e0838d}
+
+  .item.done{opacity:.72}
+  .item.done .ttl{text-decoration:line-through;text-decoration-color:#4a5666;text-decoration-thickness:1.5px}
+  .item.done .idline::after{content:"  ✓ 已完成";color:#68c98d;font-weight:600;letter-spacing:0}
+  .item.done .head{cursor:default}
+  .badge-done{display:inline-block;font-size:10.5px;padding:1px 7px;border-radius:4px;
+    background:#122b1c;color:#68c98d;border:1px solid #1e4530;font-weight:600;margin-left:6px}
+
+  footer{position:fixed;left:0;right:0;bottom:0;z-index:60;background:rgba(14,17,22,.97);
+    backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:11px 22px;
+    display:flex;gap:9px;align-items:center;flex-wrap:wrap;max-height:36vh;overflow:auto}
+  footer .hint{font-size:12px;color:var(--dim2);margin-left:auto;text-align:right}
+  @media(max-width:640px){
+    main{padding:8px 13px 190px} header.top{padding:12px 13px 10px}
+    .body{padding-left:16px} footer{padding:10px 13px} h1 .sub{display:none}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>NixOS 复刻 AerynOS 特性 · 勾选清单<span class="sub">勾选 → 底部复制 → 贴回对话</span></h1>
+  <div class="facts">
+    <span class="fact">主机 <b>nixos</b></span>
+    <span class="fact">CPU <b>Ryzen 7 8845H</b> Zen4 · avx512</span>
+    <span class="fact">内核 <b>7.3.3</b></span>
+    <span class="fact">systemd / boot <b>262</b></span>
+    <span class="fact">rebuild <b>nixos-rebuild-ng</b></span>
+    <span class="fact">当前世代 <b>41</b></span>
+    <span class="fact">/nix/store <b>65G</b></span>
+    <span class="fact hot">/boot <b>2.0G</b> 已用 179M</span>
+    <span class="fact">内核 <b>EROFS_FS=m</b> ✓</span>
+    <span class="fact">systemd-boot <b>✓ Boot counting</b></span>
+  </div>
+  <div class="toolbar">
+    <button id="btnExpand">展开全部</button>
+    <button id="btnCollapse">收起全部</button>
+    <button id="btnOnlySel">只看已选</button>
+    <span class="counter">已选 <b id="cnt">0</b> 项 · 已完成 <b id="doneCnt">0</b> 项</span>
+  </div>
+</header>
+
+<main id="main">
+
+<h2 class="grp">A · 启动可靠性 <span>对应 AerynOS 的 self-healing / 原子回滚</span></h2>
+
+<article class="item" data-id="A1">
+  <div class="head">
+    <input type="checkbox">
+    <div class="titlewrap">
+      <div class="idline">A1</div>
+      <div class="ttl">自动引导评估：起不来就自动跳回上一代</div>
+      <div class="tags">
+        <span class="tag file">system/boot.nix</span>
+        <span class="tag r1">风险 低</span>
+        <span class="tag gain">收益 高</span>
+        <span class="tag">纯增量</span>
+      </div>
+    </div>
+    <div class="chev">▶</div>
+  </div>
+  <div class="body">
+    <p><b>已实施。</b><code>system/boot.nix</code> 开启 boot counting，<code>tries = 3</code>，<code>configurationLimit</code> 由 3 提到 5。</p>
+    <p><b>验证方式是从构建产物里读生成的 builder</b>，不是看配置文件写了什么：</p>
+    <pre>grep 'BOOT_COUNTING\|CONFIGURATION_LIMIT' $S/boot/bin/systemd-boot
+<span class="c">BOOT_COUNTING_TRIES = "3"
+BOOT_COUNTING = "True" == "True"      # 真的开了
+CONFIGURATION_LIMIT = int("5")        # 真的改了</span></pre>
+    <p><b>为什么 configurationLimit 必须一起提到 5：</b>实测 <code>/boot</code> 是 2.0G，已用 179M，每个 initrd 约 72M。菜单只留 3 个世代时，若最新 3 个都被判 bad 就没有可回退的世代。安全值是 <code>tries + 2 = 5</code>，约 430M，仍在余量内。</p>
+    <div class="note warn"><b>要等下次写 ESP 才生效。</b>当前启动项的 <code>LoaderBootCountPath</code> EFI 变量还不存在，所以 <code>systemd-bless-boot.service</code> 的 <code>ConditionResult</code> 仍是 <code>no</code>。这是预期行为，不是配置没生效。</div>
+    <div class="note good"><b>回退：</b>把 <code>bootCounting.enable</code> 改回 false 重建。已存在的 <code>+N</code> 后缀由 builder 的 GC 清掉，不用手动动 ESP。</div>
+  </div>
+</article>
+
+<article class="item" data-id="A2">
+  <div class="head">
+    <input type="checkbox">
+    <div class="titlewrap">
+      <div class="idline">A2</div>
+      <div class="ttl">收紧「启动成功」的定义：图形会话真起来才算 good</div>
+      <div class="tags">
+        <span class="tag file">system/boot-complete.nix（新建）</span>
+        <span class="tag r2">风险 中</span>
+        <span class="tag gain">收益 高</span>
+        <span class="tag">依赖 A1</span>
+      </div>
+    </div>
+    <div class="chev">▶</div>
+  </div>
+  <div class="body">
+    <p><b>已实施，但我改掉了原方案。</b></p>
+    <div class="note bad"><b>原方案在这台机器上会每次开机都失败。</b>原计划用「Wayland socket 存在」当判据。实测 <code>loginctl show-session 1</code> 是 <code>Service=login TTY=tty1 Type=wayland</code>，而 <code>Linger=no</code>、没有 <code>display-manager.service</code>、<code>getty@tty1</code> 才是登录入口。<b>开机时没人登录就没有 Wayland socket</b>，判据会一次都过不了，boot counting 会在三次后把这个世代永久跳过。</div>
+    <p>改成等两件开机时本来就该存在的东西：</p>
+    <ul>
+      <li><code>/dev/dri/card*</code> 存在 —— 显卡驱动起来了</li>
+      <li><code>getty@tty1.service</code> 是 active —— 登录提示起来了</li>
+    </ul>
+    <p>60 秒内等到就放行，超时就 <code>exit 1</code>，<code>boot-complete.target</code> 不可达，这一代不被 bless，计数递减。</p>
+    <pre><span class="c"># system/boot-complete.nix（新建，已 import 进 system/init.nix）</span>
+for _ in $(seq 60); do
+  if ls /dev/dri/card* > /dev/null 2>&1 \
+    &amp;&amp; [ "$(systemctl is-active getty@tty1.service)" = active ]
+  then exit 0; fi
+  sleep 1
+done
+exit 1</pre>
+    <p><b>unit 的三个关键设置</b>（都已从产物里确认）：</p>
+    <pre>requiredBy = [ "boot-complete.target" ];   <span class="c"># 生成 .requires 软链</span>
+before     = [ "boot-complete.target" ];
+unitConfig.DefaultDependencies = false;   <span class="c"># 否则被排到 multi-user 之后，绕开判据</span></pre>
+    <div class="note warn"><b>踩到两个坑，都已修好：</b>
+      <ul>
+        <li>第一版用 <code>compgen -G</code> 检查设备。实测 <code>pkgs.bash</code> 编译时不带 programmable completion，<code>compgen: command not found</code>，脚本 60 秒后必然失败 —— 而失败方向是「永远判 bad」，比不装还糟。改成 <code>ls</code>。</li>
+        <li>Nix 字符串里 <code>${#cards[@]}</code> 会和插值语法冲突，不能这么写。</li>
+      </ul>
+    </div>
+    <p><b>验证：</b>在健康系统上跑它，退出码 0 且 stderr 为空（都实测通过）。</p>
+  </div>
+</article>
+
+<article class="item" data-id="A3">
+  <div class="head">
+    <input type="checkbox">
+    <div class="titlewrap">
+      <div class="idline">A3</div>
+      <div class="ttl">把「有 failed unit」也算作启动失败</div>
+      <div class="tags">
+        <span class="tag file">system/boot-complete.nix</span>
+        <span class="tag r3">风险 高</span>
+        <span class="tag gain">收益 低</span>
+        <span class="tag">我建议跳过</span>
+      </div>
+    </div>
+    <div class="chev">▶</div>
+  </div>
+  <div class="body">
+    <p>systemd 自带一个示例 unit：<code>systemd-boot-check-no-failures.service</code>，逻辑就是「有 failed unit 就不让 boot-complete 达成」。它是 upstream 自带但<b>默认不启用</b>的。</p>
+    <pre>systemd.additionalUpstreamSystemUnits = [
+  "systemd-boot-check-no-failures.service"
+];
+systemd.targets.boot-complete.wants = [
+  "systemd-boot-check-no-failures.service"
+];</pre>
+    <p>两个 option 我都实测过能正常求值、无 assertion 失败。</p>
+    <div class="note bad"><b>我标注「建议跳过」的理由，请自己权衡：</b>
+      <ul>
+        <li>这是「任一 failed unit 即回滚」的极端策略。笔记本上偶发失败的单元太多：蓝牙固件没加载、NTFS 挂载、tlp、zed 之类，都会误伤。</li>
+        <li>你的 <code>system/hardware.nix</code> 挂了两个 ntfs3 分区（<code>/mnt/windows</code> 有 nofail + automount，<code>/mnt/data</code> <b>没有 nofail</b>）—— 后者一旦某次启动时 NTFS dirty 就会 failed，白白消耗一次 try。</li>
+        <li>upstream 自己的 man page 就写着：<i>"this service is probably not suitable for deployment in most scenarios … primarily useful only as example"</i>。</li>
+      </ul>
+      <b>结论：A2 已经覆盖了真正关心的「桌面起不来」，A3 只是噪声放大器。</b>除非你想要「任何异常都不算成功」的洁癖语义。
+    </div>
+  </div>
+</article>
+
+<article class="item" data-id="A4">
+  <div class="head">
+    <input type="checkbox">
+    <div class="titlewrap">
+      <div class="idline">A4</div>
+      <div class="ttl">「整次更新推迟到一次用户态重启」的工作流（soft-reboot）</div>
+      <div class="tags">
+        <span class="tag file">justfile</span>
+        <span class="tag r1">风险 低</span>
+        <span class="tag gain">收益 中</span>
+        <span class="tag">不改系统，只加命令</span>
+      </div>
+    </div>
+    <div class="chev">▶</div>
+  </div>
+  <div class="body">
+    <p>这是对 AerynOS「内核级瞬时原子切换」在 NixOS 上能给出的<b>最接近的工程近似</b> —— 换用法，不换实现。</p>
+    <p><b>实测前提：</b>你机器上 <code>soft-reboot.target</code> 与 <code>systemd-soft-reboot.service</code> 已经是 <code>linked</code> 状态（nixpkgs PR #514100 已合入），可以直接用；<code>nixos-rebuild</code> 已经是 <code>nixos-rebuild-ng</code>。</p>
+    <div class="note bad"><b>先说一个关键坑：</b>nixpkgs <b>没有</b>实现 <code>/run/nextroot</code> 的准备（我 grep 过 <code>nixos/</code> 全树，零命中；对应的 PR #309911 仍是 draft）。所以裸跑 <code>nixos-rebuild boot</code> + <code>systemctl soft-reboot</code> <b>不会切到新世代</b>，只是把用户态重启回同一个世代。必须自己把 <code>/run/nextroot</code> 指过去。</div>
+    <pre>soft-reboot:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    nh os boot .
+    <span class="c"># soft-reboot 会 chroot 到 /run/nextroot —— 必须先指向新世代</span>
+    sudo rm -rf /run/nextroot
+    sudo ln -sfn "$(readlink -f /nix/var/nix/profiles/system)" /run/nextroot
+    sudo systemctl soft-reboot</pre>
+    <p><b>能省多少：</b>你实测 <code>systemd-analyze</code> 是 <code>firmware 7.973s + loader 5.556s + kernel 2.537s + initrd 3.904s ≈ 20s</code>，全部跳过，只剩 <code>userspace 6.281s</code>。</p>
+    <div class="note"><b>语义差异必须清楚：</b>你的会话是 <code>tty1 → login → fish → mango</code>（实测 <code>login</code> 是 PID 1 的子进程）。soft-reboot 会 SIGTERM 然后 SIGKILL 所有用户态进程，所以<b>所有终端、GUI、编辑器都会被杀</b>。它等价于「注销并重新登录」，而不是 AerynOS 那种「进程不感知地换根」。真正不感知的换根 NixOS 做不到。</div>
+  </div>
+</article>
+
+<h2 class="grp">B · 第三方二进制兼容 <span>对应 AerynOS 的原生 FHS / hermetic /usr</span></h2>
+
+<article class="item" data-id="B1">
+  <div class="head">
+    <input type="checkbox">
+    <div class="titlewrap">
+      <div class="idline">B1</div>
+      <div class="ttl">扩充 nix-ld 的默认库集</div>
+      <div class="tags">
+        <span class="tag file">system/nix-ld.nix</span>
+        <span class="tag r1">风险 极低</span>
+        <span class="tag gain">收益 中</span>
+        <span class="tag">已有基础</span>
+      </div>
+    </div>
+    <div class="chev">▶</div>
+  </div>
+  <div class="body">
+    <p><b>已实施。</b><code>system/nix-ld.nix</code> 的 <code>libraries</code> 追加 21 个包，覆盖 SDL2 全家、GL/GLU、Vulkan、xkbcommon、字体栈、X11、音频。</p>
+    <pre>programs.nix-ld.libraries = with pkgs; [
+  SDL2 SDL2_image SDL2_mixer SDL2_ttf
+  libGL libGLU vulkan-loader libxkbcommon
+  freetype fontconfig libpng libjpeg
+  icu sqlite
+  libX11 libXext libXrandr libXi libXcursor
+  libpulseaudio alsa-lib
+];</pre>
+    <p><b>验证：</b>构建后 <code>/run/current-system/sw/share/nix-ld/lib</code> 里有 275 个条目，逐个确认了 <code>libSDL2</code>、<code>libGL.so</code>、<code>libvulkan</code>、<code>libxkbcommon</code>、<code>libicu</code>、<code>libsqlite3</code>、<code>libasound</code>、<code>libX11</code>、<code>libXcursor</code> 都在。</p>
+    <div class="note"><b>磁盘成本接近 0。</b>这些库与系统里已有的同款包共享 store 路径。唯一风险是 <code>NIX_LD_LIBRARY_PATH</code> 变长后，某个程序可能加载到非预期的库版本，出问题的表现是「一个程序跑不起来」，不是系统级故障。</div>
+  </div>
+</article>
+
+<article class="item" data-id="B2">
+  <div class="head">
+    <input type="checkbox">
+    <div class="titlewrap">
+      <div class="idline">B2</div>
+      <div class="ttl">envfs：把 /bin 与 /usr/bin 变成动态 FHS 视图</div>
+      <div class="tags">
+        <span class="tag file">system/envfs.nix（新建）</span>
+        <span class="tag r2">风险 中</span>
+        <span class="tag gain">收益 高</span>
+        <span class="tag">改动 /bin 挂载</span>
+      </div>
+    </div>
+    <div class="chev">▶</div>
+  </div>
+  <div class="body">
+    <p><b>这是清单里「最像 AerynOS」的一项。</b>AerynOS 的 <code>/usr/bin</code> 是真的，NixOS 上 <code>/usr/bin</code> 目前是空目录（我实测：<code>/usr</code> 下只有 <code>bin/</code>，而 <code>/usr/bin</code> 是空的；<code>/bin</code> 里只有 <code>sh → bash</code> 一个符号链接）。</p>
+    <p><code>services.envfs.enable = true;</code>（我确认此 option 在你当前 nixpkgs 中存在，默认 false）会挂一个 FUSE 文件系统：</p>
+    <ul>
+      <li>把 <code>/usr/bin</code> 挂成 envfs，内容 = 「<b>发起请求的进程的 PATH</b> 里所有可执行文件」的符号链接</li>
+      <li>把 <code>/bin</code> bind-mount 到 <code>/usr/bin</code></li>
+      <li>顺手把 <code>usrbinenv</code> 和 <code>binsh</code> 的激活脚本清空（模块内部 <code>mkForce ""</code>），并在 initrd 里预建 <code>/sysroot/usr/bin</code> 和 <code>/sysroot/bin</code> 目录，避免 switch-root 时因为 <code>/usr</code> 为空而 fatal</li>
+    </ul>
+    <p><b>解决了什么：</b>那些写死 <code>#!/usr/bin/python3</code>、<code>#!/bin/bash</code>、<code>#!/usr/bin/env node</code> 的脚本可以直接跑，不需要 patchShebangs。这是 AerynOS 用户根本不会遇到的痛。</p>
+    <div class="note warn"><b>为什么标"风险 中"：</b>
+      <ul>
+        <li>它改的是 <code>/bin</code> 和 <code>/usr/bin</code> 的挂载方式，属于「系统底层布局」级别改动。模块里那段 initrd tmpfiles 的注释明确写了这是在绕开 systemd 的 <code>Refusing to run in unsupported environment where /usr/ is not populated</code> —— 说明这块有过历史血泪。</li>
+        <li>FUSE 需要 <code>/dev/fuse</code> 可用，且挂载带 <code>nofail</code>，失败会静默降级（不致命，但也意味着你可能没察觉它没生效）。</li>
+        <li>你用的是 <b>systemd-initrd（scripted initrd 已移除）</b>，模块里有专门的 <code>boot.initrd.systemd.tmpfiles.settings</code> 分支处理这种情况，属于适配路径，不是主路径。</li>
+      </ul>
+      <b>建议：单独一次 rebuild 只加这一项，确认能正常开机后再叠加别的。</b>
+    </div>
+    <p><b>验证：</b>重建后 <code>ls -l /usr/bin/bash</code> 应能解析到某个 store 路径；<code>findmnt /usr/bin</code> 应显示 <code>fuse.envfs</code>。</p>
+  </div>
+</article>
+
+<article class="item" data-id="B3">
+  <div class="head">
+    <input type="checkbox">
+    <div class="titlewrap">
+      <div class="idline">B3</div>
+      <div class="ttl">补齐 FHS 沙盒工具链：appimage-run / steam-run</div>
+      <div class="tags">
+        <span class="tag file">system/fhs-compat.nix ✅</span>
+        <span class="tag r1">风险 极低</span>
+        <span class="tag gain">收益 中</span>
+        <span class="tag">纯加包</span>
+      </div>
+    </div>
+    <div class="chev">▶</div>
+  </div>
+  <div class="body">
+    <p><b>已实施。</b>新建 <code>system/fhs-compat.nix</code>，已 import 进 <code>system/init.nix</code>：</p>
+    <pre>environment.systemPackages = with pkgs; [
+  appimage-run       <span class="c"># ./Foo.AppImage 直接跑</span>
+  steam-run-free     <span class="c"># 通用 FHS 沙盒，不带 steam 授权</span>
+];</pre>
+    <div class="note warn"><b>一个容易看错的地方：</b><code>steam-run-free</code> 这个包安装出来的可执行文件名叫 <code>steam-run</code>，不是 <code>steam-run-free</code>（实测 <code>$S/sw/bin/</code> 里只有 <code>steam-run</code>）。我第一次验证时按包名找文件，误判成缺失。用 <code>which steam-run</code> 确认。</div>
+    <p><b>验证：</b><code>appimage-run</code> 与 <code>steam-run</code> 都在 <code>sw/bin</code> 里，且 <code>steam-run</code> 是真正的 bwrap 沙盒脚本（含 <code>ro_mounts=()</code> 那套挂载逻辑），不是空壳。</p>
+    <div class="note"><b>和 AerynOS 的差距没变：</b>AerynOS 是同一份真实文件同时满足 FHS 和原子性；这里是 FHS 视图加补丁加沙盒。行为等价，机制不同。沙盒里的程序看不到 host 的 <code>/etc</code>，某些要读系统配置的软件会另起炉灶。</div>
+  </div>
+</article>
+
+<h2 class="grp">C · /etc 归用户 <span>对应 AerynOS 的 stateless / 无三方合并冲突</span></h2>
+
+<article class="item" data-id="C1">
+  <div class="head">
+    <input type="checkbox">
+    <div class="titlewrap">
+      <div class="idline">C1</div>
+      <div class="ttl">/etc 改为 overlayfs + 可写 upperdir</div>
+      <div class="tags">
+        <span class="tag file">system/etc-overlay.nix（新建）</span>
+        <span class="tag r2">风险 中</span>
+        <span class="tag gain">收益 高</span>
+        <span class="tag">标记 experimental</span>
+      </div>
+    </div>
+    <div class="chev">▶</div>
+  </div>
+  <div class="body">
+    <p>这是 NixOS 上最接近 AerynOS「<code>/etc</code> 100% 归用户、永不产生 <code>.rpmnew</code> 冲突」的机制。</p>
+    <p><b>你当前的 /etc 状态（实测）：</b>几乎全是 <code>→ /etc/static/...</code> 的符号链接，<code>/etc/static → /nix/store/qwqr7pp...-etc/etc</code>，也就是只读的 store 路径。<code>/etc/static</code> 根本不在 store 目录内部（我确认过它不存在），它是<b>由激活脚本现场创建的软链</b>。所以你写不进任何受管文件。</p>
+    <pre>system.etc.overlay = {
+  enable = true;    <span class="c"># 默认 false</span>
+  mutable = true;   <span class="c"># 默认 true —— 挂可写 upperdir</span>
+};</pre>
+    <p><b>开启后的语义：</b></p>
+    <ul>
+      <li>Nix 生成的 <code>/etc</code> 变成 overlay 的 <b>lowerdir</b>（只读，位于 <code>/.rw-etc/</code> 之外的 erofs 元数据镜像 + basedir）</li>
+      <li>你的手改落在 <b><code>/.rw-etc/upper</code></b>（可写、跨 reboot 保留）</li>
+      <li>升级时 Nix 改 lowerdir，你的改动仍在，<b>不会覆盖也不会冲突</b></li>
+      <li>切世代时 overlay 被 <b>原子替换</b>，且 upperdir 里改过的文件不会被新下层覆盖（官方文档原话：<i>"files that have been modified will NOT be overwritten"</i>）</li>
+      <li>想回默认：删掉 <code>/.rw-etc/upper</code> 里那个文件即可 —— 这就是 AerynOS 的「删 /etc 配置 → factory default」</li>
+    </ul>
+    <p><b>顺带收益：</b>官方文档说能省掉 perl 依赖、激活快几秒。</p>
+    <div class="note warn"><b>硬前提，我已逐条在你的配置上验证：</b>
+      <ul>
+        <li>内核 ≥ 6.6 —— 你是 <b>7.3.3</b> ✓</li>
+        <li><code>CONFIG_EROFS_FS</code> —— 你是 <code>=m</code> ✓，模块会自动加进 <code>boot.initrd.availableKernelModules</code>（我实测求值后 <code>erofs</code> 确实在列表里）</li>
+        <li>需要 <code>overlay</code> + <code>loop</code> 进 initrd —— 模块自动处理 ✓</li>
+        <li><code>!mutable</code> 时才需要 <code>systemd.sysusers</code> 或 <code>services.userborn</code>；你 <code>mutable = true</code>，两个都是 false 也不触发（我把 1845 条 assertion 全求真，<b>零失败</b>）</li>
+      </ul>
+    </div>
+    <div class="note bad"><b>必须知情的两个坑：</b>
+      <ul>
+        <li>nixpkgs 把这个 option 标注为 <b>experimental</b>，原文：<i>"Only enable this option if you're confident that you can recover your system if it breaks."</i> 万一 <code>/etc</code> 挂不上，你得会进 initrd/救援 shell。</li>
+        <li>你的 <code>system/network.nix</code> 里有 <code>environment.etc."resolv.conf".source = "/run/NetworkManager/resolv.conf";</code> 和 <code>keyfile.path</code> 指向 <code>/var/lib/nixos/...</code>。overlay 之后 <code>/etc/resolv.conf</code> 会是指向 <code>/run/...</code> 的 <b>lowerdir 软链</b>，行为正常；但如果你以后手改了 <code>/etc/resolv.conf</code>，那份改动会进 upperdir <b>永久盖住</b> NetworkManager 的写入 —— 这正是你想要的语义，只是要心里有数。</li>
+        <li>和 AerynOS 的剩余差距：AerynOS 是「<b>打包层面禁止</b>包写 /etc」；NixOS 是「<b>运行时覆盖</b>」。约束力不同 —— 你的 <code>environment.etc</code> 声明仍然生效，只是被 overlay 挡住。</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<article class="item" data-id="C2">
+  <div class="head">
+    <input type="checkbox">
+    <div class="titlewrap">
+      <div class="idline">C2</div>
+      <div class="ttl">impermanence：tmpfs root + 白名单持久化</div>
+      <div class="tags">
+        <span class="tag file">flake.nix（新增 input）+ system/</span>
+        <span class="tag r3">风险 高</span>
+        <span class="tag gain">收益 低</span>
+        <span class="tag">改动巨大</span>
+      </div>
+    </div>
+    <div class="chev">▶</div>
+  </div>
+  <div class="body">
+    <p>AerynOS 的 stateless 是「包不能写 /etc 和 /var」；NixOS 上最激进的对应物是 <code>nix-community/impermanence</code> 或 <code>anna328p/intransience</code>（后者明确声明兼容 <code>system.etc.overlay</code>，用 <code>systemd-tmpfiles</code> 而非自定义脚本）。</p>
+    <p>做法：root 挂 tmpfs，每次开机从 store 重新铺开；只有白名单里的路径绑到真实磁盘。</p>
+    <div class="note bad"><b>我标"风险 高 / 收益 低"，理由很实在：</b>
+      <ul>
+        <li>它要动 <code>fileSystems."/"</code>，也就是 <code>system/hardware-configuration.nix</code> 里那条 ext4 root。改坏了是<b>开不了机</b>，且不是 boot counting 能救的那种（root 挂不上属于 initrd 阶段失败）。</li>
+        <li>你机器上已经积累了大量 <code>/var</code> 状态：<code>/var/lib/nixos/networkmanager/system-connections</code>、<code>/var/lib/nixos/user-password-hash</code>（你的 <code>users.nix</code> 依赖它）、gnome-keyring、tuned、docker 之类。白名单要一条条补，漏一个就是数据丢失。</li>
+        <li>你的 <code>/</code> 是 196G 用了 119G（68G 余量），<b>没有磁盘空间压力</b>，而 tmpfs root 要吃掉一部分 RAM（你 22G 内存，已用 8.6G）。收益不明确。</li>
+        <li>和 AerynOS 的差距：AerynOS 的 stateless 是「<b>进程写 /usr 会被下次更新回滚</b>」，这是打包约束，不是「开机清空」。impermanence 是另一种东西（安全性取向），语义并不等价。</li>
+      </ul>
+      <b>除非你有明确的安全诉求（防取证、防持久化攻击），否则我建议这一项留在清单外。</b>
+    </div>
+  </div>
+</article>
+
+<h2 class="grp">D · 性能与缓存 <span>对应 AerynOS 的全发行版 x86-64-v3 / LTO / 文件级 CAS</span></h2>
+
+<article class="item" data-id="D1">
+  <div class="head">
+    <input type="checkbox">
+    <div class="titlewrap">
+      <div class="idline">D1</div>
+      <div class="ttl">内核换成 CachyOS LTO + znver4 变体</div>
+      <div class="tags">
+        <span class="tag file">flake.nix（新增 input）+ system/boot.nix</span>
+        <span class="tag r2">风险 中</span>
+        <span class="tag gain">收益 高</span>
+        <span class="tag">有现成缓存</span>
+      </div>
+    </div>
+    <div class="chev">▶</div>
+  </div>
+  <div class="body">
+    <p><b>这是唯一一项「不编译就能拿到优化二进制」的性能改动</b>，性价比最高。</p>
+    <p>你现在的 <code>system/boot.nix</code> 用 <code>pkgs.linuxPackages_latest</code>（7.3.3）扩展出 <code>zenpower</code>。nixpkgs 里没有 <code>linux_cachyos</code>（我查过 <code>pkgs/os-specific/linux/kernel/</code> 与 <code>all-packages.nix</code>，只有 <code>latest / testing / xanmod / zen</code>）。所以要走 <code>xddxdd/nix-cachyos-kernel</code> flake，它提供：</p>
+    <pre>linux-cachyos-latest
+linux-cachyos-latest-lto
+linux-cachyos-latest-x86_64-v3
+linux-cachyos-latest-x86_64-v4      <span class="c"># ← 你的 8845H 支持 avx512，可以吃这个</span>
+linux-cachyos-latest-zen4
+linux-cachyos-latest-lto-x86_64-v4
+…</pre>
+    <p>你的 CPU 实测 flags 含 <code>avx512f avx512dq avx512ifma avx512cd avx512bw avx512vl avx512vbmi avx512_vnni avx512_bfloat16 …</code>，是完整 Zen4，<b>可以上 <code>-x86_64-v4</code> 或 <code>-zen4</code> 变体</b>。</p>
+    <pre><span class="c"># flake.nix</span>
+nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel";
+nix-cachyos-kernel.inputs.nixpkgs.follows = "nixpkgs";
+
+<span class="c"># system/boot.nix</span>
+boot.kernelPackages =
+  inputs.nix-cachyos-kernel.packages.${pkgs.stdenv.hostPlatform.system}.linux-cachyos-latest-lto-zen4;</pre>
+    <div class="note warn"><b>两个必须注意的点：</b>
+      <ul>
+        <li>你的 <code>kernelPackages.extend</code> 里那段 <code>zenpower</code> override（注释提到 NixOS/nixpkgs#575192 的 <code>.ko.cer</code> 聚合问题）是绑在 <code>linuxPackages_latest</code> 上的，换 kernel 包集后要重新验证 out-of-tree 模块能否编译 —— 换句话说 <b>这一次 rebuild 很可能需要真编译</b>，不是纯下载。</li>
+        <li>换内核 = 新 boot entry = 新 initrd（约 72M）。确认 <code>/boot</code> 有空间（现在 179M/2.0G，够）。</li>
+      </ul>
+    </div>
+    <div class="note"><b>更保守的替代：</b>只开 <code>linuxPackages_zen</code>（nixpkgs 自带、cache.nixos.org 有缓存、零编译），性能收益小一些但完全无风险。我可以把 D1 拆成「D1a 保守版 / D1b 激进版」两档。</div>
+  </div>
+</article>
+
+<article class="item" data-id="D2">
+  <div class="head">
+    <input type="checkbox">
+    <div class="titlewrap">
+      <div class="idline">D2</div>
+      <div class="ttl">全系统按 znver4 编译（gcc.arch / gcc.tune）</div>
+      <div class="tags">
+        <span class="tag file">system/nix.nix 或新文件</span>
+        <span class="tag r3">风险 高</span>
+        <span class="tag gain">收益 高</span>
+        <span class="tag">等于全量重编译</span>
+      </div>
+    </div>
+    <div class="chev">▶</div>
+  </div>
+  <div class="body">
+    <p>这是 AerynOS「官方仓库就是优化过的二进制」在 NixOS 上最直接的对位，但代价完全不同。</p>
+    <pre>nixpkgs.hostPlatform = {
+  system   = "x86_64-linux";
+  gcc.arch = "znver4";   <span class="c"># 或保守用 "x86-64-v3" / "x86-64-v4"</span>
+  gcc.tune = "znver4";
+};</pre>
+    <p><b>我实测过这条能正常求值</b>：<code>gcc.arch</code> 变成 <code>znver4</code>，并且 <code>system-features</code> 自动推导成 <code>[… "gccarch-znver4" "gccarch-znver3" "gccarch-x86-64-v4" … "gccarch-x86-64"]</code> 一长串 inferior 集合 —— 也就是说你的机器被声明为「能构建所有 znver4 及其下级的 derivations」。</p>
+    <p>nixpkgs 的 <code>architectures.nix</code> 里 <code>znver4</code> 的定义是 <code>znver3 ∪ x86-64-v4</code>，而 <code>cc-wrapper</code> 的 <code>isGccArchSupported</code> 表格里 <code>znver4</code> 需要 GCC ≥ 13（clang 需 ≥ 16），当前 nixpkgs 的 GCC 满足，所以 <code>-march=znver4</code> 会真的被传下去。</p>
+    <div class="note bad"><b>这是整个清单里代价最大的一项，请务必理解：</b>
+      <ul>
+        <li><b>换掉整个 stdenv 的 hash</b>，<code>cache.nixos.org</code> 对几乎所有包失效。第一次等于<b>全量源码编译</b>：GCC、LLVM、Rust、Firefox/Chromium、整个 KDE/GNOME 栈。</li>
+        <li>你机器是 <b>16 核 Ryzen 7 8845H，22G 内存（已用 8.6G，14G available）</b>。全量编译大概率要跑 <b>十几小时到一天</b>，且内存会成为瓶颈（<code>max-jobs = 16</code> 时并行编译 GCC/LLVM 容易 OOM）。</li>
+        <li>编译产物<b>只有你自己能用</b>，社区缓存帮不上，每次 <code>nix flake update</code> 后新增的包还要再编。</li>
+        <li>收益：AerynOS 宣称 x86-64-v3 相对 v1 有 5–20% 提升（这是 CachyOS 的数据）。但对日常桌面任务，感知通常远小于这个数字。</li>
+      </ul>
+    </div>
+    <div class="note good"><b>如果要做，正确的顺序是：</b>
+      <ol>
+        <li>先做 <b>D3</b>（自建 attic 缓存），否则每次 rebuild 都是灾难。</li>
+        <li>先只对<b>少数几个包</b>用 <code>.override</code> 或 <code>mkNixpkgs</code> 局部优化，验证收益是否值得。</li>
+        <li>真要全量，把 <code>max-jobs</code> 降到 4–6、<code>cores</code> 设 <code>0</code>，并临时加大 swap/zram。</li>
+        <li>用 <code>nixos-rebuild boot</code> 而不是 <code>switch</code>，因为全量重编译期间系统还在跑老世代。</li>
+      </ol>
+    </div>
+  </div>
+</article>
+
+<article class="item" data-id="D3">
+  <div class="head">
+    <input type="checkbox">
+    <div class="titlewrap">
+      <div class="idline">D3</div>
+      <div class="ttl">自建 atticd 二进制缓存（D2 的前置条件）</div>
+      <div class="tags">
+        <span class="tag file">system/attic.nix（新建）</span>
+        <span class="tag r2">风险 中</span>
+        <span class="tag gain">收益 中</span>
+        <span class="tag">长期基建</span>
+      </div>
+    </div>
+    <div class="chev">▶</div>
+  </div>
+  <div class="body">
+    <p>只在你决定做 D2（或频繁自编内核包）时才有必要。nixpkgs 里有完整的 <code>services.atticd</code> 模块（我确认存在，默认 false），<code>pkgs.attic-client</code> 也有。</p>
+    <p>模块的默认值很省事：<code>mode = "monolithic"</code>、<code>database.url = "sqlite:///var/lib/atticd/server.db?mode=rwc"</code>、<code>storage = { type = "local"; path = "/var/lib/atticd/storage"; }</code>，且已经带了一整套 <code>DynamicUser=true</code> + <code>PrivateTmp</code> + <code>MemoryDenyWriteExecute</code> 的加固。</p>
+    <pre>services.atticd = {
+  enable = true;
+  environmentFile = "/var/lib/atticd/env";   <span class="c"># 必填，模块里有 assertion</span>
+  settings = {
+    listen = "127.0.0.1:8080";
+    <span class="c"># 存储用默认的本地路径即可；要 S3 就覆盖整个 storage 块</span>
+  };
+};</pre>
+    <p>密钥按 assertion 提示生成：<code>openssl genrsa -traditional 4096 | base64 -w0</code>，写进那个 env 文件（<code>ATTIC_SERVER_TOKEN_RS256_SECRET=…</code>）。</p>
+    <div class="note warn"><b>几个现实问题：</b>
+      <ul>
+        <li>单机自建缓存在<b>同一台机器</b>上几乎没有收益（本机已经有的东西不需要缓存）。它真正有用的场景是「一台强机编译 + 推给笔记本」，需要两台机器。</li>
+        <li><code>/var/lib/atticd/storage</code> 会吃掉大量空间。你 <code>/nix/store</code> 已经 65G，<code>/</code> 剩 68G，全量 znver4 的缓存很可能撑爆。</li>
+        <li>更轻的替代：<code>services.nix-serve.enable</code>（nixpkgs 自带，无去重、无多租户，但零配置），适合单机/局域网。</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<article class="item" data-id="D4">
+  <div class="head">
+    <input type="checkbox">
+    <div class="titlewrap">
+      <div class="idline">D4</div>
+      <div class="ttl">把 auto-optimise-store 的「事后扫描」变成定期任务</div>
+      <div class="tags">
+        <span class="tag file">system/nix.nix</span>
+        <span class="tag r1">风险 低</span>
+        <span class="tag gain">收益 低</span>
+        <span class="tag">你已开了一半</span>
+      </div>
+    </div>
+    <div class="chev">▶</div>
+  </div>
+  <div class="body">
+    <p>你已经开了 <code>nix.settings.auto-optimise-store = true</code>。但 Nix 的去重是 <b>文件级硬链接</b>，不是 AerynOS 那种「安装时就按内容哈希落盘」的 CAS。两者的差距：</p>
+    <ul>
+      <li><b>AerynOS/moss</b>：<code>.stone</code> 包内自带去重，跨包共享未变文件；快照能低成本存在正是因为有 CAS</li>
+      <li><b>Nix</b>：寻址单位是 <b>NAR</b>（整个 derivation 输出的归档）。<code>auto-optimise-store</code> 在写入时扫描并硬链接相同文件，能省 25–35%，但<b>与世代快照无关</b>，也不减少下载量</li>
+    </ul>
+    <p>能补的一点：把完整优化也排上日程（<code>nix.optimise.automatic = true</code>，默认 false，我确认 option 存在）。</p>
+    <pre>nix.optimise = {
+  automatic = true;
+  dates = [ "03:45" ];   <span class="c"># 默认就是 03:45</span>
+};</pre>
+    <div class="note"><b>为什么收益低：</b><code>auto-optimise-store</code> 已经把「新写入」覆盖了，定期全量 <code>nix store optimise</code> 主要回收历史遗留。你的 <code>justfile</code> 里已经有 <code>gc:</code> 目标跑 <code>nix store optimise</code>，手动跑也行。<br><b>注意：</b>全量 optimise 在 65G store 上要跑几分钟且吃 IO，放凌晨合理。</div>
+  </div>
+</article>
+
+<h2 class="grp">E · 命令式体验 <span>对应 AerynOS 的「像传统包管理器」</span></h2>
+
+<article class="item" data-id="E1">
+  <div class="head">
+    <input type="checkbox">
+    <div class="titlewrap">
+      <div class="idline">E1</div>
+      <div class="ttl">comma：不用先查包名就能跑任意 nixpkgs 程序</div>
+      <div class="tags">
+        <span class="tag file">system/comma.nix（新建）</span>
+        <span class="tag r1">风险 极低</span>
+        <span class="tag gain">收益 中</span>
+        <span class="tag">纯加包</span>
+      </div>
+    </div>
+    <div class="chev">▶</div>
+  </div>
+  <div class="body">
+    <p><b>已实施，但修了上游的一个真实缺陷。</b></p>
+    <div class="note bad"><b>直接开 <code>programs.comma.enable = true</code> 是坏的。</b>我实测：nixpkgs 的 comma 模块装出来的 fish/bash/zsh 钩子全都指向<b>未包装</b>的 <code>comma</code> 二进制，而它靠 <code>~/.cache/nix-index/</code> 下的数据库解析程序名。这台机器上那个目录根本不存在，于是每次补全都变成：<br><code>nix-locate failed with: ... I/O error: No such file or directory</code><br>连 <code>comma -x hello</code> 都跑不起来，不是「找不到包」，是直接报错。</div>
+    <p><b>修法：</b>不动 comma 二进制，改为把预建数据库的路径导出成会话变量，让上游钩子原样工作。</p>
+    <pre><span class="c"># system/comma.nix（新建，已 import 进 system/init.nix）</span>
+<span class="c"># 数据库来自 nix-index-database flake；nix-locate 要的是一个名为 files 的目录</span>
+dbDir = pkgs.linkFarm "nix-index-database" { files = db; };
+
+environment.sessionVariables.NIX_INDEX_DATABASE = "${dbDir}";
+programs.comma.enable = true;</pre>
+    <p><b>为什么要 linkFarm：</b>flake 发布的 <code>nix-index-small-database</code> 是一个 1.7M 的<b>文件</b>，而 <code>nix-locate</code> 期待一个包含子项 <code>files</code> 的<b>目录</b>。直接把它当目录设进变量会失败。这一点是我实测出来的，不是文档写的。</p>
+    <p><b>验证（含反向对照）：</b></p>
+    <ul>
+      <li>构建产物 <code>/etc/set-environment</code> 里有 <code>export NIX_INDEX_DATABASE="/nix/store/...-nix-index-database"</code>，该目录下确有 <code>files</code> 软链</li>
+      <li>在一个复刻真实 <code>nixos-env-preinit.fish</code> 路径的 fish 会话里跑不存在的命令，输出 <code>No executable ... found in nix-index database</code> —— 说明钩子真的读到了库</li>
+      <li><b>去掉那个 export 再跑一次，报 <code>database does not exist</code>。</b>反向对照失败，证明起作用的正是这个变量，不是别的东西碰巧生效</li>
+      <li>真正存在的命令（如 <code>rg</code>）能正常解析出 <code>ripgrep.out</code> 并执行</li>
+    </ul>
+    <div class="note good"><b>附带收益：</b>不需要跑 <code>nix-index</code> 建库（那要下载几百 MB 索引文件，耗时几十分钟）。数据库是随 flake 锁定的 1.7M 小库，随系统一起下载。</div>
+    <div class="note"><b>代价与限制：</b>小库只含常用包的 <code>/bin</code> 索引，冷门包的程序名可能搜不到。<code>environment.sessionVariables</code> 靠 <code>/etc/set-environment</code> 下发，所以对 systemd 服务生效，但对不读该文件的场景（例如直接 <code>env -i</code> 起的进程）无效。</div>
+  </div>
+</article>
+
+<article class="item" data-id="E2">
+  <div class="head">
+    <input type="checkbox">
+    <div class="titlewrap">
+      <div class="idline">E2</div>
+      <div class="ttl">让 rebuild 更快更安静（daemon CPU 策略 + 并行度）</div>
+      <div class="tags">
+        <span class="tag file">system/nix.nix</span>
+        <span class="tag r1">风险 低</span>
+        <span class="tag gain">收益 中</span>
+        <span class="tag">纯调参</span>
+      </div>
+    </div>
+    <div class="chev">▶</div>
+  </div>
+  <div class="body">
+    <p>AerynOS 的卖点之一是「<code>moss</code> 是 Rust 写的，毫秒级」。NixOS 的 rebuild 慢主要在 evaluation，但也能压一部分。</p>
+    <p>实测你当前的 nix 配置：<code>max-jobs = 16</code>、<code>cores = 0</code>、<code>sandbox = true</code>、<code>eval-cache = true</code>（已开）、<code>auto-optimise-store = true</code>。</p>
+    <pre>nix.daemonCPUSchedPolicy = "batch";   <span class="c"># 默认 "other"；让 nix-daemon 降低抢占，桌面不卡</span>
+nix.settings = {
+  max-jobs = 8;      <span class="c"># 你有 16 线程但只有 22G 内存（已用 8.6G）</span>
+  cores = 0;         <span class="c"># 已默认，等于用满每 job 的核</span>
+};</pre>
+    <div class="note warn"><b>关于 <code>max-jobs = 8</code>：</b>现在是 16，理论上并行度最高，但编译 GCC/LLVM 这类大包时 16 路并行 + 每路多线程会<b>直接 OOM</b>。这是社区里反复出现的踩坑点。8 是个更稳的默认值，具体看你 D2 要不要开。<br>这是「体验优化」不是「功能」，可跳过。</div>
+  </div>
+</article>
+
+<article class="item" data-id="E3">
+  <div class="head">
+    <input type="checkbox">
+    <div class="titlewrap">
+      <div class="idline">E3</div>
+      <div class="ttl">在文档里固化成「AerynOS 式」的日常流程</div>
+      <div class="tags">
+        <span class="tag file">docs/ + justfile</span>
+        <span class="tag r1">风险 无</span>
+        <span class="tag gain">收益 中</span>
+        <span class="tag">纯文档</span>
+      </div>
+    </div>
+    <div class="chev">▶</div>
+  </div>
+  <div class="body">
+    <p><b>已实施。</b>两处改动，都不碰系统配置。</p>
+    <p><b>1. <code>justfile</code> 加四个目标</b>（已 <code>just --list</code> 与 <code>--dry-run</code> 验证能解析、命令正确）：</p>
+    <pre>just stage   <span class="c"># nh os boot .   建好并设为默认，但不激活；下次重启才变</span>
+just try     <span class="c"># nh os test .   立刻激活但不设为默认；重启自动退回</span>
+just undo    <span class="c"># nh os rollback 回到上一代并设为默认</span>
+just gens    <span class="c"># nixos-rebuild list-generations</span></pre>
+    <p><b>2. <code>docs/aerynos-workflow.md</code></b> 记下两组对照：</p>
+    <ul>
+      <li>命令对照表：<code>moss sync</code> ↔ <code>just switch</code>、<code>moss state list</code> ↔ <code>just gens</code>、<code>moss state activate N</code> ↔ <code>just undo</code>、<code>moss install foo</code> ↔ <code>nix shell nixpkgs#foo</code> 或 <code>, foo</code></li>
+      <li>为什么 <code>stage</code> 与 <code>try</code> 值得分开放：AerynOS 换 <code>/usr</code> 是原子操作，天生没有中间态；NixOS 只能用「推迟到重启」来换取同样的「要么全变要么不变」。调桌面配置时用 <code>try</code>，别用 <code>stage</code>，因为 <code>stage</code> 写进 ESP 的世代会消耗 boot counting 的次数</li>
+    </ul>
+    <div class="note good">零风险，且直接降低「在 NixOS 和 AerynOS 之间切换思维」的成本。这一项是清单里唯一不需要 rebuild 的。</div>
+  </div>
+</article>
+
+<h2 class="grp">F · 明确做不到 <span>知道边界比强行模仿更重要</span></h2>
+
+<article class="item" data-id="F1">
+  <div class="head">
+    <input type="checkbox">
+    <div class="titlewrap">
+      <div class="idline">F1</div>
+      <div class="ttl">「内核级瞬时换根、进程不感知」—— 只能写进文档当结论</div>
+      <div class="tags">
+        <span class="tag file">docs/</span>
+        <span class="tag r1">风险 无</span>
+        <span class="tag gain">收益 低</span>
+        <span class="tag">认知对齐</span>
+      </div>
+    </div>
+    <div class="chev">▶</div>
+  </div>
+  <div class="body">
+    <p>AerynOS 的做法是：新 <code>/usr</code> 在 <code>/.moss/root</code> 里建好，然后一个 <code>renameat2(..., RENAME_EXCHANGE)</code> 系统调用把它和活的 <code>/usr</code> 原地互换。NVMe 上 &lt; 1 秒，<b>已运行的进程完全不知道</b>，下次 exec 自然用新文件。</p>
+    <p>NixOS 的 <code>/run/current-system</code> 是<b>符号链接拓扑</b>，不是一棵可交换的真实目录树，所以没有对应的原子操作原语。<code>nixos-rebuild switch</code> 只能逐个改 symlink + <code>systemctl</code> 重启单元，<b>天然有中间态</b>。</p>
+    <div class="note bad"><b>这一项没有任何 workaround。</b>能选的只有：
+      <ul>
+        <li><b>接受中间态</b>：继续用 <code>switch</code>，快但有风险</li>
+        <li><b>改为全量切换</b>（A4 的 <code>boot</code> + soft-reboot）：原子但杀进程</li>
+        <li><b>换系统</b>：真的需要这个语义就去用 AerynOS / NixOS 之外的东西</li>
+      </ul>
+      这一项勾选 = 我把上面这段写进 <code>docs/nixos-vs-aerynos.md</code>，作为以后不再重复纠结的结论。
+    </div>
+  </div>
+</article>
+
+</main>
+
+<footer>
+  <button class="primary" id="btnCopy">复制勾选清单</button>
+  <button id="btnPresetSafe">推荐组合（低风险）</button>
+  <button id="btnPresetAll">全选</button>
+  <button id="btnClear">全清</button>
+  <span class="hint">勾选项会展开详情 · 复制后直接贴回对话即可</span>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  const items = Array.from(document.querySelectorAll('article.item'));
+  const cntEl = document.getElementById('cnt');
+  const doneCntEl = document.getElementById('doneCnt');
+  const toastEl = document.getElementById('toast');
+
+  // Items already implemented in this repo, marked by the page itself so the
+  // list stays useful as a record of what is left.
+  const DONE = ['A1','A2','B1','B3','E1','E3'];
+  const onlySelBtn = document.getElementById('btnOnlySel');
+  let onlySelected = false;
+
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastEl._t);
+    toastEl._t = setTimeout(() => toastEl.classList.remove('show'), 1900);
+  }
+
+  function selected(){
+    // A done item is already implemented, so it must never reach the copy
+    // payload that asks for work.
+    return items.filter(a =>
+      !a.classList.contains('done') &&
+      a.querySelector('input[type=checkbox]').checked
+    );
+  }
+
+  function markDone(){
+    items.forEach(a => {
+      const done = DONE.includes(a.dataset.id);
+      a.classList.toggle('done', done);
+      if(done){
+        const cb = a.querySelector('input[type=checkbox]');
+        cb.checked = false;
+        cb.disabled = true;
+        cb.style.visibility = 'hidden';
+      }
+    });
+    doneCntEl.textContent = items.filter(a => a.classList.contains('done')).length;
+  }
+
+  function sync(){
+    items.forEach(a => {
+      const cb = a.querySelector('input[type=checkbox]');
+      a.classList.toggle('on', cb.checked);
+      if(cb.checked) a.classList.add('open');
+    });
+    cntEl.textContent = selected().length;
+    if(onlySelected){
+      items.forEach(a => {
+        const on = a.querySelector('input[type=checkbox]').checked;
+        a.classList.toggle('hide', !on);
+      });
+    }
+    try{
+      const ids = selected().map(a => a.dataset.id);
+      localStorage.setItem('nixos-aerynos-picks', JSON.stringify(ids));
+    }catch(e){}
+  }
+
+  function restore(){
+    try{
+      const raw = localStorage.getItem('nixos-aerynos-picks');
+      if(!raw) return;
+      const ids = JSON.parse(raw);
+      items.forEach(a => {
+        if(DONE.includes(a.dataset.id)) return;
+        if(ids.includes(a.dataset.id)) a.querySelector('input[type=checkbox]').checked = true;
+      });
+    }catch(e){}
+  }
+
+  items.forEach(a => {
+    const cb = a.querySelector('input[type=checkbox]');
+    const head = a.querySelector('.head');
+    // 点标题栏 = 展开/收起详情，不改变勾选状态
+    head.addEventListener('click', ev => {
+      if(ev.target === cb){ return; }
+      a.classList.toggle('open');
+    });
+    cb.addEventListener('change', sync);
+  });
+
+  document.getElementById('btnExpand').addEventListener('click', () => {
+    onlySelected = false;
+    items.forEach(a => { a.classList.remove('hide'); a.classList.add('open'); });
+    sync();
+  });
+
+  document.getElementById('btnCollapse').addEventListener('click', () => {
+    onlySelected = false;
+    items.forEach(a => a.classList.remove('hide','open'));
+    sync();
+  });
+
+  onlySelBtn.addEventListener('click', () => {
+    onlySelected = !onlySelected;
+    onlySelBtn.textContent = onlySelected ? '显示全部' : '只看已选';
+    if(!onlySelected){
+      items.forEach(a => a.classList.remove('hide'));
+    }
+    sync();
+  });
+
+  document.getElementById('btnPresetSafe').addEventListener('click', () => {
+    const safe = ['A1','A2','B1','B3','E1','E3'];
+    items.forEach(a => {
+      const cb = a.querySelector('input[type=checkbox]');
+      cb.checked = !a.classList.contains('done') && safe.includes(a.dataset.id);
+      a.classList.remove('hide');
+    });
+    onlySelected = false;
+    onlySelBtn.textContent = '只看已选';
+    sync();
+    toast('已选低风险推荐组合（6 项）');
+  });
+
+  document.getElementById('btnPresetAll').addEventListener('click', () => {
+    items.forEach(a => {
+      a.querySelector('input[type=checkbox]').checked = !a.classList.contains('done');
+      a.classList.remove('hide');
+    });
+    onlySelected = false;
+    onlySelBtn.textContent = '只看已选';
+    sync();
+    toast('已全选剩余项（含高风险项，请重读各项的风险说明）');
+  });
+
+  document.getElementById('btnClear').addEventListener('click', () => {
+    items.forEach(a => {
+      a.querySelector('input[type=checkbox]').checked = false;
+      a.classList.remove('hide');
+    });
+    onlySelected = false;
+    onlySelBtn.textContent = '只看已选';
+    sync();
+    toast('已清空');
+  });
+
+  document.getElementById('btnCopy').addEventListener('click', async () => {
+    const sel = selected();
+    if(!sel.length){ toast('还没勾选任何项'); return; }
+    const lines = sel.map(a => {
+      const id = a.dataset.id;
+      const ttl = a.querySelector('.ttl').textContent.trim();
+      const files = Array.from(a.querySelectorAll('.tag.file')).map(t => t.textContent.trim()).join(', ');
+      return '- ' + id + ' ' + ttl + (files ? '  [' + files + ']' : '');
+    });
+    const payload = 'NixOS 复刻 AerynOS —— 我要做以下 ' + sel.length + ' 项：\n' + lines.join('\n');
+    try{
+      await navigator.clipboard.writeText(payload);
+      toast('已复制 ' + sel.length + ' 项，去贴回对话');
+    }catch(e){
+      const ta = document.createElement('textarea');
+      ta.value = payload;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      toast('已复制 ' + sel.length + ' 项（兼容模式）');
+    }
+  });
+
+  markDone();
+  restore();
+  sync();
+})();
+</script>
+</body>
+</html>
