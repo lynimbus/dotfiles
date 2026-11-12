@@ -12,6 +12,7 @@
     ./programs/zoxide.nix
     ./programs/ghostty.nix
     ./programs/hourly-chime.nix
+    ./programs/memo.nix
     ./programs/pig.nix
     ./programs/magpie.nix
     ./audio/rnnoise.nix

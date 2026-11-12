@@ -50,6 +50,10 @@ overview:
 overview-verify:
     docs/overview/verify.sh
 
+# Drive the memo commands through record, digest and search, both failure paths included
+memo-verify:
+    bash home/programs/memo-verify.sh
+
 # List the generations that `undo` can return to.
 gens:
     nixos-rebuild list-generations

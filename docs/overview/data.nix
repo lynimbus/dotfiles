@@ -70,6 +70,7 @@ let
       "shared-mime-info"
       "kbd-backlight"
       "screenshot"
+      "memo"
       "noctalia"
     ];
     network = [
