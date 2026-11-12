@@ -4,6 +4,14 @@ default:
 switch:
     nh os switch .
 
+# Make the new generation the boot default without activating it.
+stage:
+    nh os boot .
+
+# Activate now without making it the boot default, so a reboot reverts.
+try:
+    nh os test .
+
 build:
     nh os build .
 
@@ -41,6 +49,14 @@ overview:
 # package and setting. Run it after a configuration change.
 overview-verify:
     docs/overview/verify.sh
+
+# List the generations that `undo` can return to.
+gens:
+    nixos-rebuild list-generations
+
+# Return to the previous generation and make it the boot default.
+undo:
+    nh os rollback
 
 gc:
     sudo nix-collect-garbage -d --delete-older-than 3d
