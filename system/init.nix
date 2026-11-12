@@ -5,6 +5,7 @@
     ./boot-complete.nix
     ./plymouth.nix
     ./network.nix
+    ./wireshark.nix
     ./ssh.nix
     ./locale.nix
     ./fonts.nix

@@ -28,6 +28,15 @@ in
     bat
     fastfetch
     dig
+    # Network capture. tshark and dumpcap are one package (wireshark-cli), and
+    # system/wireshark.nix installs it too for the setcap wrapper that lets the
+    # wireshark group capture without root; naming it here as well is what puts
+    # it in the login profile and on the overview page. termshark is the
+    # terminal frontend for tshark, mitmproxy the HTTPS proxy for reading one
+    # connection's requests instead of the whole interface.
+    tshark
+    termshark
+    mitmproxy
     shellcheck
     libxml2
     file

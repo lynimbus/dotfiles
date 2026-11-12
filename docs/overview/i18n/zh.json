@@ -37,6 +37,7 @@
     "daily": "日常命令行",
     "desktop": "桌面",
     "dev": "开发工具链",
+    "network": "网络抓包",
     "media": "压缩与转换",
     "tooling": "由模块管理",
     "other": "其他"
@@ -164,6 +165,9 @@
     "libxml2": "供 C 使用的 XML 解析库",
     "file": "显示文件类型的工具",
     "sing-box": "通用代理平台（跟随上游不稳定预发布二进制）",
+    "wireshark-cli": "Wireshark 的命令行与抓包库：tshark 解析报文，dumpcap 负责抓取",
+    "termshark": "面向 tshark 的终端界面，操作方式照搬 Wireshark",
+    "mitmproxy": "中间人代理，把 HTTPS 连接解成明文请求逐个查看和改写",
     "noctalia": "为 Wayland 打造的精致可定制桌面外壳",
     "mango": "实用而强大的 Wayland 合成器（可以理解为 dwm 的 Wayland 版）",
     "shared-mime-info": "常见 MIME 类型数据库",

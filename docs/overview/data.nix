@@ -72,6 +72,11 @@ let
       "screenshot"
       "noctalia"
     ];
+    network = [
+      "wireshark-cli"
+      "termshark"
+      "mitmproxy"
+    ];
     media = [
       "zip"
       "unzip"
@@ -139,6 +144,7 @@ let
   sectionLabels = {
     daily = "Everyday command line";
     desktop = "Desktop";
+    network = "Network capture";
     media = "Archives and conversion";
     dev = "Development toolchain";
     agents = "Coding agents";
