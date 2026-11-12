@@ -13,6 +13,7 @@
     ./audio.nix
     ./hardware.nix
     ./users.nix
+    ./password-guard.nix
     ./secrets.nix
     ./nix.nix
     ./etc-overlay.nix
