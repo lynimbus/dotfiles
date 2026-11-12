@@ -404,6 +404,20 @@ systemd.targets.boot-complete.wants = [
     </ul>
     <div class="note bad"><b>nixpkgs 把它标为 experimental</b>，原文：<i>"Only enable this option if you're confident that you can recover your system if it breaks."</i> 万一 <code>/etc</code> 挂不上，需要能进 initrd 或救援 shell。</div>
     <div class="note warn"><b>一个需要心里有数的语义变化：</b>你的 <code>system/network.nix</code> 里 <code>/etc/resolv.conf</code> 指向 <code>/run/NetworkManager/resolv.conf</code>。overlay 之后这条软链在下层，行为正常；但如果你以后手改 <code>/etc/resolv.conf</code>，那份改动会进上层并<b>永久压住</b> NetworkManager 的写入。这正是 overlay 的语义，只是要知道。</div>
+    <div class="note bad"><b>实测被它锁在门外过一次，原因链完整可查。</b><br>
+    <code>/etc</code> 换成 overlay 时上层是<b>全新空目录</b>，旧 <code>/etc</code> 的内容<b>不会</b>迁移进来（lowerdir 是 store 里的 <code>etc-metadata.erofs</code> + <code>etc-lowerdir</code>）。所以上层 <code>/etc/shadow</code> 里最初<b>没有</b>你的账户行。<code>update-users-groups.pl</code> 于是走「新建账户」分支，取 <code>hashedPasswordFile = /var/lib/nixos/user-password-hash</code> —— 而<b>那个文件从来就不存在</b>。脚本对缺失文件只 <code>warn</code> 一句，<code>$hashedPassword</code> 保持未定义，写进 shadow 的就是默认值 <code>"!"</code>，账户被锁。<br><br>
+    老系统一直没事，是因为 <code>mutableUsers</code> 默认 true 时脚本<b>原样保留</b>已存在的 shadow 行（源码里那句赋值带 <code>&amp;&amp; !$spec-&gt;{mutableUsers}</code>），缺失的 <code>hashedPasswordFile</code> 永远轮不到生效。<br><br>
+    现象不是「起不来」，而是<b>能看到登录提示符、输密码一律认证失败</b>，journal 里是 <code>login[..]: PAM 3 more authentication failures ... user=lynimbus</code>。排查要点：<code>/.rw-etc/upper/shadow</code>（overlay 上层还留在盘上，能直接看）。修法：<br>
+    <code>sudo awk -F: '$1=="USER"{print $2}' /etc/shadow | sudo tee /var/lib/nixos/user-password-hash</code>（600 root:root），再把 <code>/.rw-etc/upper/shadow</code> 里那个 <code>!</code> 换回同一串 hash（640 root:shadow）。</div>
+    <div class="note warn"><b>副作用：machine-id 也会被重生成。</b>上层 <code>/etc/machine-id</code> 是新的随机值，于是 journal 分裂成两个目录（<code>4abe5a70…</code> → <code>2c9c99ce…</code>），<code>journalctl</code> 默认只看得到新的那份。把旧值写回 <code>/.rw-etc/upper/machine-id</code>（0444 root:root）即可恢复连续性。</div>
+    <div class="note good"><b>已加激活期守卫：<code>system/password-guard.nix</code>。</b>它排在 <code>update-users-groups.pl</code> 之前（实测 <code>activate</code> 里守卫在第 43 行、users 在第 90 行），三种情况：<br>
+    ① <code>hashedPasswordFile</code> 缺失但 <code>/etc/shadow</code> 里有可用 hash → <b>自动补写</b>那个文件，静默修好；<br>
+    ② 文件缺失且 shadow 里也是 <code>!</code> → <b>报错并把整次激活判为失败</b>（脚本照常跑完，最后以非零状态退出，所以系统不会被留在半激活状态），而不是静默把你锁在门外；<br>
+    ③ 文件在但 shadow 那行是 <code>!</code>（上次被锁的残留）→ 打警告指出 <code>sudo passwd</code>，因为 <code>mutableUsers</code> 会原样保留旧行、补文件救不回来。<br>
+    四个分支都用真实提取出的脚本体跑过，退出码与输出符合预期。</div>
+    <div class="note warn"><b>写激活脚本有一条隐藏约束：那里的 PATH 几乎是空的。</b><code>activate</code> 开头是 <code>export PATH=/empty</code>，之后只追加 coreutils、grep、findutils、getent、glibc、shadow、util-linux —— <b>没有 awk</b>。第一版守卫用 <code>awk</code> 解析 <code>/etc/shadow</code>，<code>just switch</code> 直接甩出 <code>line 75: awk: command not found</code>。<br><br>
+    <code>activate</code> 顶部另有 <code>trap "_status=1 _localstatus=$?" ERR</code>：它<b>不会</b>中断执行，只是把整次激活标记为失败、最后由 <code>exit $_status</code> 收尾。所以一行用错的命令就足以让 <code>nh</code> 报 "Activation (test) failed"，而实际上激活已经跑完了。<br><br>
+    现在的守卫只用 shell 内建（<code>read</code>、<code>printf</code>、<code>umask</code>、<code>[</code>）加参数展开 <code>''${rest%%:*}</code>，补写文件靠 <code>( umask 077; printf ... > $f )</code> 拿到 0600、属主 root，不需要 <code>install</code>/<code>chown</code>。五个分支都用 <code>env -i PATH=/empty bash</code> 复刻过，无一处 "command not found"。</div>
   </div>
 </article>
 
