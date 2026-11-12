@@ -1,0 +1,762 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>__TITLE__</title>
+    <style>
+      /* A settings-panel skin over one JSON document: the sidebar is the shelf
+         list, a card is one installed app, and the settings view is the same
+         module output the login shell and the session actually read. */
+      :root {
+        --bg: #0d0f12;
+        --bg-raised: #14171c;
+        --bg-card: #181c22;
+        --bg-card-hover: #1e232a;
+        --border: #262c35;
+        --border-strong: #333b47;
+        --fg: #e6e8eb;
+        --fg-muted: #9aa3ae;
+        --fg-dim: #69717d;
+        --accent: #a9c7ff;
+        --accent-strong: #7aa2f7;
+        --accent-wash: rgba(122, 162, 247, 0.14);
+        --local: #c8e6a0;
+        --local-wash: rgba(200, 230, 160, 0.13);
+        --radius: 14px;
+        --sidebar: 248px;
+        --mono: ui-monospace, "JetBrainsMono Nerd Font", "Maple Mono NF CN", monospace;
+      }
+      @media (prefers-color-scheme: light) {
+        :root {
+          --bg: #f7f8fa;
+          --bg-raised: #ffffff;
+          --bg-card: #ffffff;
+          --bg-card-hover: #f1f3f7;
+          --border: #e2e5ea;
+          --border-strong: #ccd1d9;
+          --fg: #171a1f;
+          --fg-muted: #5a626d;
+          --fg-dim: #858d99;
+          --accent: #2c5fb8;
+          --accent-strong: #1f4f9e;
+          --accent-wash: rgba(44, 95, 184, 0.09);
+          --local: #3f6212;
+          --local-wash: rgba(63, 98, 18, 0.1);
+        }
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        display: flex;
+        background: var(--bg);
+        color: var(--fg);
+        font: 14px/1.5 system-ui, -apple-system, "Segoe UI", "Noto Sans CJK SC", sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      code, .mono { font-family: var(--mono); font-size: 0.92em; }
+
+      /* --- sidebar --- */
+      .sidebar {
+        width: var(--sidebar);
+        flex: 0 0 var(--sidebar);
+        height: 100vh;
+        position: sticky;
+        top: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 18px 12px;
+        background: var(--bg-raised);
+        border-right: 1px solid var(--border);
+        overflow-y: auto;
+      }
+      .host { display: flex; align-items: center; gap: 10px; padding: 4px 8px 14px; }
+      .host-mark {
+        width: 34px; height: 34px; flex: 0 0 34px;
+        display: grid; place-items: center;
+        border-radius: 10px;
+        background: linear-gradient(150deg, var(--accent-strong), #5f7fd0);
+        color: #fff;
+        font-weight: 700;
+        font-size: 15px;
+      }
+      .host-name { font-weight: 650; letter-spacing: -0.01em; }
+      .host-sub { color: var(--fg-dim); font-size: 11.5px; font-family: var(--mono); }
+      .nav-label {
+        margin: 12px 8px 6px;
+        color: var(--fg-dim);
+        font-size: 10.5px;
+        font-weight: 650;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .nav-item {
+        display: flex; align-items: center; gap: 9px;
+        padding: 7px 9px;
+        border-radius: 9px;
+        color: var(--fg-muted);
+        text-decoration: none;
+        font-size: 13.5px;
+        cursor: pointer;
+        border: none; background: none; width: 100%; text-align: left;
+        font-family: inherit;
+      }
+      .nav-item:hover { background: var(--bg-card-hover); color: var(--fg); }
+      .nav-item[aria-current="true"] {
+        background: var(--accent-wash);
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .nav-item .count {
+        margin-left: auto;
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--fg-dim);
+      }
+      .nav-item[aria-current="true"] .count { color: var(--accent); }
+
+      /* --- main --- */
+      .main { flex: 1; min-width: 0; }
+      .topbar {
+        position: sticky; top: 0; z-index: 10;
+        display: flex; align-items: center; gap: 14px;
+        padding: 14px 28px;
+        background: color-mix(in srgb, var(--bg) 88%, transparent);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+      }
+      .search {
+        flex: 1; max-width: 420px;
+        display: flex; align-items: center; gap: 8px;
+        padding: 7px 11px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+      }
+      .search:focus-within { border-color: var(--border-strong); }
+      .search input {
+        flex: 1; min-width: 0;
+        background: none; border: none; outline: none;
+        color: var(--fg); font: inherit;
+      }
+      .search input::placeholder { color: var(--fg-dim); }
+      .search svg { width: 14px; height: 14px; color: var(--fg-dim); flex: 0 0 14px; }
+      .filters { display: flex; gap: 6px; }
+      .chip {
+        padding: 5px 11px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: none;
+        color: var(--fg-muted);
+        font: inherit; font-size: 12.5px;
+        cursor: pointer;
+      }
+      .chip:hover { color: var(--fg); border-color: var(--border-strong); }
+      .chip[aria-pressed="true"] {
+        background: var(--accent-wash);
+        border-color: transparent;
+        color: var(--accent);
+        font-weight: 600;
+      }
+      /* The language picker is a native select: it is keyboard reachable and
+         screen-reader labelled for free, where a hand-rolled menu would not be. */
+      .lang {
+        padding: 5px 9px;
+        border-radius: 9px;
+        border: 1px solid var(--border);
+        background: var(--bg-card);
+        color: var(--fg-muted);
+        font: inherit; font-size: 12.5px;
+        cursor: pointer;
+        max-width: 120px;
+      }
+      .lang:hover { color: var(--fg); border-color: var(--border-strong); }
+      .content { padding: 22px 28px 64px; max-width: 1180px; }
+
+      /* --- overview --- */
+      .page-title { font-size: 22px; font-weight: 650; letter-spacing: -0.02em; margin: 0 0 4px; }
+      .page-sub { color: var(--fg-muted); margin: 0 0 22px; }
+      .tiles {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 10px;
+        margin-bottom: 28px;
+      }
+      .tile {
+        padding: 13px 15px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+      }
+      .tile-value { font-size: 24px; font-weight: 650; letter-spacing: -0.02em; line-height: 1.2; }
+      .tile-label { color: var(--fg-dim); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.07em; margin-top: 3px; }
+
+      .section { margin-bottom: 30px; scroll-margin-top: 74px; }
+      .section-head { display: flex; align-items: baseline; gap: 9px; margin-bottom: 12px; }
+      .section-title { font-size: 15px; font-weight: 650; }
+      .section-count { color: var(--fg-dim); font-family: var(--mono); font-size: 11.5px; }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(268px, 1fr));
+        gap: 10px;
+      }
+      .card {
+        display: flex; gap: 12px;
+        padding: 13px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        transition: background 0.12s, border-color 0.12s;
+      }
+      .card:hover { background: var(--bg-card-hover); border-color: var(--border-strong); }
+      .card.is-local { border-color: color-mix(in srgb, var(--local) 32%, var(--border)); }
+      .icon {
+        width: 40px; height: 40px; flex: 0 0 40px;
+        border-radius: 11px;
+        display: grid; place-items: center;
+        background: var(--bg-raised);
+        border: 1px solid var(--border);
+        overflow: hidden;
+      }
+      .icon img { width: 100%; height: 100%; object-fit: contain; }
+      .icon .monogram {
+        font-weight: 650; font-size: 15px;
+        color: var(--accent);
+        font-family: var(--mono);
+        text-transform: uppercase;
+      }
+      .card-body { min-width: 0; flex: 1; overflow: hidden; }
+      .card-top { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+      .card-name { font-weight: 600; letter-spacing: -0.01em; }
+      .pill {
+        font-family: var(--mono);
+        font-size: 10.5px;
+        padding: 1px 6px;
+        border-radius: 5px;
+        background: var(--bg-raised);
+        color: var(--fg-dim);
+        border: 1px solid var(--border);
+        white-space: nowrap;
+      }
+      .pill.local {
+        background: var(--local-wash);
+        color: var(--local);
+        border-color: transparent;
+        font-weight: 600;
+      }
+      .card-desc {
+        color: var(--fg-muted);
+        font-size: 12.5px;
+        margin-top: 3px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      /* A homepage or a licence name can be longer than the card; the row wraps
+         and the link ellipsises instead of widening the page. */
+      .card-foot {
+        margin-top: 7px;
+        display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+        color: var(--fg-dim); font-size: 11px; font-family: var(--mono);
+        min-width: 0;
+      }
+      .card-foot > * { min-width: 0; max-width: 100%; }
+      .card-foot a {
+        color: var(--fg-dim); text-decoration: none;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      }
+      .card-foot a:hover { color: var(--accent); text-decoration: underline; }
+      .empty { color: var(--fg-dim); padding: 30px 0; }
+
+      /* --- settings --- */
+      .panel {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        margin-bottom: 12px;
+      }
+      .panel-head {
+        display: flex; align-items: center; gap: 9px;
+        padding: 12px 15px;
+        border-bottom: 1px solid var(--border);
+      }
+      .panel-title { font-weight: 600; }
+      .panel-tag {
+        margin-left: auto;
+        font-family: var(--mono); font-size: 11px;
+        color: var(--fg-dim);
+      }
+      .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--local); flex: 0 0 7px; }
+      .rows { display: grid; grid-template-columns: minmax(140px, 0.4fr) 1fr; }
+      .rows > div { padding: 8px 15px; border-bottom: 1px solid var(--border); font-size: 13px; }
+      .rows > div:nth-child(odd) { color: var(--fg-muted); font-family: var(--mono); font-size: 12px; }
+      .rows > div:nth-last-child(1), .rows > div:nth-last-child(2) { border-bottom: none; }
+      .val { white-space: pre-wrap; word-break: break-word; }
+      .val.bool-true { color: var(--local); }
+      .val.bool-false { color: var(--fg-dim); }
+      .kv-inline { display: flex; flex-wrap: wrap; gap: 6px; }
+      .tag {
+        padding: 2px 8px;
+        border-radius: 6px;
+        background: var(--bg-raised);
+        border: 1px solid var(--border);
+        font-family: var(--mono); font-size: 11.5px;
+        color: var(--fg-muted);
+      }
+      /* A setting whose value is a script: closed by default, because the module
+         output is mostly home-manager's own integration. */
+      details.code { display: block; }
+      details.code > summary {
+        cursor: pointer;
+        color: var(--accent);
+        font-size: 12px;
+      }
+      details.code pre {
+        margin: 7px 0 0;
+        padding: 10px 12px;
+        background: var(--bg-raised);
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        overflow-x: auto;
+        font-family: var(--mono);
+        font-size: 11.5px;
+        line-height: 1.45;
+        white-space: pre;
+      }
+      .foot {
+        margin-top: 30px; padding-top: 14px;
+        border-top: 1px solid var(--border);
+        color: var(--fg-dim); font-size: 11.5px; font-family: var(--mono);
+      }
+      @media (max-width: 780px) {
+        body { flex-direction: column; }
+        .sidebar { width: 100%; flex: none; height: auto; position: static; flex-direction: row; flex-wrap: wrap; border-right: none; border-bottom: 1px solid var(--border); }
+        .host { padding-bottom: 4px; }
+        .nav-label { display: none; }
+        .content, .topbar { padding-left: 16px; padding-right: 16px; }
+        .rows { grid-template-columns: 1fr; }
+        .rows > div:nth-child(odd) { padding-bottom: 0; border-bottom: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="host">
+        <div class="host-mark" id="host-mark">N</div>
+        <div>
+          <div class="host-name" id="host-name">nixos</div>
+          <div class="host-sub" id="host-sub"></div>
+        </div>
+      </div>
+      <div class="nav-label" id="nav-label-installed"></div>
+      <div id="nav-sections"></div>
+      <div class="nav-label" id="nav-label-system"></div>
+      <div id="nav-system"></div>
+    </aside>
+    <main class="main">
+      <div class="topbar">
+        <label class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-3.5-3.5" />
+          </svg>
+          <input id="search" type="search" autocomplete="off" spellcheck="false" />
+        </label>
+        <div class="filters">
+          <button class="chip" id="filter-all"></button>
+          <button class="chip" id="filter-local"></button>
+        </div>
+        <select class="lang" id="lang"></select>
+      </div>
+      <div class="content" id="content"></div>
+    </main>
+    <script id="overview-data" type="application/json">__DATA__</script>
+    <script id="overview-i18n" type="application/json">__I18N__</script>
+    <script>
+      const tr = JSON.parse(document.getElementById("overview-i18n").textContent);
+      const DATA = JSON.parse(document.getElementById("overview-data").textContent);
+      const content = document.getElementById("content");
+      const searchInput = document.getElementById("search");
+      const langSelect = document.getElementById("lang");
+      const state = { view: "overview", query: "", localOnly: false };
+
+      /* Locale order is the build script's order, so the picker lists them in the
+         same sequence the repository declares. */
+      const locales = Object.keys(tr);
+      const initial = locales.includes("zh") ? "zh" : locales[0];
+      let locale = initial;
+
+      const dict = () => tr[locale];
+      const interpolate = (text, vars) =>
+        vars ? text.replace(/\{(\w+)\}/g, (_, name) => (vars[name] === undefined ? "" : vars[name])) : text;
+
+      const t = (key, vars) => {
+        const raw = key.split(".").reduce((node, part) => (node == null ? undefined : node[part]), dict());
+        return interpolate(typeof raw === "string" ? raw : key, vars);
+      };
+
+      /* Setting keys already read as paths ("git.user.name"), so they are looked
+         up whole under settings rather than split into nested objects. */
+      const ts = (key) => {
+        const raw = (dict().settings || {})[key];
+        return typeof raw === "string" ? raw : key;
+      };
+
+      const stored = (() => {
+        try {
+          return window.localStorage.getItem("overview.locale");
+        } catch {
+          return null;
+        }
+      })();
+
+      const esc = (value) =>
+        String(value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+      /* Descriptions are translated where a translation exists and left in the
+         upstream language where one does not, so a package new to the flake still
+         shows a real description instead of a key. */
+      const describe = (pkg) => {
+        const translated = (dict().descriptions || {})[pkg.pname];
+        if (state.locale === "en" && pkg.description) return pkg.description;
+        return translated || pkg.description || t("card.noDescription");
+      };
+
+      const iconMark = (pkg) => {
+        if (pkg.icon) return '<img src="' + esc(pkg.icon) + '" alt="" loading="lazy" />';
+        return '<span class="monogram">' + esc(pkg.pname.replace(/^[^a-z0-9]/i, "").slice(0, 2)) + "</span>";
+      };
+
+      const card = (pkg) => {
+        const version = pkg.version ? '<span class="pill">' + esc(pkg.version) + "</span>" : "";
+        const local = pkg.local ? '<span class="pill local">' + esc(t("card.thisRepo")) + "</span>" : "";
+        const link = pkg.homepage
+          ? '<a href="' + esc(pkg.homepage) + '" target="_blank" rel="noreferrer">' + esc(pkg.homepage.replace(/^https?:\/\//, "")) + "</a>"
+          : "";
+        const licence = pkg.license && pkg.license.length ? "<span>" + esc(pkg.license.join(", ")) + "</span>" : "";
+        return (
+          '<div class="card' + (pkg.local ? " is-local" : "") + '">' +
+          '<div class="icon">' + iconMark(pkg) + "</div>" +
+          '<div class="card-body">' +
+          '<div class="card-top"><span class="card-name">' + esc(pkg.pname) + "</span>" + version + local + "</div>" +
+          '<div class="card-desc">' + esc(describe(pkg)) + "</div>" +
+          '<div class="card-foot">' + link + (link && licence ? "<span>\u00b7</span>" : "") + licence + "</div>" +
+          "</div></div>"
+        );
+      };
+
+      const tile = (value, label) =>
+        '<div class="tile"><div class="tile-value">' + esc(value) + '</div><div class="tile-label">' + esc(label) + "</div></div>";
+
+      const matches = (pkg) => {
+        if (state.localOnly && !pkg.local) return false;
+        if (!state.query) return true;
+        const hay = [pkg.pname, pkg.description || "", describe(pkg), pkg.version || ""].join(" ").toLowerCase();
+        return state.query
+          .toLowerCase()
+          .split(/\s+/)
+          .filter(Boolean)
+          .every((word) => hay.includes(word));
+      };
+
+      const renderOverview = () => {
+        const sections = DATA.sections
+          .map((section) => ({ ...section, items: section.items.filter(matches) }))
+          .filter((section) => section.items.length);
+        const shown = sections.reduce((total, section) => total + section.items.length, 0);
+        const head =
+          '<h1 class="page-title">' + esc(t("overview.title")) + "</h1>" +
+          '<p class="page-sub">' +
+          esc(t("overview.lead", { count: DATA.meta.packageCount, local: DATA.meta.localCount, host: DATA.meta.hostname })) +
+          "</p>" +
+          '<div class="tiles">' +
+          tile(DATA.meta.packageCount, t("tile.packages")) +
+          tile(DATA.meta.localCount, t("tile.local")) +
+          tile(DATA.meta.nixpkgsRev, t("tile.nixpkgs")) +
+          tile(DATA.meta.stateVersion, t("tile.state")) +
+          "</div>";
+        if (!shown) {
+          content.innerHTML = head + '<p class="empty">' + esc(t("empty.packages")) + "</p>";
+          return;
+        }
+        content.innerHTML =
+          head +
+          sections
+            .map(
+              (section) =>
+                '<section class="section" id="s-' + esc(section.id) + '">' +
+                '<div class="section-head"><span class="section-title">' +
+                esc(t("sections." + section.id)) +
+                '</span><span class="section-count">' + section.items.length + "</span></div>" +
+                '<div class="grid">' + section.items.map(card).join("") + "</div>" +
+                "</section>",
+            )
+            .join("") +
+          '<div class="foot">' + esc(t("foot.packages", { hm: DATA.meta.homeManagerRev, system: DATA.meta.system })) + "</div>";
+      };
+
+      /* A setting that names a program holds the store path the module built,
+         which is accurate and unreadable. Shortening it to name-version keeps
+         the fact and drops the hash; the full path is in the title. */
+      const prettyPath = (text) => String(text).replace(/\/nix\/store\/[a-z0-9]{32}-([^/\s"']+)/g, (_, rest) => rest);
+
+      const codeBlock = (text) => {
+        const lines = String(text).replace(/^\s*\n/, "").replace(/\s+$/, "").split("\n");
+        const indents = lines.filter((line) => line.trim()).map((line) => line.match(/^[ \t]*/)[0].length);
+        const cut = indents.length ? Math.min(...indents) : 0;
+        const body = lines.map((line) => line.slice(cut)).join("\n");
+        return (
+          '<details class="code"><summary>' +
+          esc(t("card.lines", { n: lines.length })) +
+          "</summary><pre>" + esc(body) + "</pre></details>"
+        );
+      };
+
+      const formatValue = (value) => {
+        if (value && typeof value === "object" && !Array.isArray(value) && typeof value.code === "string") return codeBlock(value.code);
+        if (typeof value === "boolean")
+          return '<span class="' + (value ? "bool-true" : "bool-false") + '">' + esc(t(value ? "value.on" : "value.off")) + "</span>";
+        if (Array.isArray(value))
+          return (
+            '<span class="kv-inline">' +
+            value
+              .map((item) => {
+                const raw = Array.isArray(item) ? item.join(" ") : item;
+                return '<span class="tag" title="' + esc(raw) + '">' + esc(prettyPath(raw)) + "</span>";
+              })
+              .join("") +
+            "</span>"
+          );
+        if (value && typeof value === "object")
+          return (
+            '<span class="kv-inline">' +
+            Object.entries(value)
+              .map(([key, item]) => {
+                const raw = Array.isArray(item) ? item.join(" ") : item;
+                return '<span class="tag" title="' + esc(key) + "=" + esc(raw) + '">' + esc(key) + "=" + esc(prettyPath(raw)) + "</span>";
+              })
+              .join("") +
+            "</span>"
+          );
+        return '<span title="' + esc(value) + '">' + esc(prettyPath(value)) + "</span>";
+      };
+
+      const rows = (pairs) =>
+        '<div class="rows">' +
+        pairs
+          .filter(([, value]) => value !== undefined && value !== null && value !== "" && !(Array.isArray(value) && !value.length))
+          .map(([key, value]) => "<div>" + esc(ts(key)) + '</div><div class="val">' + formatValue(value) + "</div>")
+          .join("") +
+        "</div>";
+
+      /* A setting matches when the search text appears in its name or value, so
+         the same box filters the settings view and the package list. */
+      const settingMatches = ([key, value]) => {
+        if (!state.query) return true;
+        const name = ts(key);
+        const raw =
+          value && typeof value === "object" && !Array.isArray(value) && typeof value.code === "string"
+            ? value.code
+            : Array.isArray(value)
+              ? value.join(" ")
+              : typeof value === "object" && value
+                ? JSON.stringify(value)
+                : value;
+        const hay = (name + " " + key + " " + raw).toLowerCase();
+        return state.query
+          .toLowerCase()
+          .split(/\s+/)
+          .filter(Boolean)
+          .every((word) => hay.includes(word));
+      };
+
+      /* A query that names the program keeps the whole panel, because someone
+         typing a program name wants its settings, not only the rows spelling it. */
+      const panel = (key, pairs) => {
+        const tag = ts(key + ".tag");
+        const title = ts(key);
+        const words = state.query.toLowerCase().split(/\s+/).filter(Boolean);
+        const headHit = words.length && words.every((word) => (title + " " + tag).toLowerCase().includes(word));
+        const shown = headHit ? pairs : pairs.filter(settingMatches);
+        if (!shown.length) return "";
+        return (
+          '<div class="panel"><div class="panel-head"><span class="dot"></span>' +
+          '<span class="panel-title">' + esc(title) + "</span>" +
+          '<span class="panel-tag">' + esc(tag) + "</span></div>" +
+          rows(shown) +
+          "</div>"
+        );
+      };
+
+      /* git and jj nest their settings by section, which reads as one row per
+         section here rather than one panel per section. */
+      const flattenGroups = (settings) =>
+        Object.entries(settings).flatMap(([group, value]) =>
+          value && typeof value === "object" && !Array.isArray(value)
+            ? Object.entries(value).map(([name, inner]) => [group + "." + name, inner])
+            : [[group, value]],
+        );
+
+      const renderSettings = () => {
+        const p = DATA.programs;
+        const d = DATA.desktop;
+        const jj = Object.entries(p.jujutsu.settings).filter(([key]) => key !== "user" && key !== "signing");
+
+        const wmList = d.windowManagers
+          .filter((wm) => wm.enable)
+          .map((wm) => wm.name + " (" + t("wm." + wm.mode) + ")");
+
+        const panels = [
+          panel("fish", [
+            ["fish.enable", p.fish.enable],
+            ["fish.aliases", p.fish.aliases],
+            ["fish.init", { code: p.fish.interactiveShellInit }],
+          ]),
+          panel("ghostty", [
+            ["ghostty.enable", p.ghostty.enable],
+            ...Object.entries(p.ghostty.settings).map(([key, value]) => ["ghostty." + key, Array.isArray(value) ? value.map(String) : value]),
+          ]),
+          panel("git", [["git.enable", p.git.enable], ...flattenGroups(p.git.settings).map(([key, value]) => ["git." + key, value])]),
+          panel("jujutsu", [["jujutsu.enable", p.jujutsu.enable], ...jj.map(([key, value]) => ["jujutsu." + key, value])]),
+          panel("ssh", [
+            ["ssh.enable", p.ssh.enable],
+            ["ssh.hosts", p.ssh.hosts],
+          ]),
+          panel("zoxide", [
+            ["zoxide.enable", p.zoxide.enable],
+            ["zoxide.options", p.zoxide.options],
+          ]),
+          panel("direnv", [
+            ["direnv.enable", p.direnv.enable],
+            ["direnv.nix-direnv", p.direnv.nixDirenv],
+          ]),
+          panel("desktop", [
+            ["desktop.compositors", wmList],
+            ["desktop.shell", d.shell],
+            ["desktop.inputMethod", d.inputMethod],
+            ["desktop.sessionVariables", d.sessionVariables],
+            ["desktop.userServices", d.userServices],
+            ["desktop.userTimers", d.userTimers],
+            ["desktop.fonts", d.fonts],
+          ]),
+          panel("toolchain", Object.entries(DATA.toolchain).map(([key, value]) => ["toolchain." + key, value])),
+        ].join("");
+
+        content.innerHTML =
+          '<h1 class="page-title">' + esc(t("settings.title")) + "</h1>" +
+          '<p class="page-sub">' + esc(t("settings.lead")) + "</p>" +
+          (panels || '<p class="empty">' + esc(t("empty.settings")) + "</p>") +
+          '<div class="foot">' + esc(t("foot.settings")) + "</div>";
+      };
+
+      const navButton = (id, label, count, view) =>
+        '<button class="nav-item" data-view="' + esc(view) + '" data-target="' + esc(id) + '">' +
+        "<span>" + esc(label) + "</span>" +
+        (count === null ? "" : '<span class="count">' + count + "</span>") +
+        "</button>";
+
+      const syncNav = (target) => {
+        for (const button of document.querySelectorAll(".nav-item")) {
+          button.setAttribute("aria-current", String(button.dataset.target === target));
+        }
+      };
+
+      const renderNav = () => {
+        document.getElementById("nav-sections").innerHTML = [
+          navButton("overview", t("nav.overview"), DATA.meta.packageCount, "overview"),
+          ...DATA.sections.map((section) => navButton(section.id, t("sections." + section.id), section.items.length, "section")),
+        ].join("");
+        document.getElementById("nav-system").innerHTML = navButton("settings", t("nav.settings"), null, "settings");
+        for (const button of document.querySelectorAll(".nav-item")) {
+          button.onclick = () => {
+            state.view = button.dataset.view === "section" ? "overview" : button.dataset.view;
+            syncNav(button.dataset.target);
+            render();
+            if (button.dataset.view === "section") {
+              document.getElementById("s-" + button.dataset.target)?.scrollIntoView({ behavior: "smooth", block: "start" });
+            } else {
+              window.scrollTo({ top: 0 });
+            }
+          };
+        }
+      };
+
+      const renderChrome = () => {
+        document.documentElement.lang = locale;
+        document.title = t("app.title", { host: DATA.meta.hostname });
+        document.getElementById("nav-label-installed").textContent = t("nav.installed");
+        document.getElementById("nav-label-system").textContent = t("nav.system");
+        searchInput.placeholder = t("search.placeholder");
+        searchInput.setAttribute("aria-label", t("search.placeholder"));
+        document.getElementById("filter-all").textContent = t("filter.all");
+        document.getElementById("filter-local").textContent = t("filter.local");
+        langSelect.setAttribute("aria-label", t("lang.label"));
+        langSelect.title = t("lang.label");
+        document.getElementById("host-name").textContent = DATA.meta.hostname;
+        document.getElementById("host-sub").textContent = DATA.meta.system + " \u00b7 " + DATA.meta.stateVersion;
+        document.getElementById("host-mark").textContent = DATA.meta.hostname.slice(0, 1).toUpperCase();
+      };
+
+      const render = () => {
+        if (state.view === "settings") renderSettings();
+        else renderOverview();
+      };
+
+      const applyLocale = (next) => {
+        locale = next;
+        state.locale = next;
+        try {
+          window.localStorage.setItem("overview.locale", next);
+        } catch {
+          /* A page opened over file:// may have no storage; the choice then lasts
+             for this view only. */
+        }
+        renderChrome();
+        renderNav();
+        syncNav(state.view === "settings" ? "settings" : "overview");
+        render();
+      };
+
+      langSelect.innerHTML = tr.__languages
+        .map((language) => '<option value="' + esc(language.code) + '">' + esc(language.name) + "</option>")
+        .join("");
+      langSelect.value = locale;
+
+      langSelect.addEventListener("change", () => applyLocale(langSelect.value));
+
+      searchInput.addEventListener("input", () => {
+        state.query = searchInput.value.trim();
+        /* The box filters whichever view is open, so typing here does not throw
+           away the settings the reader was looking at. */
+        if (state.view !== "settings") {
+          state.view = "overview";
+          syncNav("overview");
+        }
+        render();
+      });
+
+      for (const [id, local] of [["filter-all", false], ["filter-local", true]]) {
+        document.getElementById(id).onclick = () => {
+          state.localOnly = local;
+          state.view = "overview";
+          document.getElementById("filter-all").setAttribute("aria-pressed", String(!local));
+          document.getElementById("filter-local").setAttribute("aria-pressed", String(local));
+          syncNav("overview");
+          render();
+        };
+      }
+      document.getElementById("filter-all").setAttribute("aria-pressed", "true");
+
+      state.locale = locale;
+      /* A remembered choice wins over the default, but only if that locale is
+         still built into the page. */
+      const remembered = stored && locales.includes(stored) ? stored : initial;
+      applyLocale(remembered);
+    </script>
+  </body>
+</html>

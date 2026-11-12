@@ -31,6 +31,17 @@ check:
 scaffold url version="":
     docs/scaffold-package.sh "{{url}}" "{{version}}"
 
+# Render docs/overview.html, the page that shows what this flake installs and
+# how it is configured. Every fact on it comes from evaluating the flake, so it
+# is rebuilt rather than edited.
+overview:
+    docs/overview/build.sh
+
+# Drive the rendered page in a headless browser and assert it still shows every
+# package and setting. Run it after a configuration change.
+overview-verify:
+    docs/overview/verify.sh
+
 gc:
     sudo nix-collect-garbage -d --delete-older-than 3d
     nix store optimise

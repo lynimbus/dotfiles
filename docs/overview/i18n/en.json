@@ -1,0 +1,144 @@
+{
+  "__meta": {
+    "name": "English",
+    "code": "en"
+  },
+  "app": {
+    "title": "{host} · what this flake installs"
+  },
+  "nav": {
+    "installed": "Installed",
+    "system": "System",
+    "overview": "Overview",
+    "settings": "Settings"
+  },
+  "search": {
+    "placeholder": "Search packages and settings"
+  },
+  "lang": {
+    "label": "Language"
+  },
+  "filter": {
+    "all": "All",
+    "local": "From this repo"
+  },
+  "overview": {
+    "title": "Installed",
+    "lead": "{count} packages on {host}, {local} of them built in this repository."
+  },
+  "tile": {
+    "packages": "packages",
+    "local": "local derivations",
+    "nixpkgs": "nixpkgs rev",
+    "state": "state version"
+  },
+  "sections": {
+    "agents": "Coding agents",
+    "daily": "Everyday command line",
+    "desktop": "Desktop",
+    "dev": "Development toolchain",
+    "media": "Archives and conversion",
+    "tooling": "Managed by a module",
+    "other": "Other"
+  },
+  "wm": {
+    "scrollable": "scrollable tiling",
+    "dwindle": "dwindle tiling"
+  },
+  "card": {
+    "thisRepo": "this repo",
+    "noDescription": "No description upstream",
+    "lines": "{n} lines, from the module"
+  },
+  "value": {
+    "on": "enabled",
+    "off": "off"
+  },
+  "empty": {
+    "packages": "Nothing matches that search.",
+    "settings": "No setting matches that search."
+  },
+  "foot": {
+    "packages": "Rendered from the evaluated flake · home-manager {hm} · {system}",
+    "settings": "Rebuild with just overview after changing the configuration."
+  },
+  "settings": {
+    "title": "Settings",
+    "lead": "Read from the home-manager modules, so this is the same output the login shell and the session read.",
+    "fish": "fish",
+    "fish.tag": "programs.fish",
+    "fish.enable": "enable",
+    "fish.aliases": "aliases",
+    "fish.init": "interactive shell init",
+    "ghostty": "ghostty",
+    "ghostty.tag": "programs.ghostty",
+    "ghostty.enable": "enable",
+    "git": "git",
+    "git.tag": "programs.git",
+    "git.enable": "enable",
+    "jujutsu": "jujutsu",
+    "jujutsu.tag": "programs.jujutsu",
+    "jujutsu.enable": "enable",
+    "ssh": "ssh",
+    "ssh.tag": "programs.ssh",
+    "ssh.enable": "enable",
+    "ssh.hosts": "hosts",
+    "zoxide": "zoxide",
+    "zoxide.tag": "programs.zoxide",
+    "zoxide.enable": "enable",
+    "zoxide.options": "options",
+    "direnv": "direnv",
+    "direnv.tag": "programs.direnv",
+    "direnv.enable": "enable",
+    "direnv.nix-direnv": "nix-direnv",
+    "desktop": "Desktop session",
+    "desktop.tag": "desktop",
+    "desktop.compositors": "compositors",
+    "desktop.shell": "shell",
+    "desktop.inputMethod": "input method",
+    "desktop.sessionVariables": "session variables",
+    "desktop.userServices": "user services",
+    "desktop.userTimers": "user timers",
+    "desktop.fonts": "fonts",
+    "toolchain": "Toolchain",
+    "toolchain.tag": "versions",
+    "ghostty.background-blur": "background blur",
+    "ghostty.background-opacity": "background opacity",
+    "ghostty.command": "command",
+    "ghostty.copy-on-select": "copy on select",
+    "ghostty.font-family": "font family",
+    "ghostty.font-size": "font size",
+    "ghostty.maximize": "maximize",
+    "ghostty.window-decoration": "window decoration",
+    "git.diff": "diff",
+    "git.fetch": "fetch",
+    "git.init": "init",
+    "git.merge": "merge",
+    "git.pull": "pull",
+    "git.push": "push",
+    "git.rerere": "rerere",
+    "git.user": "user",
+    "jujutsu.aliases": "aliases",
+    "jujutsu.git": "git",
+    "jujutsu.revset-aliases": "revset aliases",
+    "jujutsu.revsets": "revsets",
+    "jujutsu.ui": "ui",
+    "git.fetch.prune": "prune on fetch",
+    "git.merge.conflictstyle": "conflict style",
+    "git.pull.rebase": "rebase on pull",
+    "git.rerere.enabled": "rerere",
+    "git.user.name": "user name",
+    "git.user.email": "user email",
+    "toolchain.go": "go",
+    "toolchain.java": "java",
+    "toolchain.koka": "koka",
+    "toolchain.nixfmt": "nixfmt",
+    "toolchain.node": "node",
+    "toolchain.python": "python",
+    "toolchain.zig": "zig"
+  },
+  "descriptions": {
+    "kbd-backlight": "Keyboard backlight key action, shared by both desktop keybinding files",
+    "screenshot": "Region screenshot through grim and slurp, annotated in satty and copied to the clipboard"
+  }
+}
