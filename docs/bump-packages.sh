@@ -271,6 +271,38 @@ run_nix_update() {
 # run_nix_update's retry loop, so an index that 502s is retried on the same
 # terms as a release asset that does, and its error text is in the log the
 # retry match reads.
+# Runs nix-update, and treats the one failure that is this repository's shape
+# rather than a problem as a no-op.
+#
+# nix-update asks git for the old version number when the version it was told
+# equals the pin, and it asks by shelling out to `git diff` (git.py,
+# old_version_from_git). With no .git that exits 129, so every package that is
+# already current ends the run: kero, whose upstream atom feed last moved well
+# before the pin, could not be bumped at all. The answer it wants is 'changed
+# nothing', which the message makes unambiguous: git prints 'Not a git
+# repository' and only reaches that when it found no repository to diff in. A
+# run that did rewrite the file fails earlier, on the hash or on the eval, so a
+# package with a real change never lands here.
+#
+# The rest of nix-update needs no git on this path: git_has_diff is skipped
+# when find_git_root returns None, and git_commit only runs under --commit.
+nix_update() {
+	local p="$1" out rc
+	shift
+	out="$(nix-update --flake "legacyPackages.$system.$p" "$@" 2>&1)"
+	rc=$?
+	printf '%s\n' "$out"
+	((rc == 0)) && return 0
+	# Only the no-op case: the failure is git's, and nix-update never got as far
+	# as announcing a version change. A run that did announce one must fail loudly
+	# here rather than be reported as already current.
+	if grep -q 'Not a git repository' <<<"$out" && ! grep -q '^Update ' <<<"$out"; then
+		echo "[bump] $p: nothing to update (nix-update could not read the old version from git)" >&2
+		return 0
+	fi
+	return "$rc"
+}
+
 bump_package() {
 	local p="$1"
 	shift
@@ -301,26 +333,40 @@ bump_package() {
 		version="$(sed -n 1p <<<"$out")"
 		hash="$(sed -n 2p <<<"$out")"
 		echo "[bump] $p: $feed publishes $version" >&2
-		# The feed trails the releases. It answered 0.1.3936 while 0.1.3937 was
-		# already out, because it is rebuilt from a release rather than being what a
-		# release is cut from. Following it downwards would undo a bump the releases
-		# had already made, so a feed older than the pin is not a version to move to.
-		current="$(nix eval --raw ".#legacyPackages.$system.$p.version")" || return 1
-		if ! version_newer "$version" "$current"; then
-			echo "[bump] $p: at $current, not older than the feed's $version" >&2
-			return 0
-		fi
-		pass+=("--version=$version")
 	elif [ -n "$url" ]; then
 		if ! version="$(maven_latest_stable "$url")"; then
 			echo "[bump] $p: cannot read the version index $url" >&2
 			return 1
 		fi
 		echo "[bump] $p: $url publishes $version" >&2
+	fi
+
+	# An index that answered is compared against the pin before nix-update runs,
+	# and that comparison carries two rules at once.
+	#
+	# It is what stops a version moving backwards. The feed trails the releases —
+	# it answered 0.1.3936 while 0.1.3937 was already out, because it is rebuilt
+	# from a release rather than being what a release is cut from — so following it
+	# downwards would undo a bump the releases had already made.
+	#
+	# It is also what keeps nix-update off the one branch of itself that needs a
+	# checkout. When the version it was told equals the pin it asks git for the old
+	# version number, by shelling out to `git diff` (git.py, old_version_from_git);
+	# with no .git that exits 129 and ends the run. Answering "nothing to do" here
+	# means that branch is never entered. A package with no index has nothing to
+	# compare, and nix_update below handles the same failure for it.
+	if [ -n "$version" ]; then
+		current="$(nix eval --raw ".#legacyPackages.$system.$p.version")" || return 1
+		if ! version_newer "$version" "$current"; then
+			echo "[bump] $p: at $current, not older than $version" >&2
+			return 0
+		fi
 		pass+=("--version=$version")
 	fi
 
-	nix-update --flake "legacyPackages.$system.$p" "${pass[@]}" || return
+	if ! nix_update "$p" "${pass[@]}"; then
+		return 1
+	fi
 
 	# The asset hash is written here rather than prefetched: the feed stated it and
 	# it matched the list upstream signed. --no-src is what keeps nix-update from

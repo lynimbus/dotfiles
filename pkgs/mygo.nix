@@ -11,9 +11,9 @@
   # tag is the only version there is to track. `just bump mygo`
   # (nix-update) moves the version, the source hash and vendorHash in
   # lockstep.
-  version ? "0.8.3",
-  hash ? "sha256-QWF13vtxEPlVqruaqPikSBDqs0bd1kw74wYfHWM7uwE=",
-  vendorHash ? "sha256-bwaBfuv6E6HGgnQkyyFhLkYk0Q4X4sEspQjAB5dED5U=",
+  version ? "0.9.0",
+  hash ? "sha256-Bg7ZGgpxRjfTOcgfW4A/12bNgsydjOgWt9H10idMoR4=",
+  vendorHash ? "sha256-cI7qUXPMBAUW0VPn+GJOMvGvwYGMEWFK6gPkV1iBFi8=",
 }:
 
 let
