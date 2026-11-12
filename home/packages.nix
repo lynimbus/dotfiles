@@ -54,6 +54,7 @@ in
     wechat-uos
     strata
     kero
+    alma
     mygo-music
     mayoi
     obs-studio

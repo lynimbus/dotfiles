@@ -130,6 +130,7 @@ let
       "pig"
       "pig-swarm"
       "kero"
+      "alma"
       "antigravity-cli"
       "rtk"
     ];

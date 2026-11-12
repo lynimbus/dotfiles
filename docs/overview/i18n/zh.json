@@ -144,6 +144,7 @@
     "pig-swarm": "把 N 个 pig 智能体撒向同一个问题，用一个 bd epic 当账本",
     "antigravity-cli": "Google 的 Antigravity 终端智能体客户端",
     "kero": "面向编码智能体的原生终端，会话比窗口活得更久",
+    "alma": "自带智能体运行时的桌面应用，也是 herdr 的图形客户端，把 Claude Code、Codex、pi 的会话读成聊天",
     "neovim": "Vim 文本编辑器的分支，主打可扩展性与灵活性",
     "helix": "后现代风格的模态文本编辑器",
     "ripgrep": "兼顾 The Silver Searcher 易用性与 grep 原始速度的搜索工具",
