@@ -71,11 +71,27 @@ cmdWrite() {
   # The keybinding runs this in a floating terminal that closes when the command
   # exits, so one line and Enter is the whole interaction. A longer thought goes
   # in as an argument, where quoting is already free.
-  read -r -p '想法 > ' thought || return 0
+  #
+  # `read -e` needs a bash with readline (see memo.nix): without it the tty
+  # erases one byte per Backspace, which mangles a Chinese character, and
+  # Ctrl-H is stored as text. Esc is bound to "clear the line, then Enter",
+  # so an accidental summon leaves without writing anything.
+  bind 'set editing-mode emacs' 2>/dev/null || true
+  bind 'set keyseq-timeout 100' 2>/dev/null || true
+  bind '"\e": "\C-a\C-k\C-m"' 2>/dev/null || true
+
+  if [ -s "$inbox" ]; then
+    printf '已存 %s 条，最近 3 条：\n' "$(wc -l <"$inbox")"
+    tail -n 3 "$inbox" | sed 's/^/  /'
+  else
+    printf '还没有记录。\n'
+  fi
+  printf '看全部：bat %s ／ 搜索：memo-read <词> ／ 整理稿：memo-read\n\n' "$inbox"
+  read -e -r -p '想法 (Enter 记下 · Esc/空行/Ctrl-C 取消) > ' thought || return 0
   isBlank "$thought" && return 0
   appendLines "$at" <<<"$thought"
   printf '已记录 %s\n' "$thought"
-  sleep 0.5
+  sleep 0.8
 }
 
 # Seeded once and then read from the data directory, so the prompt can be

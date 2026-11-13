@@ -22,7 +22,7 @@ binds {
     Mod+Space { spawn "noctalia" "msg" "panel-toggle" "launcher"; }
     XF86Search { spawn "noctalia" "msg" "panel-toggle" "launcher"; }
 
-    // One thought, in a floating terminal that closes on Enter.
+    // One thought, in a floating terminal that closes on Enter or Esc.
     Mod+Shift+N { spawn "ghostty" "--class=com.mitchellh.ghostty.memo" "-e" "memo"; }
 
     // Browser
