@@ -12,11 +12,15 @@
 # into legacyPackages.<system>.bumpMatrix. Adding a package therefore never
 # means editing this script.
 #
-# Three tokens there are not nix-update flags but indices this script reads
-# itself, before nix-update runs:
+# Some tokens in passthru.bump are not nix-update flags but indices this
+# script reads itself, before nix-update runs:
 #
 #   --bump-maven=<url>    a Maven repository to take the version from; see
 #                         maven_latest_stable and why r8 needs it.
+#   --bump-manifest=<url> a release manifest whose .version is the newest
+#                         release. It becomes a fixed --version and nix-update
+#                         still derives every hash itself; herdr-core publishes
+#                         one at core/latest.json.
 #   --bump-feed=<url>     a release feed that states the version, every asset's
 #                         SHA-256, and (from 0.1.3862 on) an ed25519 signature
 #                         over the release's checksum list. The version and the
@@ -26,16 +30,21 @@
 #
 # A package that declares --bump-feed= must also declare --no-src: the hash is
 # written by write_src_hash from the feed, and --no-src is what stops nix-update
-# from downloading the asset to re-derive it.
+# from downloading the asset to re-derive it. --bump-manifest= is the opposite:
+# it only names a version, so the src rewrite and --build have to stay.
 #
 # Usage:
 #   docs/bump-packages.sh              # every package that tracks a release
 #   docs/bump-packages.sh pig kero     # just those
 #
-# A failed rewrite leaves a half-updated file, version written and hash not:
-# 'jj restore pkgs/' puts it back before a retry.
+# A failed rewrite can leave a half-updated file, version written and hash not.
+# The run compares pkgs/ before and after each package and says whether that
+# happened, so only the file that actually changed has to be restored. Never
+# restore the whole directory: packages that already succeeded in the same run
+# would be undone.
 #
-# Two failure modes measured on 2026-11-09 decide the defences below:
+# The failure modes measured on 2026-11-09, plus one for the jj-only checkout,
+# decide the defences below:
 #
 #   - A fetchurl package is re-fetched unconditionally: nix-update's version
 #     comparison treats a fetchurl src as changed every time, because the
@@ -58,11 +67,49 @@
 #     Packages whose hashes are release assets therefore carry --build, which
 #     builds the package (versionCheckHook included) as part of the bump;
 #     source-built packages have vendorHash covered by nix-update itself.
+#   - nix-update shells out to `git diff` when the version it found equals the
+#     pin (update.py: update_version -> git.old_version_from_git). This checkout
+#     has .jj but no .git, so that call exited 129 and killed the run for every
+#     already-current package. Letting it succeed is worse: with an empty diff
+#     nix-update falls through to replace_version and re-fetches every src and
+#     dependency hash for a package that did not change. See the git shim below.
 # shellcheck source=docs/lib.sh
 source "$(dirname "$0")/lib.sh"
 cd "$repo_dir" || exit 1
 
 github_token
+
+# nix-update asks git for the old version string whenever the version it found
+# equals the pin (update.py: update_version -> git.old_version_from_git). In a
+# jj-only checkout that `git diff` exits 129 and takes the whole run down, even
+# though "already current" is a successful outcome. Making the diff succeed is
+# not the answer: nix-update then falls through to replace_version and re-fetches
+# src and dependency hashes for an unchanged package.
+#
+# Intercept exactly that probe instead and answer with a marker and an exit code
+# of our own. The signal the script reads is ours, so a nix-update upgrade that
+# rewords its traceback cannot change what "already current" means; the run also
+# stops before any file is written. Every other git command goes to the real git.
+# A colocated jj/git checkout keeps its real repository and needs no shim.
+nix_update_env=()
+nix_update_noop_marker='[bump] nix-update probed a jj-only checkout for its old version'
+if [ ! -e "$repo_dir/.git" ]; then
+	shim_dir="$(mktemp -d)" || die "cannot create a temporary directory"
+	real_git="$(command -v git)" || die "git is not on PATH"
+	{
+		printf '#!/usr/bin/env bash\n'
+		printf 'for arg in "$@"; do\n'
+		printf '\tif [ "$arg" = "--word-diff=porcelain" ]; then\n'
+		printf '\t\tprintf "%%s\\n" %q >&2\n' "$nix_update_noop_marker"
+		printf '\t\texit 42\n'
+		printf '\tfi\n'
+		printf 'done\n'
+		printf 'exec %q "$@"\n' "$real_git"
+	} >"$shim_dir/git" || die "cannot write the git shim"
+	chmod +x "$shim_dir/git" || die "cannot make the git shim executable"
+	trap 'rm -rf "$shim_dir"' EXIT
+	nix_update_env=(env "PATH=$shim_dir:$PATH")
+fi
 
 system=x86_64-linux
 NET_RETRY_RE='502|503|504|cannot download|failed to retrieve hash|timed out|Failed to connect|Connection reset|curl: \((6|7|22|28)\)'
@@ -95,6 +142,18 @@ maven_latest_stable() {
 			sort -V |
 			tail -n 1
 	)"
+	[ -n "$version" ] || return 1
+	printf '%s\n' "$version"
+}
+
+# The newest release a JSON manifest announces. Unlike a feed this states the
+# version only, so nix-update still rewrites the src hash by fetching the new
+# URL; --build then proves that hash and the versionCheckHook against the bytes.
+# herdr-core's core/latest.json is one such manifest (.version at the top).
+manifest_version() {
+	local url="$1" json version
+	json="$(curl -fsSL --retry 2 --retry-delay 2 "$url")" || return 1
+	version="$(jq -r '.version // empty' <<<"$json")"
 	[ -n "$version" ] || return 1
 	printf '%s\n' "$version"
 }
@@ -266,55 +325,50 @@ run_nix_update() {
 	done
 }
 
+# Runs nix-update with the git shim on PATH. Only the no-op decision reads a
+# marker, and it is a marker the shim above wrote itself: nix-update's error
+# wording is never consulted for control flow. The VersionError hint below is
+# just a hint; if its wording changes, the exit code still decides the outcome.
+nix_update() {
+	local p="$1" out rc
+	shift
+	out="$("${nix_update_env[@]}" nix-update --flake "legacyPackages.$system.$p" "$@" 2>&1)"
+	rc=$?
+	((rc == 0)) && {
+		printf '%s\n' "$out"
+		return 0
+	}
+	# The shim answers before nix-update rewrites anything, so no package file
+	# changed and no traceback needs to reach the terminal.
+	if grep -qF -- "$nix_update_noop_marker" <<<"$out"; then
+		echo "[bump] $p: already current" >&2
+		return 0
+	fi
+	printf '%s\n' "$out"
+	if grep -q 'VersionError: Please specify the version' <<<"$out"; then
+		echo "[bump] $p: nix-update cannot enumerate this package's releases; declare a version index in passthru.bump (--bump-maven=, --bump-manifest= or --bump-feed=)" >&2
+	fi
+	return "$rc"
+}
+
 # Turns what the package declared into the nix-update command line: the flags
 # pass through untouched, a version index is read first. It runs inside
 # run_nix_update's retry loop, so an index that 502s is retried on the same
 # terms as a release asset that does, and its error text is in the log the
 # retry match reads.
-# Runs nix-update, and treats the one failure that is this repository's shape
-# rather than a problem as a no-op.
-#
-# nix-update asks git for the old version number when the version it was told
-# equals the pin, and it asks by shelling out to `git diff` (git.py,
-# old_version_from_git). With no .git that exits 129, so every package that is
-# already current ends the run: kero, whose upstream atom feed last moved well
-# before the pin, could not be bumped at all. The answer it wants is 'changed
-# nothing', which the message makes unambiguous: git prints 'Not a git
-# repository' and only reaches that when it found no repository to diff in. A
-# run that did rewrite the file fails earlier, on the hash or on the eval, so a
-# package with a real change never lands here.
-#
-# The rest of nix-update needs no git on this path: git_has_diff is skipped
-# when find_git_root returns None, and git_commit only runs under --commit.
-nix_update() {
-	local p="$1" out rc
-	shift
-	out="$(nix-update --flake "legacyPackages.$system.$p" "$@" 2>&1)"
-	rc=$?
-	printf '%s\n' "$out"
-	((rc == 0)) && return 0
-	# Only the no-op case: the failure is git's, and nix-update never got as far
-	# as announcing a version change. A run that did announce one must fail loudly
-	# here rather than be reported as already current.
-	if grep -q 'Not a git repository' <<<"$out" && ! grep -q '^Update ' <<<"$out"; then
-		echo "[bump] $p: nothing to update (nix-update could not read the old version from git)" >&2
-		return 0
-	fi
-	return "$rc"
-}
-
 bump_package() {
 	local p="$1"
 	shift
-	local arg url version feed="" asset="" hash="" out current
+	local arg url="" manifest="" version feed="" asset="" hash="" out current
 	local -a pass=()
-	# Two flags name a version index instead of passing through to nix-update,
-	# and both are read here, inside the retry loop: an index that 502s is then
-	# retried on the same terms as a release asset that does, and its error text
-	# is in the log the retry match reads.
+	# The --bump-* flags are read here rather than passed through to nix-update,
+	# inside the retry loop: an index that 502s is then retried on the same terms
+	# as a release asset that does, and its error text is in the log the retry
+	# match reads.
 	for arg in "$@"; do
 		case "$arg" in
 		--bump-maven=*) url="${arg#--bump-maven=}" ;;
+		--bump-manifest=*) manifest="${arg#--bump-manifest=}" ;;
 		--bump-feed=*) feed="${arg#--bump-feed=}" ;;
 		--bump-asset=*) asset="${arg#--bump-asset=}" ;;
 		*) pass+=("$arg") ;;
@@ -333,6 +387,12 @@ bump_package() {
 		version="$(sed -n 1p <<<"$out")"
 		hash="$(sed -n 2p <<<"$out")"
 		echo "[bump] $p: $feed publishes $version" >&2
+	elif [ -n "$manifest" ]; then
+		if ! version="$(manifest_version "$manifest")"; then
+			echo "[bump] $p: cannot read the version manifest $manifest" >&2
+			return 1
+		fi
+		echo "[bump] $p: $manifest publishes $version" >&2
 	elif [ -n "$url" ]; then
 		if ! version="$(maven_latest_stable "$url")"; then
 			echo "[bump] $p: cannot read the version index $url" >&2
@@ -349,12 +409,12 @@ bump_package() {
 	# from a release rather than being what a release is cut from — so following it
 	# downwards would undo a bump the releases had already made.
 	#
-	# It is also what keeps nix-update off the one branch of itself that needs a
-	# checkout. When the version it was told equals the pin it asks git for the old
-	# version number, by shelling out to `git diff` (git.py, old_version_from_git);
-	# with no .git that exits 129 and ends the run. Answering "nothing to do" here
-	# means that branch is never entered. A package with no index has nothing to
-	# compare, and nix_update below handles the same failure for it.
+	# It is also what keeps nix-update off its git branch: when the version it was
+	# told equals the pin it asks git for the old version number by shelling out
+	# to `git diff` (git.py, old_version_from_git). That branch is harmless now
+	# thanks to the shim, but a package with an index still avoids the whole
+	# comparison. A package with no index has nothing to compare and relies on
+	# the shim alone.
 	if [ -n "$version" ]; then
 		current="$(nix eval --raw ".#legacyPackages.$system.$p.version")" || return 1
 		if ! version_newer "$version" "$current"; then
@@ -402,6 +462,17 @@ write_src_hash() {
 	echo "[bump] $p: src -> $sri" >&2
 }
 
+# A checksum of every package file, taken before and after one package's run,
+# is the only objective way to tell whether a failure left a half-written file.
+# The advice has to be per-file: a successful package earlier in the same run
+# has already written its own file, and 'jj restore pkgs/' would undo it too.
+pkgs_checksum() {
+	find pkgs -maxdepth 1 -type f -name '*.nix' -print0 |
+		sort -z |
+		xargs -0 cat |
+		sha256sum
+}
+
 fail=()
 for p in "${pkgs[@]}"; do
 	args=()
@@ -409,11 +480,16 @@ for p in "${pkgs[@]}"; do
 		args+=("$arg")
 	done < <(jq -r --arg p "$p" '.[$p][]' <<<"$matrix")
 
+	before="$(pkgs_checksum)"
 	if run_nix_update "$p" bump_package "$p" "${args[@]}"; then
 		echo "[bump] $p ok"
 	else
 		fail+=("$p")
-		echo "[bump] $p failed; its file may hold the new version with the old hash (jj restore pkgs/ and retry)" >&2
+		if [ "$(pkgs_checksum)" = "$before" ]; then
+			echo "[bump] $p failed before writing any package file; nothing to restore" >&2
+		else
+			echo "[bump] $p failed after writing a package file; check 'jj diff' and restore only that file before retrying" >&2
+		fi
 	fi
 done
 

@@ -3,9 +3,9 @@
   stdenvNoCC,
   fetchurl,
   versionCheckHook,
-  # The version and the archive hash come from the same release manifest
-  # (https://releases.herdr.dev/core/<version>/manifest.json);
-  # "just bump herdr-core" (nix-update) rewrites these literals together.
+  # The newest version is announced by core/latest.json; "just bump herdr-core"
+  # hands it to nix-update, which rewrites this version and the hash of the
+  # archive at core/<version>/ together.
   version ? "0.1.20",
   hash ? "sha256-rGuGiQxFGjdYRiCqpDi3G8DQvUMKLnwdfglfBSxBTnQ=",
 }:
@@ -43,7 +43,13 @@ stdenvNoCC.mkDerivation {
   doInstallCheck = true;
   nativeInstallCheckInputs = [ versionCheckHook ];
 
-  passthru.bump = [ "--build" ];
+  # releases.herdr.dev is not a forge nix-update can enumerate releases from,
+  # so the version comes from the release manifest instead. nix-update gets it
+  # as a fixed --version and still derives src.hash by fetching the new URL.
+  passthru.bump = [
+    "--build"
+    "--bump-manifest=https://releases.herdr.dev/core/latest.json"
+  ];
 
   meta = {
     description = "Terminals for coding agents that stay alive after you leave (hc)";
