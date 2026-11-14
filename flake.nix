@@ -131,6 +131,7 @@
             home-manager.extraSpecialArgs = moduleArgs;
             home-manager.users.${username} = ./home/init.nix;
             home-manager.backupFileExtension = "old";
+            home-manager.overwriteBackup = true;
           }
         ];
       };
