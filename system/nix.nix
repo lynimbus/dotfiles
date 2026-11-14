@@ -10,6 +10,12 @@
 
   nixpkgs.config.allowUnfree = true;
 
+  # pkgs/nsh-android-sdk composes the SDK from Google's unfree packages; this
+  # accepts their license the way androidenv reads it (the same acceptance
+  # is in flake.nix's legacyPackages import, so `nix build .#nsh` paths agree
+  # with the system's).
+  nixpkgs.config.android_sdk.accept_license = true;
+
   documentation.nixos.enable = false;
 
   programs.nh = {

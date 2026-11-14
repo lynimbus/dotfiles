@@ -86,6 +86,24 @@ in
     nodejs
     nil
     nixd
+    # Rust: the toolchain nsh builds an app's runner with (the nsh launcher
+    # falls back to this cargo when no rustup is on PATH), and rust-analyzer
+    # for editing the app's own Rust code. rustup is the one toolchain that
+    # can cross-compile for Android (nixpkgs' rustc ships no android std), so
+    # `rustup default stable` plus `rustup target add aarch64-linux-android
+    # armv7-linux-androideabi x86_64-linux-android` is the one manual step an
+    # Android app with Rust code needs; it runs through nix-ld.
+    rustc
+    cargo
+    clippy
+    rustfmt
+    rust-analyzer
+    rustup
+    # nsh (Native Shell): the TSX-on-native-runtime GUI framework. The package
+    # keeps a writable copy of its distribution in ~/.nsh and downloads the
+    # web and Android runtimes there on first use; home/programs/nsh.nix sets
+    # the Android SDK it packages against.
+    nsh
     # Java: the Eclipse JDT language server (nixpkgs wraps it with its own JDK,
     # so jdtls runs standalone and pi-lens stops reporting "java analysis
     # unavailable") plus a plain JDK 17 for javac/java work and the r8 wrapper
