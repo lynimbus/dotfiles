@@ -34,10 +34,10 @@
   # build only produces the binary. version, the archive hash and the source
   # hash all follow the release tag, so `just bump mygo-music` (nix-update)
   # moves them together, the archive being its --custom-dep tarball.
-  version ? "0.1.24",
-  hash ? "sha256-RYaMXsrdVpjNogrJjgBh4llu1ldffRtzuly9s88CZ7A=",
+  version ? "0.1.25",
+  hash ? "sha256-SDzmceRbQ8uPgWHQhhhHB55ZYIgsHQct0QGPGblGEmc=",
   archiveSuffix ? "linux-amd64",
-  archiveHash ? "sha256-UcBG+yyuty9dZZynlL7R8k3SuKdnl10RodYLyU2D6II=",
+  archiveHash ? "sha256-tGiBlasxCErTBvA2g23m5XTE/zPlZ/0mTDX3hB1kdCs=",
   vendorHash ? "sha256-CgAnPtjfDxOxjVvIG8zvMXwbrqjhF3spEqXEagQSIvE=",
 }:
 

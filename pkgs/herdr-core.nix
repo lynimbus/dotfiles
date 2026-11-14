@@ -6,8 +6,8 @@
   # The newest version is announced by core/latest.json; "just bump herdr-core"
   # hands it to nix-update, which rewrites this version and the hash of the
   # archive at core/<version>/ together.
-  version ? "0.1.20",
-  hash ? "sha256-rGuGiQxFGjdYRiCqpDi3G8DQvUMKLnwdfglfBSxBTnQ=",
+  version ? "0.1.22",
+  hash ? "sha256-MFTsOZLOgMVxXXIcqp3O+mBWch0V3BE/R1CvznY7pd8=",
 }:
 
 stdenvNoCC.mkDerivation {
