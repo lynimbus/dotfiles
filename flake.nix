@@ -99,6 +99,9 @@
         import nixpkgs {
           inherit system;
           config.allowUnfree = true;
+          # Mirrors system/nix.nix: the Android SDK packages nsh-android-sdk
+          # composes are unfree and gated on this acceptance.
+          config.android_sdk.accept_license = true;
           overlays = [ local.overlay ];
         }
         // {

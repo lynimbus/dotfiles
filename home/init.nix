@@ -15,6 +15,7 @@
     ./programs/memo.nix
     ./programs/pig.nix
     ./programs/magpie.nix
+    ./programs/nsh.nix
     ./audio/rnnoise.nix
 
     ./desktop/screenshot.nix

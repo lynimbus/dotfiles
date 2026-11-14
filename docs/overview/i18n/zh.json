@@ -229,6 +229,14 @@
     "jujutsu": "兼容 Git 的版本控制系统，兼得简单与强大",
     "git": "分布式版本控制系统",
     "fish": "聪明易用的命令行 shell",
-    "direnv": "管理项目环境的 shell 扩展"
+    "direnv": "管理项目环境的 shell 扩展",
+    "nsh-0.5.1": "用 TSX 写原生界面的跨平台 GUI 框架，运行时是原生 Rust",
+    "rustc": "Rust 编译器",
+    "cargo": "Rust 的包管理器与构建工具",
+    "clippy": "Rust 的 lint 工具",
+    "rustfmt": "Rust 代码格式化工具",
+    "rust-analyzer": "Rust 语言服务器",
+    "rustup": "Rust 工具链管理器，可装 Android 交叉编译目标",
+    "antigravity-hub": "在多个 AI 编码工具之间共享上下文的本地中枢"
   }
 }
