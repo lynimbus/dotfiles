@@ -2,41 +2,26 @@
   lib,
   stdenv,
   fetchurl,
-  makeWrapper,
-  patchelf,
   versionCheckHook,
-  zlib,
-  # The Nuitka onefile launcher is the only source: `just bump opengrep`
-  # (nix-update) moves the version and its hash to the latest release
-  # together.
-  version ? "1.33.1",
-  hash ? "sha256-RugTPMSQ+fUFGAYVkM4va+WgivrtoDRHHAztpLOJmAg=",
-  archiveSuffix ? "manylinux_x86",
+  # The release asset is the only source: `just bump opengrep` (nix-update)
+  # moves the version and its hash to the latest release together.
+  version ? "2.0.0",
+  hash ? "sha256-N+k/TaX9BKGMXB/rvdEvfpjfzNTQyc8lk7yyXutGLaA=",
+  # 1.33.1 called this asset opengrep_manylinux_x86, 2.0.0 renamed it to
+  # opengrep_linux_x86; nix-update cannot see a rename, only a version, so
+  # this follows the releases by hand.
+  archiveSuffix ? "linux_x86",
 }:
 
-let
-  # The "single binary" is a Nuitka onefile launcher: on first run it unpacks a
-  # whole python world (~240 MB: the compiled CLI `opengrep.bin`, the C
-  # extension modules and the vendored .so libraries) into a fixed directory
-  # ~/.cache/opengrep/<version> and execs the inner binary from there. The
-  # unpack is done once at build time instead, so the store path holds the
-  # payload and nothing is ever unpacked or written at run time (verified
-  # read-only: the inner binary only reads its tree).
-  #
-  # The launcher and the inner binary are both linked against plain glibc with
-  # the FHS interpreter /lib64/ld-linux-x86-64.so.2, so both are pointed at
-  # the stdenv loader here. The payload's own libraries live beside the
-  # binaries and are found through $ORIGIN rpaths, with one exception: the
-  # stdlib's binascii.so NEEDs libz.so.1, which the payload does not ship —
-  # on a normal distro /lib/libz.so.1 exists and hides this, on NixOS its
-  # absence makes the codecs registry fail to register hex_codec and every
-  # invocation dies with "LookupError: unknown encoding: hex_codec". The
-  # wrapper puts nix zlib on LD_LIBRARY_PATH to close exactly that gap.
-  #
-  # The musllinux asset needs a musl interpreter and buys nothing here, so
-  # the glibc (manylinux) asset is the one pinned.
-  payloadRoot = "share/opengrep";
-in
+# Since 2.0.0 the asset is one statically linked executable (161 MB, no
+# `.interp` section, `ldd` says "not a dynamic executable"): the embedded
+# python runtime, the CLI and the OCaml matching core all live in that single
+# file, so it runs as-is and nothing is unpacked, spawned or written outside
+# the store. Up to 1.33.1 this was instead a Nuitka onefile launcher that
+# unpacked ~240 MB of python world into ~/.cache/opengrep/<version> on first
+# run, which had to be pre-unpacked at build time; if a future bump brings
+# that shape back, `patchelf --print-interpreter` on the asset tells you
+# immediately (`patchelf: cannot find section '.interp'` is the static case).
 stdenv.mkDerivation {
   pname = "opengrep";
   inherit version;
@@ -52,51 +37,9 @@ stdenv.mkDerivation {
   dontStrip = true;
   dontPatchELF = true;
 
-  nativeBuildInputs = [
-    patchelf
-    makeWrapper
-  ];
-
   installPhase = ''
     runHook preInstall
-
-    launcher="$TMPDIR/opengrep-launcher"
-    install -Dm755 "$src" "$launcher"
-    patchelf --set-interpreter \
-      "${stdenv.cc.bintools.dynamicLinker}" "$launcher"
-
-    # The launcher unpacks into $HOME/.cache/opengrep/<version> and then
-    # execs the payload binary, which fails harmlessly (exit 0, the unpack
-    # stays on disk) because its own interpreter is still the FHS one —
-    # the point here is only to produce the unpack.
-    unpack_home="$TMPDIR/unpack-home"
-    mkdir -p "$unpack_home"
-    HOME="$unpack_home" "$launcher" --version >/dev/null 2>&1 || true
-
-    # The unpack directory is named after the release tag, v-prefixed.
-    payload="$unpack_home/.cache/opengrep/v${version}"
-    if [ ! -x "$payload/opengrep.bin" ]; then
-      echo "opengrep: the launcher did not unpack the payload into $payload" >&2
-      find "$unpack_home" -maxdepth 6 -name opengrep.bin -print >&2
-      exit 1
-    fi
-
-    mkdir -p "$out/${payloadRoot}"
-    cp -a "$payload"/. "$out/${payloadRoot}/"
-    # The launcher unpacks with owner-only modes (0700 directories), which
-    # would keep every other account out of the store tree.
-    chmod -R u+w "$out/${payloadRoot}"
-    chmod -R a+rX "$out/${payloadRoot}"
-    patchelf --set-interpreter \
-      "${stdenv.cc.bintools.dynamicLinker}" \
-      "$out/${payloadRoot}/opengrep.bin"
-
-    # opengrep-core is a static OCaml binary the CLI spawns for the actual
-    # matching; it needs no patching, it is copied as part of the payload.
-
-    makeWrapper "$out/${payloadRoot}/opengrep.bin" "$out/bin/opengrep" \
-      --prefix LD_LIBRARY_PATH : "${lib.getLib zlib}/lib"
-
+    install -Dm755 "$src" "$out/bin/opengrep"
     runHook postInstall
   '';
 
