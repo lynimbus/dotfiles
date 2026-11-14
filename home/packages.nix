@@ -59,6 +59,7 @@ in
     mygo-music
     mayoi
     obs-studio
+    antigravity-hub
 
     # Archives and conversion.
     zip
