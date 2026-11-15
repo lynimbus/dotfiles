@@ -18,6 +18,7 @@
       user.name = username;
       user.email = email;
       git = {
+        colocate = false;
         private-commits = "description(glob:'wip:*') | description(glob:'private:*')";
       };
       revsets = {
