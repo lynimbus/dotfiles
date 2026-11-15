@@ -237,6 +237,8 @@
     "rustfmt": "Rust 代码格式化工具",
     "rust-analyzer": "Rust 语言服务器",
     "rustup": "Rust 工具链管理器，可装 Android 交叉编译目标",
+    "sccache": "带磁盘与云存储后端的编译缓存（支持 Rust 与 C/C++）",
+    "mold-unwrapped-wrapper": "现代高速多线程链接器",
     "antigravity-hub": "在多个 AI 编码工具之间共享上下文的本地中枢"
   }
 }

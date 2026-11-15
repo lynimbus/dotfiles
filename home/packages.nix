@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 let
   # nix-init resolves builder arguments and prefetches hashes against a nixpkgs
@@ -98,7 +98,13 @@ in
     clippy
     rustfmt
     rust-analyzer
-    rustup
+    # rustup also ships bin/cargo, bin/rustc, and zsh _cargo completion, which
+    # collide with nixpkgs's toolchain in buildEnv (rustc already has priority
+    # 10, so lowPrio's 10 still collides). Priority 20 keeps nixpkgs cargo/rustc
+    # working until a rustup toolchain is configured while putting `rustup` on PATH.
+    (lib.setPrio 20 rustup)
+    sccache
+    mold
     # nsh (Native Shell): the TSX-on-native-runtime GUI framework. The package
     # keeps a writable copy of its distribution in ~/.nsh and downloads the
     # web and Android runtimes there on first use; home/programs/nsh.nix sets

@@ -16,6 +16,7 @@
     ./programs/pig.nix
     ./programs/magpie.nix
     ./programs/nsh.nix
+    ./programs/rust.nix
     ./audio/rnnoise.nix
 
     ./desktop/screenshot.nix
