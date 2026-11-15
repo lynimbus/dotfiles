@@ -14,9 +14,9 @@ This project uses [Beads (bd)](https://github.com/gastownhall/beads) for issue t
 - Track ALL work in bd (never use markdown TODOs or comment-based task lists)
 - Use `bd ready` to find available work
 - Use `bd create` to track new issues/tasks/bugs
-- Treat commit, push, and Dolt remote sync as policy-controlled handoff actions
+- Commit completed work locally with `jj commit` without waiting for confirmation (unless the current user request forbids it); treat push and Dolt remote sync as explicit-request-only actions
 - Run `bd prime` for complete workflow context (SSOT for operational commands)
-- Default to conservative git authority: report status and proposed commands unless the user, orchestrator, or repository profile explicitly authorizes commit/sync/push
+- Repository commit authority: this repo opts into direct local commits via `jj commit -m "..."` upon task completion; do not push unless explicitly asked
 
 ## Quick Reference
 
@@ -38,7 +38,7 @@ bd dolt push                          # Sync with remote when authorized
 2. Claim an issue atomically: `bd update <id> --claim`
 3. Do the work
 4. Mark complete: `bd close <id>`
-5. Handoff: report changed files, validation, issue status, and any proposed commit/sync/push commands
+5. Commit & handoff: run `jj commit -m "<type>(<scope>): <summary>"` directly after completion, then report changed files, commit summary, validation, and issue status
 
 ## Issue Types
 
@@ -65,3 +65,11 @@ For detailed docs: see AGENTS.md, the beads quickstart
 (https://github.com/gastownhall/beads/blob/main/docs/getting-started/quickstart.md), or run `bd --help`
 
 <!-- END BEADS INTEGRATION -->
+
+## Version Control & Commit Policy
+
+This repository uses **jj** (`jujutsu`), not bare `git`.
+
+- **Commit directly on completion**: After finishing a task and running relevant checks, commit your changes directly with `jj commit -m "<message>"` without asking the user for confirmation (unless the current user request explicitly says not to commit).
+- **Do not push automatically**: Only run `jj git push` or `bd dolt push` when explicitly requested.
+- **Commit style**: Follow Conventional Commits (`feat(scope): ...`, `fix(scope): ...`, `chore(scope): ...`, `docs(scope): ...`), and keep changes of different natures in separate commits.
