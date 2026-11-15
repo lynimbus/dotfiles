@@ -49,6 +49,8 @@
     # input is deliberately not followed: the kernel patches and the cached
     # builds both assume the revision this flake pins.
     nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
+
+    crane.url = "github:ipetkov/crane";
   };
 
   outputs =
@@ -72,6 +74,7 @@
       local = import ./overlay.nix {
         inherit repoRoot;
         lib = nixpkgs.lib;
+        crane = inputs.crane;
       };
 
       # One set of arguments for the system and the home modules, so a value

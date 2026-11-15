@@ -1,6 +1,6 @@
 {
   lib,
-  stdenv,
+  craneLib,
   rustPlatform,
   runCommand,
   fetchFromGitHub,
@@ -64,56 +64,63 @@ let
           > $out
       '';
 
-  # The distribution: the CLI and this machine's runtimes, in the layout
-  # `cargo xtask dist` produces and the CLI discovers (../../runtime from
-  # bin/nsh).
-  distribution = rustPlatform.buildRustPackage (finalAttrs: {
+  src = fetchFromGitHub {
+    owner = "longbridge";
+    repo = "nsh";
+    rev = "v${version}";
+    inherit hash;
+    # The build script stamps the CLI with the checkout's revision, falling
+    # back to the crates.io-style marker a packaged crate carries. A GitHub
+    # archive has no .git, so that marker is written here; postFetch runs
+    # after the tree has been moved to $out, hence the absolute path.
+    postFetch = ''
+      mkdir -p "$out/crates/nsh-cli"
+      printf '{"git":{"sha1":"${rev}"}}' > "$out/crates/nsh-cli/.cargo_vcs_info.json"
+    '';
+  };
+
+  cargoDeps = rustPlatform.fetchCargoVendor {
+    inherit src;
+    hash = cargoHash;
+  };
+
+  # What `cargo xtask dist` builds for a Linux host: the CLI, the GTK
+  # development host, the release runner, and the terminal host (`nsh run
+  # --target tui`). The web and Android runtimes are components the CLI
+  # downloads into the writable mirror on first use instead (the web one
+  # needs a wasm32-targeting clang, the Android one an NDK).
+  cargoExtraArgs = lib.escapeShellArgs [
+    "-p"
+    "nsh-cli"
+    "-p"
+    "nsh-linux-host"
+    "-p"
+    "nsh-linux-app"
+    "-p"
+    "nsh-tui-host"
+    "--locked"
+  ];
+
+  commonArgs = {
     pname = "nsh-distribution";
-    inherit version;
+    inherit
+      version
+      src
+      cargoExtraArgs
+      ;
+    # Skip crane's read-only store vendor dir and copy cargoDeps into a writable
+    # directory inside $NIX_BUILD_TOP instead: quickjs-jit-sys's build.rs copies
+    # C files into OUT_DIR with fs::copy (preserving permissions) and then
+    # patches them in place, which fails with EACCES if the vendor dir is 0444.
+    cargoVendorDir = null;
+    strictDeps = true;
 
-    src = fetchFromGitHub {
-      owner = "longbridge";
-      repo = "nsh";
-      rev = "v${version}";
-      inherit hash;
-      # The build script stamps the CLI with the checkout's revision, falling
-      # back to the crates.io-style marker a packaged crate carries. A GitHub
-      # archive has no .git, so that marker is written here; postFetch runs
-      # after the tree has been moved to $out, hence the absolute path.
-      postFetch = ''
-        mkdir -p "$out/crates/nsh-cli"
-        printf '{"git":{"sha1":"${rev}"}}' > "$out/crates/nsh-cli/.cargo_vcs_info.json"
-      '';
-    };
-
-    # What `cargo xtask dist` builds for a Linux host: the CLI, the GTK
-    # development host, the release runner, and the terminal host (`nsh run
-    # --target tui`). The web and Android runtimes are components the CLI
-    # downloads into the writable mirror on first use instead (the web one
-    # needs a wasm32-targeting clang, the Android one an NDK).
-    cargoBuildFlags = [
-      "-p"
-      "nsh-cli"
-      "-p"
-      "nsh-linux-host"
-      "-p"
-      "nsh-linux-app"
-      "-p"
-      "nsh-tui-host"
-    ];
-
-    cargoDeps = rustPlatform.fetchCargoVendor {
-      inherit (finalAttrs) src;
-      hash = cargoHash;
-    };
+    # The workspace's tests are a `nsh test` suite of their own, not cargo's.
+    doCheck = false;
 
     env.LIBCLANG_PATH = "${llvmPackages.libclang.lib}/lib";
 
-    nativeBuildInputs = [
-      pkg-config
-      makeWrapper
-      wrapGAppsHook3
-    ];
+    nativeBuildInputs = [ pkg-config ];
 
     buildInputs = [
       gtk4
@@ -124,45 +131,73 @@ let
       gst_all_1.gst-plugins-base
     ];
 
-    # The workspace's tests are a `nsh test` suite of their own, not cargo's.
-    doCheck = false;
-
-    # wrapGAppsHook wraps $out/bin by default, which holds only the mirrored
-    # CLI here; the GTK host and the release runner are wrapped by hand.
-    dontWrapGApps = true;
-
-    installPhase = ''
-      runHook preInstall
-
-      # buildRustPackage compiles with `--target <triple>`, so the binaries
-      # sit one directory deeper than the profile: target/<triple>/release/.
-      rel="target/${stdenv.hostPlatform.rust.rustcTarget}/release"
-      dist="$out/dist/nsh"
-      mkdir -p "$dist/bin" "$dist/runtime/linux" "$dist/runtime/tui"
-      cp "$rel/nsh" "$dist/bin/nsh"
-      cp "$rel/nsh-linux-host" "$rel/nsh-linux-app" "$dist/runtime/linux/"
-      cp "$rel/nsh-tui-host" "$dist/runtime/tui/"
-
-      runHook postInstall
+    preConfigure = ''
+      vendorDir="$NIX_BUILD_TOP/vendor"
+      cp -Lr --reflink=auto -- "${cargoDeps}" "$vendorDir"
+      chmod -R u+w -- "$vendorDir"
+      substitute "$vendorDir/.cargo/config.toml" "$CARGO_HOME/config.toml.vendor" \
+        --replace-fail '@vendor@' "$vendorDir"
+      cat "$CARGO_HOME/config.toml.vendor" >> "$CARGO_HOME/config.toml"
     '';
+  };
 
-    # The hosts link GTK and WebKit at run time and read gsettings schemas and
-    # GStreamer plugins from the environment; these wrappers carry both.
-    postFixup = ''
-      for exe in "$out/dist/nsh/runtime/linux/nsh-linux-host" "$out/dist/nsh/runtime/linux/nsh-linux-app"; do
-        wrapProgram "$exe" \
-          "''${gappsWrapperArgs[@]}" \
-          --set GST_PLUGIN_SYSTEM_PATH_1_0 "${gst_all_1.gstreamer}/lib/gstreamer-1.0:${gst_all_1.gst-plugins-base}/lib/gstreamer-1.0"
-      done
-    '';
+  # Precompile third-party crates into a separate store derivation so changes
+  # to packaging, patches, or nsh's own workspace crates never recompile deps.
+  cargoArtifacts = craneLib.buildDepsOnly (
+    commonArgs
+    // {
+      buildPhaseCargoCommand = "cargoWithProfile build ${cargoExtraArgs}";
+    }
+  );
 
-    meta = {
-      description = "nsh distribution: the CLI and this machine's runtimes";
-      homepage = "https://nsh.dev";
-      license = lib.licenses.asl20;
-      platforms = lib.platforms.linux;
-    };
-  });
+  # The distribution: the CLI and this machine's runtimes, in the layout
+  # `cargo xtask dist` produces and the CLI discovers (../../runtime from
+  # bin/nsh).
+  distribution = craneLib.buildPackage (
+    commonArgs
+    // {
+      inherit cargoArtifacts;
+
+      nativeBuildInputs = commonArgs.nativeBuildInputs ++ [
+        makeWrapper
+        wrapGAppsHook3
+      ];
+
+      # wrapGAppsHook wraps $out/bin by default, which holds only the mirrored
+      # CLI here; the GTK host and the release runner are wrapped by hand.
+      dontWrapGApps = true;
+
+      doNotPostBuildInstallCargoBinaries = true;
+
+      buildPhaseCargoCommand = "cargoWithProfile build ${cargoExtraArgs}";
+
+      installPhaseCommand = ''
+        rel="target/release"
+        dist="$out/dist/nsh"
+        mkdir -p "$dist/bin" "$dist/runtime/linux" "$dist/runtime/tui"
+        cp "$rel/nsh" "$dist/bin/nsh"
+        cp "$rel/nsh-linux-host" "$rel/nsh-linux-app" "$dist/runtime/linux/"
+        cp "$rel/nsh-tui-host" "$dist/runtime/tui/"
+      '';
+
+      # The hosts link GTK and WebKit at run time and read gsettings schemas and
+      # GStreamer plugins from the environment; these wrappers carry both.
+      postFixup = ''
+        for exe in "$out/dist/nsh/runtime/linux/nsh-linux-host" "$out/dist/nsh/runtime/linux/nsh-linux-app"; do
+          wrapProgram "$exe" \
+            "''${gappsWrapperArgs[@]}" \
+            --set GST_PLUGIN_SYSTEM_PATH_1_0 "${gst_all_1.gstreamer}/lib/gstreamer-1.0:${gst_all_1.gst-plugins-base}/lib/gstreamer-1.0"
+        done
+      '';
+
+      meta = {
+        description = "nsh distribution: the CLI and this machine's runtimes";
+        homepage = "https://nsh.dev";
+        license = lib.licenses.asl20;
+        platforms = lib.platforms.linux;
+      };
+    }
+  );
 in
 # The `nsh` on PATH. This is a derivation of its own, separate from the
 # distribution above, because it is the part that changes while the package is
