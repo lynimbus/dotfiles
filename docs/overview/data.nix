@@ -108,6 +108,8 @@ let
       "rustfmt"
       "rust-analyzer"
       "rustup"
+      "sccache"
+      "mold-unwrapped-wrapper"
       "jdt-language-server"
       "openjdk"
       "ast-grep"
