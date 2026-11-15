@@ -2,6 +2,7 @@
   inputs,
   lib,
   repoRoot,
+  username,
   ...
 }:
 
@@ -55,10 +56,24 @@
 
     # This machine has 16 threads and 22G of memory. Letting Nix run every job
     # with every core oversubscribes both and makes a large build swap, so cap
-    # the product at the thread count: 8 jobs of 2 cores each.
-    max-jobs = 8;
-    cores = 2;
+    # the product at the thread count: 2 jobs of 8 cores each gives a single
+    # heavy Rust/C++ build half the machine's threads instead of stalling at 2.
+    max-jobs = 2;
+    cores = 8;
+
+    # Expose the host's sccache directory to sandboxed builds (the trailing `?`
+    # keeps builds working even before systemd-tmpfiles creates it).
+    extra-sandbox-paths = [
+      "/var/cache/sccache?"
+    ];
   };
+
+  # Share /var/cache/sccache between Nix's nixbld workers and the host user via
+  # setgid + default POSIX ACLs so files created by any UID stay writable by all.
+  systemd.tmpfiles.rules = [
+    "d /var/cache/sccache 2770 root nixbld -"
+    "a+ /var/cache/sccache - - - - u:${username}:rwx,g:nixbld:rwx,m::rwx,d:u:${username}:rwx,d:g:nixbld:rwx,d:m::rwx"
+  ];
 
   # The daemon lowers its own scheduling class so a build cannot starve the
   # session you are typing in. "batch" over "idle" keeps rebuilds from being
