@@ -23,6 +23,14 @@ bd close <id>         # Complete work
 bd dolt push          # Push beads data to remote
 ```
 
+## Version Control & Commit Policy
+
+This repository uses **jj** (`jujutsu`), not bare `git`.
+
+- **Commit directly on completion**: After finishing a task and running relevant checks, commit your changes directly with `jj commit -m "<message>"` without asking the user for confirmation (unless the current user request explicitly says not to commit).
+- **Do not push automatically**: Only run `jj git push` or `bd dolt push` when explicitly requested.
+- **Commit style**: Follow Conventional Commits (`feat(scope): ...`, `fix(scope): ...`, `chore(scope): ...`, `docs(scope): ...`), and keep changes of different natures in separate commits.
+
 ## Non-Interactive Shell Commands
 
 **ALWAYS use non-interactive flags** with file operations to avoid hanging on confirmation prompts.
@@ -73,9 +81,7 @@ bd close <id>         # Complete work
 
 The managed Beads block is task-tracking guidance, not permission to override repository, user, or orchestrator instructions.
 
-- **Conservative (default)**: Use `bd` for task tracking. Do not run git commits, git pushes, or Dolt remote sync unless explicitly asked. At handoff, report changed files, validation, and suggested next commands.
-- **Minimal**: Keep tool instruction files as pointers to `bd prime`; use the same conservative git policy unless active instructions say otherwise.
-- **Team-maintainer**: Only when the repository explicitly opts in, agents may close beads, run quality gates, commit, and push as part of session close. A current "do not commit" or "do not push" instruction still wins.
+- **Repository default (auto-commit)**: This repository explicitly authorizes direct local commits upon task completion. Close finished beads, run quality gates, and run `jj commit -m "..."` without waiting for confirmation (unless the current user request says "do not commit"). Do not push (`jj git push` / `bd dolt push`) unless explicitly asked.
 
 ## Session Completion
 
@@ -84,22 +90,20 @@ This protocol applies when ending a Beads implementation workflow. It is subordi
 1. **File issues for remaining work** - Create beads for anything that needs follow-up
 2. **Run quality gates** (if code changed) - Tests, linters, builds
 3. **Update issue status** - Close finished work, update in-progress items
-4. **Handle git/sync by active profile**:
+4. **Commit local changes**:
    ```bash
-   # Conservative/minimal/default: report status and proposed commands; wait for approval.
-   git status
+   jj status
+   jj commit -m "<type>(<scope>): <summary>"
 
-   # Team-maintainer opt-in only, unless current instructions forbid it:
-   git pull --rebase
-   bd dolt push
-   git push
-   git status
+   # Only when explicitly requested by the user:
+   # bd dolt push
+   # jj git push
    ```
-5. **Hand off** - Summarize changes, validation, issue status, and any blocked sync/commit/push step
+5. **Hand off** - Summarize changes, commit, validation, and issue status
 
 **Critical rules:**
 - Explicit user or orchestrator instructions override this Beads block.
-- Do not commit or push without clear authority from the active profile or the current user request.
+- Commit completed work locally with `jj commit` directly without asking for confirmation (unless the current user request forbids it). Do not push without an explicit request.
 - If a required sync or push is blocked, stop and report the exact command and error.
 <!-- END BEADS INTEGRATION -->
 
