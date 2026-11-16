@@ -27,11 +27,22 @@
 #                         asset hash both come out of it, so the asset is never
 #                         downloaded to derive them; see feed_release.
 #   --bump-asset=<name>   which asset of that feed this package ships.
+#   --bump-app-manifest=<url>
+#                         Google's app update manifest, the electron-updater
+#                         shape Antigravity publishes: the version at the top,
+#                         and in every asset URL that same version with the
+#                         build id appended as the path segment ahead of the
+#                         platform. The download only resolves with both, so
+#                         the script reads both out of the one answer and
+#                         writes the build id itself; see app_manifest_release.
 #
 # A package that declares --bump-feed= must also declare --no-src: the hash is
 # written by write_src_hash from the feed, and --no-src is what stops nix-update
 # from downloading the asset to re-derive it. --bump-manifest= is the opposite:
 # it only names a version, so the src rewrite and --build have to stay.
+# --bump-app-manifest= sits between the two: it names the version the way
+# --bump-manifest= does, but the build id it also names has to be in the file
+# before nix-update fetches that version, so it is written first.
 #
 # Usage:
 #   docs/bump-packages.sh              # every package that tracks a release
@@ -156,6 +167,35 @@ manifest_version() {
 	version="$(jq -r '.version // empty' <<<"$json")"
 	[ -n "$version" ] || return 1
 	printf '%s\n' "$version"
+}
+
+# The release a Google app update manifest announces: version on the first
+# line, build id on the next.
+#
+# The manifest (Antigravity App publishes one per platform under
+# antigravity-hub-auto-updater-974169037036.us-central1.run.app/manifest/)
+# states a release twice: `version:` at the top, and in every asset URL that
+# same version with the build id appended,
+# antigravity-hub/2.32.1-6001966350991360/. The storage path only resolves with
+# both, so the second half is read out of the path rather than guessed at — and
+# only from a segment that starts with the version the same answer states,
+# which is what keeps a release caught halfway through rollout from writing a
+# version from one upload and a build id from another.
+#
+# The answer is YAML and only this one line is taken from it, so the parse is a
+# sed and a grep rather than a dependency on a YAML reader neither this script
+# nor the machines it runs on otherwise have.
+app_manifest_release() {
+	local url="$1" yml version segment build_id
+	yml="$(curl -fsSL --retry 2 --retry-delay 2 "$url")" || return 1
+	version="$(sed -n 's/^version:[[:space:]]*\([^[:space:]]*\)$/\1/p' <<<"$yml" | head -n 1)"
+	[ -n "$version" ] || return 1
+	segment="$(tr -s ' \t/' '\n' <<<"$yml" | grep -m 1 -E '^[0-9]+(\.[0-9]+)+-[0-9]+$')" || return 1
+	case "$segment" in
+	"$version"-*) build_id="${segment#"$version"-}" ;;
+	*) return 1 ;;
+	esac
+	printf '%s\n%s\n' "$version" "$build_id"
 }
 
 # The release a feed announces: version on one line, the asset SHA-256 on the next.
@@ -359,7 +399,7 @@ nix_update() {
 bump_package() {
 	local p="$1"
 	shift
-	local arg url="" manifest="" version feed="" asset="" hash="" out current
+	local arg url="" manifest="" app_manifest="" version build_id="" feed="" asset="" hash="" out current
 	local -a pass=()
 	# The --bump-* flags are read here rather than passed through to nix-update,
 	# inside the retry loop: an index that 502s is then retried on the same terms
@@ -369,6 +409,7 @@ bump_package() {
 		case "$arg" in
 		--bump-maven=*) url="${arg#--bump-maven=}" ;;
 		--bump-manifest=*) manifest="${arg#--bump-manifest=}" ;;
+		--bump-app-manifest=*) app_manifest="${arg#--bump-app-manifest=}" ;;
 		--bump-feed=*) feed="${arg#--bump-feed=}" ;;
 		--bump-asset=*) asset="${arg#--bump-asset=}" ;;
 		*) pass+=("$arg") ;;
@@ -393,6 +434,14 @@ bump_package() {
 			return 1
 		fi
 		echo "[bump] $p: $manifest publishes $version" >&2
+	elif [ -n "$app_manifest" ]; then
+		if ! out="$(app_manifest_release "$app_manifest")"; then
+			echo "[bump] $p: cannot read the app manifest $app_manifest" >&2
+			return 1
+		fi
+		version="$(sed -n 1p <<<"$out")"
+		build_id="$(sed -n 2p <<<"$out")"
+		echo "[bump] $p: $app_manifest publishes $version-$build_id" >&2
 	elif [ -n "$url" ]; then
 		if ! version="$(maven_latest_stable "$url")"; then
 			echo "[bump] $p: cannot read the version index $url" >&2
@@ -424,6 +473,15 @@ bump_package() {
 		pass+=("--version=$version")
 	fi
 
+	# The download URL carries the build id, so it has to be in the file before
+	# nix-update fetches the release the version names: written from the literal
+	# the derivation reports, so the replacement cannot land on another number.
+	# From here on a failure leaves the file with the new build id and the old
+	# version, which pkgs_checksum reports like any other half-write.
+	if [ -n "$build_id" ]; then
+		write_build_id "$p" "$build_id" || return 1
+	fi
+
 	if ! nix_update "$p" "${pass[@]}"; then
 		return 1
 	fi
@@ -442,15 +500,8 @@ bump_package() {
 # old value (src.outputHash), so the replacement cannot land on another hash
 # that happens to sit in the same file.
 write_src_hash() {
-	local p="$1" hex="$2" file old sri store
-	file="$(nix eval --raw ".#legacyPackages.$system.$p.meta.position")" || return 1
-	file="${file%:*}"
-	# meta.position names the file in the flake source as nix copied it into the
-	# store, which is read-only. The same path under the checkout is the one
-	# nix-update just rewrote.
-	store="$(nix flake metadata --json | jq -r .path)" || return 1
-	file="$repo_dir/${file#"$store"/}"
-	[ -f "$file" ] || { echo "[bump] $p: $file is not in the checkout" >&2; return 1; }
+	local p="$1" hex="$2" file old sri
+	file="$(package_file "$p")" || return 1
 	old="$(nix eval --raw ".#legacyPackages.$system.$p.src.outputHash")" || return 1
 	sri="$(nix hash convert --hash-algo sha256 --to sri "$hex")" || return 1
 	[ "$old" != "$sri" ] || return 0
@@ -460,6 +511,36 @@ write_src_hash() {
 	fi
 	OLD="$old" NEW="$sri" perl -pi -e 's/\Q$ENV{OLD}\E/$ENV{NEW}/g' "$file"
 	echo "[bump] $p: src -> $sri" >&2
+}
+
+# Rewrites the build id a package file pins. The file comes from the derivation
+# and so does the old value (passthru.buildId), on the same terms as
+# write_src_hash: the replacement cannot land on another number that happens to
+# sit in the same file.
+write_build_id() {
+	local p="$1" new="$2" file old
+	file="$(package_file "$p")" || return 1
+	old="$(nix eval --raw ".#legacyPackages.$system.$p.passthru.buildId")" || return 1
+	[ "$old" != "$new" ] || return 0
+	if ! grep -qF -- "$old" "$file"; then
+		echo "[bump] $p: $file carries no build id $old" >&2
+		return 1
+	fi
+	OLD="$old" NEW="$new" perl -pi -e 's/\Q$ENV{OLD}\E/$ENV{NEW}/g' "$file"
+	echo "[bump] $p: build id -> $new" >&2
+}
+
+# The file a package was defined in, as a path in the checkout. meta.position
+# names it in the flake source as nix copied it into the store, which is
+# read-only; the same path under the checkout is the one nix-update rewrites.
+package_file() {
+	local p="$1" file store
+	file="$(nix eval --raw ".#legacyPackages.$system.$p.meta.position")" || return 1
+	file="${file%:*}"
+	store="$(nix flake metadata --json | jq -r .path)" || return 1
+	file="$repo_dir/${file#"$store"/}"
+	[ -f "$file" ] || { echo "[bump] $p: $file is not in the checkout" >&2; return 1; }
+	printf '%s\n' "$file"
 }
 
 # A checksum of every package file, taken before and after one package's run,
