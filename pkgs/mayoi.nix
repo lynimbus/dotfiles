@@ -35,11 +35,11 @@
   # produces the binary. version, the archive hash and the source hash all
   # follow the release tag, so `just bump mayoi` (nix-update) moves them
   # together, the archive being its --custom-dep tarball.
-  version ? "0.21.1",
-  hash ? "sha256-7IyQM2kl22H6rE48wHHAPZdPAS0WTj/NfvTwETd5pQM=",
+  version ? "0.22.1",
+  hash ? "sha256-JcJBF5YVh3ZnQqbVd/9YLMzO4wF1tU+uIJhUrZb451M=",
   archiveSuffix ? "linux-amd64",
-  archiveHash ? "sha256-JEuijwNUlkSIPgVKDwSnjj8B3DkClzSkSe62yPmszD4=",
-  vendorHash ? "sha256-g/MXlamv63TVXWNZcSPJ/1Ot6oykRd5LQUPS0WJpCaE=",
+  archiveHash ? "sha256-tdNHWAc29le1x+4+oGT+z+fVhtKVxa2Tb14dD7Oz9Ns=",
+  vendorHash ? "sha256-2ttKwnknaw1MlCzgV+2pTdl1qJm9LO7QKmdV3uF/Ukg=",
 }:
 
 let
