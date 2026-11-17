@@ -15,6 +15,7 @@
     ./programs/memo.nix
     ./programs/pig.nix
     ./programs/magpie.nix
+    ./programs/blackhole.nix
     ./programs/nsh.nix
     ./programs/rust.nix
     ./audio/rnnoise.nix
