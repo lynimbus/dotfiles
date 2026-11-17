@@ -144,6 +144,7 @@ let
       "alma"
       "antigravity-cli"
       "rtk"
+      "blackhole"
     ];
   };
 

@@ -145,6 +145,7 @@
     "antigravity-cli": "Google 的 Antigravity 终端智能体客户端",
     "kero": "面向编码智能体的原生终端，会话比窗口活得更久",
     "herdr-core": "让编码智能体的终端会话在退出后继续存活（hc）",
+    "blackhole": "把 Claude Code 关进只挂载当前项目目录的容器里运行",
     "alma": "自带智能体运行时的桌面应用，也是 herdr 的图形客户端，把 Claude Code、Codex、pi 的会话读成聊天",
     "neovim": "Vim 文本编辑器的分支，主打可扩展性与灵活性",
     "helix": "后现代风格的模态文本编辑器",
