@@ -22,9 +22,8 @@ in
     from = "desktop/noctalia/templates";
     into = "noctalia/templates";
     files = [
-      "gtk-3.0.css"
-      "gtk-4.0.css"
-      "fcitx5"
+      "umbriel-gtk"
+      "fcitx5-mellow"
     ];
   };
 }

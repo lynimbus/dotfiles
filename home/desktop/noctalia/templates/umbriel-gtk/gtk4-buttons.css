@@ -1,0 +1,84 @@
+/*
+ * Noctalia 用户模板：GTK4/libadwaita 窗口按钮（Umbriel 风格）。
+ * （左侧按钮行，关闭在最外侧）。
+ *
+ * 这里只处理窗口按钮（三个圆点），标题栏其他部分保持 libadwaita 默认样式。
+ * 按钮尺寸/圆角/间距由 gtk4-input.sh 从 Umbriel 配置的 [appearance.title_bar] 读取后填入。
+ * 其他样式（hover、菜单、列表等）见 gtk4-extras.css。
+ */
+
+windowcontrols:not(.empty) {
+  border-spacing: __UMBRIEL_BUTTON_GAP__px;
+  margin: 0 9px;
+}
+
+windowcontrols:not(.empty) > button {
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  margin: 0;
+  background-color: transparent;
+  background-image: none;
+  box-shadow: none;
+  outline: none;
+}
+
+windowcontrols:not(.empty) > button > image {
+  -gtk-icon-size: __UMBRIEL_BUTTON_SIZE__px;
+  min-width: __UMBRIEL_BUTTON_SIZE__px;
+  min-height: __UMBRIEL_BUTTON_SIZE__px;
+  padding: 0;
+  border-radius: __UMBRIEL_BUTTON_RADIUS__;
+  color: transparent;
+}
+
+windowcontrols:not(.empty) > button.close > image {
+  background-color: {{ colors.error.default.hex }};
+}
+
+windowcontrols:not(.empty) > button.maximize > image {
+  background-color: {{ colors.primary.default.hex }};
+}
+
+windowcontrols:not(.empty) > button.minimize > image {
+  background-color: {{ colors.secondary.default.hex }};
+}
+
+windowcontrols:not(.empty) > button.close:hover > image {
+  background-color: {{ colors.error.default.hex | lighten 8 }};
+}
+
+windowcontrols:not(.empty) > button.maximize:hover > image {
+  background-color: {{ colors.primary.default.hex | lighten 8 }};
+}
+
+windowcontrols:not(.empty) > button.minimize:hover > image {
+  background-color: {{ colors.secondary.default.hex | lighten 8 }};
+}
+
+windowcontrols:not(.empty) > button.close:active > image {
+  background-color: {{ colors.error.default.hex | darken 8 }};
+}
+
+windowcontrols:not(.empty) > button.maximize:active > image {
+  background-color: {{ colors.primary.default.hex | darken 8 }};
+}
+
+windowcontrols:not(.empty) > button.minimize:active > image {
+  background-color: {{ colors.secondary.default.hex | darken 8 }};
+}
+
+windowcontrols:not(.empty) > button:disabled {
+  opacity: 0.5;
+}
+
+/* ===== 窗口圆点按钮的补充覆盖（最大化/outline） ===== */
+window.csd.maximized windowcontrols > button > image {
+  border-radius: 0;
+}
+
+/* 窗口圆点按钮按下时不要轮廓。 */
+windowcontrols > button:active,
+windowcontrols > button:checked {
+  outline: none;
+}

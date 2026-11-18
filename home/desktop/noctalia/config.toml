@@ -149,34 +149,64 @@ source = "wallpaper"
 wallpaper_scheme = "m3-content"
 
 [theme.templates]
-builtin_ids = ["mango"]
+builtin_ids = ["umbriel", "mango", "gtk3", "gtk4"]
 
-[theme.templates.user.nyxniri_gtk3]
-index = 3
-input_path = "$XDG_CONFIG_HOME/noctalia/templates/gtk-3.0.css"
-output_path = "$XDG_CONFIG_HOME/gtk-3.0/gtk.css"
-
-[theme.templates.user.nyxniri_gtk4]
-index = 4
-input_path = "$XDG_CONFIG_HOME/noctalia/templates/gtk-4.0.css"
-output_path = "$XDG_CONFIG_HOME/gtk-4.0/gtk.css"
-
-[theme.templates.user.nyxmellow_theme]
-index = 6
-input_path = "$XDG_CONFIG_HOME/noctalia/templates/fcitx5/theme.conf"
-output_path = "$XDG_DATA_HOME/fcitx5/themes/noctalia/theme.conf"
-
-[theme.templates.user.nyxmellow_panel]
-index = 7
-input_path = "$XDG_CONFIG_HOME/noctalia/templates/fcitx5/panel.svg"
-output_path = "$XDG_DATA_HOME/fcitx5/themes/noctalia/panel.svg"
-
-[theme.templates.user.nyxmellow_highlight]
-index = 8
-input_path = "$XDG_CONFIG_HOME/noctalia/templates/fcitx5/highlight.svg"
-output_path = "$XDG_DATA_HOME/fcitx5/themes/noctalia/highlight.svg"
+[theme.templates.user.umbriel_gtk4]
+index = 1
+input_path = "$XDG_CACHE_HOME/noctalia/umbriel-gtk/gtk4-input.css"
+output_path = "$XDG_CONFIG_HOME/gtk-4.0/umbriel.css"
 hook_async = false
-post_hook = "busctl --user --auto-start=no call org.fcitx.Fcitx5 /controller org.fcitx.Fcitx.Controller1 ReloadAddonConfig s classicui >/dev/null 2>&1 || true"
+pre_hook = "bash \"$HOME/.config/noctalia/templates/umbriel-gtk/gtk4-input.sh\" > /dev/null"
+post_hook = "bash \"$HOME/.config/noctalia/templates/umbriel-gtk/gtk4-apply.sh\""
+
+[theme.templates.user.umbriel_gtk4_extras]
+index = 2
+input_path = "$XDG_CACHE_HOME/noctalia/umbriel-gtk/gtk4-extras-input.css"
+output_path = "$XDG_CONFIG_HOME/gtk-4.0/umbriel-extras.css"
+hook_async = false
+pre_hook = "bash \"$HOME/.config/noctalia/templates/umbriel-gtk/gtk4-input.sh\" > /dev/null"
+post_hook = "bash \"$HOME/.config/noctalia/templates/umbriel-gtk/gtk4-apply.sh\""
+
+[theme.templates.user.umbriel_gtk3]
+index = 3
+input_path = "$XDG_CACHE_HOME/noctalia/umbriel-gtk/gtk3-buttons-input.css"
+output_path = "$XDG_CONFIG_HOME/gtk-3.0/colors.css"
+hook_async = false
+pre_hook = "bash \"$HOME/.config/noctalia/templates/umbriel-gtk/gtk3-input.sh\" > /dev/null"
+post_hook = "bash \"$HOME/.config/noctalia/templates/umbriel-gtk/gtk3-apply.sh\""
+
+[theme.templates.user.umbriel_gtk3_extras]
+index = 4
+input_path = "$XDG_CACHE_HOME/noctalia/umbriel-gtk/gtk3-extras-input.css"
+output_path = "$XDG_CONFIG_HOME/gtk-3.0/colors-extras.css"
+hook_async = false
+pre_hook = "bash \"$HOME/.config/noctalia/templates/umbriel-gtk/gtk3-input.sh\" > /dev/null"
+post_hook = "bash \"$HOME/.config/noctalia/templates/umbriel-gtk/gtk3-apply.sh\""
+
+[theme.templates.user.umbriel_firefox_buttons]
+index = 5
+input_path = "$XDG_CACHE_HOME/noctalia/umbriel-gtk/firefox-buttons-input.css"
+output_path = "$XDG_CACHE_HOME/noctalia/umbriel-gtk/firefox-buttons.css"
+hook_async = false
+pre_hook = "bash \"$HOME/.config/noctalia/templates/umbriel-gtk/firefox-input.sh\" > /dev/null"
+post_hook = "bash \"$HOME/.config/noctalia/templates/umbriel-gtk/firefox-apply.sh\""
+
+[theme.templates.user.fcitx5_mellow_panel]
+index = 6
+input_path = "~/.config/noctalia/templates/fcitx5-mellow/panel.svg"
+output_path = "$XDG_DATA_HOME/fcitx5/themes/noctalia-mellow/panel.svg"
+
+[theme.templates.user.fcitx5_mellow_highlight]
+index = 7
+input_path = "~/.config/noctalia/templates/fcitx5-mellow/highlight.svg"
+output_path = "$XDG_DATA_HOME/fcitx5/themes/noctalia-mellow/highlight.svg"
+
+[theme.templates.user.fcitx5_mellow_conf]
+index = 8
+input_path = "~/.config/noctalia/templates/fcitx5-mellow/theme.conf"
+output_path = "$XDG_DATA_HOME/fcitx5/themes/noctalia-mellow/theme.conf"
+hook_async = false
+post_hook = "bash \"$HOME/.config/noctalia/templates/fcitx5-mellow/apply.sh\" && busctl --user --auto-start=no call org.fcitx.Fcitx5 /controller org.fcitx.Fcitx.Controller1 ReloadAddonConfig s classicui >/dev/null 2>&1 || true"
 
 [wallpaper]
 directory = "~/Pictures/Wallpapers"
