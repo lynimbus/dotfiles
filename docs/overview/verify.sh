@@ -200,7 +200,7 @@ check lang.zh.cards "$expected_total"
 check lang.zh.raw-keys 0
 check lang.zh.settings-raw-keys 0
 check lang.zh.blank-descriptions 0
-check lang.zh.search-hits strata
+check lang.zh.search-hits nautilus,yazi
 check lang.en.html-lang en
 check lang.en.cards "$expected_total"
 check lang.en.raw-keys 0
