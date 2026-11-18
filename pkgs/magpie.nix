@@ -18,8 +18,8 @@
   # rather than in it. docs/bump-packages.sh reads the release feed and hands
   # every literal here its new value in one run, so no release has a version or
   # a hash that can drift from the others.
-  version ? "0.1.4309",
-  hash ? "sha256-QMcse8iNBP5E/u5CPLOsjjJyyeplEw8rdYK1maMTMSw=",
+  version ? "0.1.4501",
+  hash ? "sha256-+84UJjiGju14y4++dWzyuUqs+awVKX2CPs9REsSRe1U=",
   icon256Hash ? "sha256-V0N8ZZbgWo/PxC1CiMAwqgDthraf411GTWnXAmFQxwQ=",
   icon1024Hash ? "sha256-SdkOjSz4AFXXjmLCQj9BRo6r82SRBLBsJLleR1yFDUc=",
   iconSvgHash ? "sha256-fT50MnUFiN0JxQqsNMF2NWQExwhiJmb8WYPxFR4mv/U=",

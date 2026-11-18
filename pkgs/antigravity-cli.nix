@@ -7,8 +7,8 @@
   # "just bump antigravity-cli" (nix-update) rewrites these literals together.
   # nixpkgs carries this package too, but its version trails upstream's latest
   # release, and overlay.nix replaces the nixpkgs attribute in place.
-  version ? "1.5.9",
-  hash ? "sha256-QmkXn/LVp6yZbvfehwK9PdbZxAumY2U0k5X25mcS3kY=",
+  version ? "1.5.11",
+  hash ? "sha256-I2zi+E9s4RT4/edrMAk4GwqUM5FuAfL22nvQpL31RIE=",
 }:
 
 stdenvNoCC.mkDerivation {
