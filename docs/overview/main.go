@@ -52,6 +52,11 @@ func main() {
 		})
 		app.win = win
 		app.lastWinTitle = app.t("app.title", map[string]any{"host": snap.Meta.Hostname})
+		// Automatically refresh from the live flake in the background on launch
+		// while immediately showing the cached/embedded snapshot.
+		if *dataFlag == "" && repoRoot != "" {
+			app.triggerRefresh(nil, true)
+		}
 	})
 
 	if err := mygo.App.Run(); err != nil {

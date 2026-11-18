@@ -1,6 +1,6 @@
 # The data behind the overview desktop app: what this flake installs and how it
 # is configured, read out of the evaluated configuration rather than restated by
-# hand. docs/overview/build.sh writes docs/overview/snapshot.json from this.
+# hand. The app evaluates this file directly on launch and on Refresh.
 #
 # Packages come from the derivations themselves and the settings come from the
 # home-manager module system, so a package added to packages.nix or a setting
@@ -15,9 +15,13 @@ let
   home = flake.nixosConfigurations.nixos.config.home-manager.users.lynimbus;
   systemConfig = flake.nixosConfigurations.nixos.config;
 
-  # overlay.nix derives this list from pkgs/ and hangs it off bumpMatrix, so the
-  # page can tell the packages this repo builds from the ones nixpkgs does.
-  localNames = builtins.attrNames pkgs.bumpMatrix;
+  # overlay.nix derives pkgs/* via bumpMatrix, and home/ builds three inline
+  # tools directly without separate pkgs/ files.
+  localNames = (builtins.attrNames pkgs.bumpMatrix) ++ [
+    "memo"
+    "screenshot"
+    "kbd-backlight"
+  ];
 
   # sectionOf is the page's own taxonomy, not a second copy of packages.nix:
   # it only decides which shelf a package sits on. Anything unlisted lands in

@@ -43,7 +43,7 @@
   "meta": {
     "homeManagerRev": "2b13c9c",
     "hostname": "nixos",
-    "localCount": 18,
+    "localCount": 21,
     "nixpkgsRev": "0490633",
     "packageCount": 105,
     "stateVersion": "26.05",
@@ -590,7 +590,7 @@
           "homepage": null,
           "icon": null,
           "license": [],
-          "local": false,
+          "local": true,
           "pname": "kbd-backlight",
           "section": "desktop",
           "version": null
@@ -600,7 +600,7 @@
           "homepage": null,
           "icon": null,
           "license": [],
-          "local": false,
+          "local": true,
           "pname": "screenshot",
           "section": "desktop",
           "version": null
@@ -610,7 +610,7 @@
           "homepage": null,
           "icon": null,
           "license": [],
-          "local": false,
+          "local": true,
           "pname": "memo",
           "section": "desktop",
           "version": null
@@ -762,7 +762,7 @@
         {
           "description": "Native MyGo desktop app that inspects what this NixOS flake installs and configures",
           "homepage": null,
-          "icon": "/nix/store/jvi26nw1xmg2rpd5via8pl2i5n28gxdi-overview-0.1.0/share/icons/hicolor/scalable/apps/overview.svg",
+          "icon": "/nix/store/lg69b33mljwrm6ldcf50v289wrmi4sij-overview-0.1.0/share/icons/hicolor/scalable/apps/overview.svg",
           "license": [
             "mit"
           ],

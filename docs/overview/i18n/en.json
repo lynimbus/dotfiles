@@ -19,18 +19,12 @@
   "lang": {
     "label": "Language"
   },
-  "filter": {
-    "all": "All",
-    "local": "From this repo"
-  },
   "toolbar": {
     "refresh": "Refresh",
     "refreshing": "Evaluating flake…",
     "themeAuto": "System",
     "themeLight": "Light",
-    "themeDark": "Dark",
-    "slow": "Slow ×0.25",
-    "normalSpeed": "Normal 1×"
+    "themeDark": "Dark"
   },
   "island": {
     "pkgs": "{count} pkgs",
@@ -106,7 +100,7 @@
   },
   "foot": {
     "packages": "Evaluated from the NixOS flake · home-manager {hm} · {system}",
-    "settings": "Click Refresh or run just overview after changing the configuration."
+    "settings": "Click Refresh in the top bar after changing your flake configuration."
   },
   "settings": {
     "title": "Settings",

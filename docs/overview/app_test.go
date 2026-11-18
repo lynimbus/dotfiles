@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"math"
 	"os"
 	"regexp"
@@ -201,9 +203,10 @@ func TestSearchFilterSettingsAndLanguageSwitch(t *testing.T) {
 	app.query = ""
 	tt.Frame()
 
-	// Source filter: click "本仓库构建"
-	if err := tt.Click(app.t("filter.local", nil)); err != nil {
-		t.Fatalf("click local filter: %v", err)
+	// Source filter: click the local-derivations Pudding tile.
+	localTileLabel := fmt.Sprintf("%d %s", app.snap.Meta.LocalCount, app.t("tile.local", nil))
+	if err := tt.Click(localTileLabel); err != nil {
+		t.Fatalf("click local tile %q: %v", localTileLabel, err)
 	}
 	secs, localShown := app.filteredSections()
 	if localShown != app.snap.Meta.LocalCount {
@@ -216,8 +219,12 @@ func TestSearchFilterSettingsAndLanguageSwitch(t *testing.T) {
 			}
 		}
 	}
-	if err := tt.Click(app.t("filter.all", nil)); err != nil {
-		t.Fatalf("click all filter: %v", err)
+	allTileLabel := fmt.Sprintf("%d %s", app.snap.Meta.PackageCount, app.t("tile.packages", nil))
+	if err := tt.Click(allTileLabel); err != nil {
+		t.Fatalf("click all tile %q: %v", allTileLabel, err)
+	}
+	if app.localOnly {
+		t.Fatalf("expected localOnly=false after clicking packages tile")
 	}
 
 	// Switch to Settings view via Caramel segmented control.
@@ -332,7 +339,7 @@ func TestDetailSheetAndCaramelIslandPhysics(t *testing.T) {
 	}
 }
 
-func TestThemeSlowMoContextMenuAndFishCodeBlock(t *testing.T) {
+func TestThemeContextMenuAndFishCodeBlock(t *testing.T) {
 	app := mustTestApp(t)
 	tt := ui.NewTesterWith(app.view, 1280, 900, ui.TesterOptions{
 		Preferences: ui.Preferences{ReduceMotion: true},
@@ -353,14 +360,6 @@ func TestThemeSlowMoContextMenuAndFishCodeBlock(t *testing.T) {
 	}
 	if app.themeMode != ThemeLight {
 		t.Fatalf("expected ThemeLight, got %v", app.themeMode)
-	}
-
-	// Slow-motion toggle.
-	if err := tt.Click(app.t("toolbar.slow", nil)); err != nil {
-		t.Fatalf("click slow-mo: %v", err)
-	}
-	if !app.slowMo || app.speed() != 0.25 {
-		t.Fatalf("expected slowMo=true speed=0.25, got %v %.2f", app.slowMo, app.speed())
 	}
 
 	// Context menu open & filter shelf action.
@@ -427,5 +426,29 @@ func TestCaramelPuddingMathInvariants(t *testing.T) {
 	}
 	if math.Abs(x-34.0) > 0.05 {
 		t.Fatalf("critically damped spring failed to converge: %.4f", x)
+	}
+}
+
+func TestSilentStartupRefresh(t *testing.T) {
+	app := mustTestApp(t)
+	done := make(chan struct{}, 1)
+	updated := *app.snap
+	updated.Meta.PackageCount = app.snap.Meta.PackageCount + 1
+
+	app.refreshFunc = func(ctx context.Context) (*Snapshot, error) {
+		return &updated, nil
+	}
+	app.onRefreshDone = func() {
+		done <- struct{}{}
+	}
+	app.triggerRefresh(nil, true)
+	select {
+	case <-done:
+	case <-time.After(2 * time.Second):
+		t.Fatalf("background refresh did not finish")
+	}
+	if !app.snapshotLive || app.snap.Meta.PackageCount != updated.Meta.PackageCount {
+		t.Fatalf("expected silent background refresh to update snapshot, live=%v count=%d",
+			app.snapshotLive, app.snap.Meta.PackageCount)
 	}
 }
