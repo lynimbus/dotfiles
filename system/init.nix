@@ -5,6 +5,7 @@
     ./boot-complete.nix
     ./plymouth.nix
     ./network.nix
+    ./sing-box.nix
     ./docker.nix
     ./wireshark.nix
     ./ssh.nix
