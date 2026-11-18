@@ -1,3 +1,0 @@
-// Noctalia autostart via niri, the upstream-recommended method.
-// https://docs.noctalia.dev/noctalia/getting-started/running-the-shell/
-spawn-at-startup "noctalia"

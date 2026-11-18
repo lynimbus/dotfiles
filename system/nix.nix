@@ -38,6 +38,7 @@
       "https://rxda-cache.cachix.org"
       "https://cache.numtide.com"
       "https://noctalia.cachix.org"
+      "https://umbriel.cachix.org"
       # system/boot.nix takes its kernel from xddxdd/nix-cachyos-kernel, whose
       # Hydra pushes the compiled kernels here. Without this entry the LTO
       # kernel is a multi-hour local build.
@@ -48,6 +49,7 @@
       "rxda-cache.cachix.org-1:LDGrYaB+dF7wh+uWMLjh5VsckzFnnCyGkMH1sKHN++g="
       "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
       "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
+      "umbriel.cachix.org-1:JfNq/2yg2S6D6z4Z2dVSZrZlDPQTKtexB6GAVLD98nw="
       "lantian:WVGO7vsRMSEN+h7Lp7kv6SAmrkEXgUGbbXm7jMDjBuQ="
     ];
     download-buffer-size = 524288000;

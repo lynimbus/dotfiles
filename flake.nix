@@ -14,11 +14,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    pyclipsync = {
-      url = "github:ryan4yin/pyclipsync/v0.1.3";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     linuxqq-wayland-fix = {
       url = "github:SHORiN-KiWATA/linuxqq-wayland-fix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -33,6 +28,8 @@
       url = "github:mangowm/mango";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    umbriel.url = "github:noctalia-dev/umbriel/cachix";
 
     noctalia.url = "github:noctalia-dev/noctalia/cachix";
 
@@ -128,6 +125,7 @@
           }
           inputs.nixos-hardware.nixosModules.mechrevo-gm5hg0a
           inputs.mangowm.nixosModules.mango
+          inputs.umbriel.nixosModules.default
           inputs.linuxqq-wayland-fix.nixosModules.default
           ./system/init.nix
           home-manager.nixosModules.home-manager

@@ -52,7 +52,7 @@ in
     wlsunset
     wl-clipboard
     tmux
-    xwayland-satellite
+    adw-gtk3
     librewolf
     ungoogled-chromium
     ayugram-desktop
