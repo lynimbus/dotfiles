@@ -3,6 +3,7 @@
   stdenv,
   fetchurl,
   autoPatchelfHook,
+  coreutils,
   glibc,
   libgcc,
   patchelf,
@@ -90,27 +91,107 @@ stdenv.mkDerivation {
   dontBuild = true;
 
   installPhase = ''
-    runHook preInstall
+        runHook preInstall
 
-    # The tarball holds three things: the main binary, the LICENSE and
-    # libcronet.so, the last two side by side. libcronet.so has to be installed
-    # into bin next to the binary because cronet-go's loader_unix.go finds its
-    # libraries itself at the Go level (the directory of os.Executable(), the
-    # LD_LIBRARY_PATH segments, /usr/local/lib, /usr/lib) and dlopens whatever it
-    # finds by absolute path through purego: it never consults the ELF RUNPATH
-    # and has no variable of its own for the path. The executable's own directory
-    # is the first, unconditional choice, which is upstream's tarball layout;
-    # nothing but a naive outbound ever touches the file. The earlier
-    # $out/lib + wrapper approach that set LD_LIBRARY_PATH was broken on this
-    # machine: makeWrapper's --set-default only injects a value when the variable
-    # is unset, and the login session here has LD_LIBRARY_PATH exported globally
-    # by pipewire-jack, so the wrapper was silently ineffective and every naive
-    # connection failed with "cronet: library not found".
-    install -Dm755 sing-box $out/bin/sing-box
-    install -Dm644 libcronet.so $out/bin/libcronet.so
-    install -Dm644 LICENSE $out/share/licenses/sing-box/LICENSE
+        # The tarball holds three things: the main binary, the LICENSE and
+        # libcronet.so, the last two side by side. libcronet.so has to be installed
+        # into bin next to the binary because cronet-go's loader_unix.go finds its
+        # libraries itself at the Go level (the directory of os.Executable(), the
+        # LD_LIBRARY_PATH segments, /usr/local/lib, /usr/lib) and dlopens whatever it
+        # finds by absolute path through purego: it never consults the ELF RUNPATH
+        # and has no variable of its own for the path. The executable's own directory
+        # is the first, unconditional choice, which is upstream's tarball layout;
+        # nothing but a naive outbound ever touches the file. The earlier
+        # $out/lib + wrapper approach that set LD_LIBRARY_PATH was broken on this
+        # machine: makeWrapper's --set-default only injects a value when the variable
+        # is unset, and the login session here has LD_LIBRARY_PATH exported globally
+        # by pipewire-jack, so the wrapper was silently ineffective and every naive
+        # connection failed with "cronet: library not found".
+        install -Dm755 sing-box $out/bin/sing-box
+        install -Dm644 libcronet.so $out/bin/libcronet.so
+        install -Dm644 LICENSE $out/share/licenses/sing-box/LICENSE
 
-    runHook postInstall
+        # Upstream's prebuilt tarball omits the systemd, D-Bus, and polkit assets
+        # that NixOS's services.sing-box module expects via systemd.packages and
+        # services.dbus.packages. Keep User=sing-box capabilities (which upstream
+        # dropped in 1.15 when switching its own packages to root) because the
+        # NixOS module still runs the service as the unprivileged sing-box user.
+        install -Dm444 /dev/stdin $out/lib/systemd/system/sing-box.service <<'EOF'
+    [Unit]
+    Description=sing-box service
+    Documentation=https://sing-box.sagernet.org
+    After=network.target nss-lookup.target network-online.target
+
+    [Service]
+    User=sing-box
+    StateDirectory=sing-box
+    CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW CAP_NET_BIND_SERVICE CAP_SYS_PTRACE CAP_DAC_READ_SEARCH
+    AmbientCapabilities=CAP_NET_ADMIN CAP_NET_RAW CAP_NET_BIND_SERVICE CAP_SYS_PTRACE CAP_DAC_READ_SEARCH
+    ExecStart=@out@/bin/sing-box -D /var/lib/sing-box -C /etc/sing-box run
+    ExecReload=@coreutils@/bin/kill -HUP $MAINPID
+    Restart=on-failure
+    RestartSec=10s
+    LimitNOFILE=infinity
+
+    [Install]
+    WantedBy=multi-user.target
+    EOF
+
+        install -Dm444 /dev/stdin $out/lib/systemd/system/sing-box@.service <<'EOF'
+    [Unit]
+    Description=sing-box service
+    Documentation=https://sing-box.sagernet.org
+    After=network.target nss-lookup.target network-online.target
+
+    [Service]
+    User=sing-box
+    StateDirectory=sing-box-%i
+    CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW CAP_NET_BIND_SERVICE CAP_SYS_PTRACE CAP_DAC_READ_SEARCH
+    AmbientCapabilities=CAP_NET_ADMIN CAP_NET_RAW CAP_NET_BIND_SERVICE CAP_SYS_PTRACE CAP_DAC_READ_SEARCH
+    ExecStart=@out@/bin/sing-box -D /var/lib/sing-box-%i -c /etc/sing-box/%i.json run
+    ExecReload=@coreutils@/bin/kill -HUP $MAINPID
+    Restart=on-failure
+    RestartSec=10s
+    LimitNOFILE=infinity
+
+    [Install]
+    WantedBy=multi-user.target
+    EOF
+
+        substituteInPlace $out/lib/systemd/system/sing-box{,@}.service \
+          --replace-fail '@out@' "$out" \
+          --replace-fail '@coreutils@' "${coreutils}"
+
+        install -Dm444 /dev/stdin $out/share/polkit-1/rules.d/sing-box.rules <<'EOF'
+    polkit.addRule(function(action, subject) {
+        if ((action.id == "org.freedesktop.resolve1.set-domains" ||
+             action.id == "org.freedesktop.resolve1.set-default-route" ||
+             action.id == "org.freedesktop.resolve1.set-dns-servers") &&
+            subject.user == "sing-box") {
+            return polkit.Result.YES;
+        }
+    });
+    EOF
+
+        install -Dm444 /dev/stdin $out/share/dbus-1/system.d/sing-box-split-dns.conf <<'EOF'
+    <!DOCTYPE busconfig PUBLIC
+            "-//freedesktop//DTD D-BUS Bus Configuration 1.0//EN"
+            "http://www.freedesktop.org/standards/dbus/1.0/busconfig.dtd">
+    <busconfig>
+        <policy user="root">
+            <allow own="org.freedesktop.resolve1"/>
+            <allow send_destination="org.freedesktop.resolve1"/>
+            <allow receive_sender="org.freedesktop.resolve1"/>
+        </policy>
+        <policy user="sing-box">
+            <allow own="org.freedesktop.resolve1"/>
+            <allow send_destination="org.freedesktop.resolve1"/>
+            <allow receive_sender="org.freedesktop.resolve1"/>
+        </policy>
+    </busconfig>
+    EOF
+
+        runHook postInstall
   '';
 
   doInstallCheck = true;
