@@ -2,18 +2,17 @@
 
 {
   services.gvfs.enable = true;
+  services.gnome.sushi.enable = true;
 
-  # Installed once, for both desktops: the portal the file chooser points at,
-  # and the file manager the inode/directory mimetype runs (see
-  # defaults/file-chooser.nix and defaults/mimeapps.nix).
-  environment.systemPackages = [ pkgs.strata-file-manager ];
+  # Expose Nautilus on the session D-Bus so xdg-desktop-portal-gnome's
+  # FileChooser and org.freedesktop.FileManager1 activation work outside GNOME.
+  services.dbus.packages = [ pkgs.nautilus ];
 
   xdg.portal = {
     xdgOpenUsePortal = true;
     extraPortals = with pkgs; [
       xdg-desktop-portal-gtk
       xdg-desktop-portal-gnome
-      strata-portal
     ];
   };
 

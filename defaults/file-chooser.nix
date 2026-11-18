@@ -5,7 +5,7 @@
 
 {
   xdg.portal.config = {
-    umbriel."org.freedesktop.impl.portal.FileChooser" = lib.mkForce "strata;gtk";
-    mango."org.freedesktop.impl.portal.FileChooser" = lib.mkForce "strata;gtk";
+    umbriel."org.freedesktop.impl.portal.FileChooser" = lib.mkForce "gnome;gtk";
+    mango."org.freedesktop.impl.portal.FileChooser" = lib.mkForce "gnome;gtk";
   };
 }

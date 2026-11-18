@@ -14,8 +14,8 @@
       "x-scheme-handler/http" = [ "chromium-browser.desktop" ];
       "x-scheme-handler/https" = [ "chromium-browser.desktop" ];
 
-      # strata
-      "inode/directory" = [ "io.github.lgse.Strata.desktop" ];
+      # nautilus
+      "inode/directory" = [ "org.gnome.Nautilus.desktop" ];
     };
   };
 }
