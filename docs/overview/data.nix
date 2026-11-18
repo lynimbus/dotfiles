@@ -1,6 +1,6 @@
-# The data behind docs/overview.html: what this flake installs and how it is
-# configured, read out of the evaluated configuration rather than restated by
-# hand. docs/overview/build.sh renders it into the page.
+# The data behind the overview desktop app: what this flake installs and how it
+# is configured, read out of the evaluated configuration rather than restated by
+# hand. docs/overview/build.sh writes docs/overview/snapshot.json from this.
 #
 # Packages come from the derivations themselves and the settings come from the
 # home-manager module system, so a package added to packages.nix or a setting
@@ -65,6 +65,7 @@ let
       "kero"
       "mygo-music"
       "mayoi"
+      "overview"
       "obs-studio"
       "ghostty"
       "mango"

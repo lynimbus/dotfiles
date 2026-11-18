@@ -1,56 +1,63 @@
-# Overview page
+# Overview desktop app
 
-`docs/overview.html` is a single-file page that shows what this flake installs
-and how it is configured, laid out like a settings panel or an app store. It is
-generated, not hand-edited. It ships in English and Simplified Chinese, switched
-from the picker in the top bar.
+`overview` is a native pure-Go desktop application built with
+[MyGo](https://github.com/egoist/mygo) (`github.com/egoist/mygo/ui`) and
+designed around the tactile interaction language and warm palette of
+[Caramel Pudding](https://github.com/wave2234/caramel-pudding).
+
+It shows what this NixOS flake installs and how the home-manager modules are
+configured, ships in Simplified Chinese and English, supports warm light and
+dark themes (following the desktop by default), and refreshes directly from the
+flake on demand.
 
 ```bash
-just overview         # rebuild docs/overview.html
-just overview-verify  # drive the built page in a headless browser
+just overview         # regenerate docs/overview/snapshot.json and verify build
+just overview-verify  # check snapshot parity, run mygo vet and ui.NewTester suite
+just overview-run     # build and launch the desktop app from source
 ```
 
-`overview-verify` exists because `data.nix` reads module output, and a module
-that renames an option or stops exporting settings would leave the page quietly
-missing something. The check asserts the card count still matches the flake, the
-inlined icons still load, no card overflows its column, the search and filters
-still work, and both languages are complete. It is worth running after a package
-bump or a settings change.
+Once activated through `just switch` (`pkgs/overview.nix` + `home/packages.nix`),
+it is also installed as `overview` with a desktop entry and app icon.
+
+## Interface & tactile design
+
+Following Caramel Pudding's rules (*where to use jelly vs. gooey adhesion*):
+
+- **Caramel adhesion (`caramel.go` + GPU SDF metaball shader):** single-select
+  pill rows (view switch, source filter, language picker, shelf navigation)
+  flow with liquid caramel smooth-union bridging and pre-release surface tension.
+- **Pudding jelly (`applyPudding`):** package cards, metric tiles, and primary
+  detail-sheet buttons compress on press and release along Caramel Pudding's
+  6-stop squash-and-stretch curve.
+- **Caramel Island (`island.go`):** a floating top-center status capsule driven
+  by three analytical damped springs (real width, height, and corner radius —
+  never scaled) showing live package counts, refresh progress, copy feedback,
+  and an expandable system snapshot card.
+- **Overlays (`cp-pop` / `cp-menu`):** clicking a package card pops a detail
+  sheet; right-clicking opens a context menu from the pointer origin.
+- **Restraint:** small utility buttons only fade on press (`applyTinyFade`);
+  search inputs, collapsible scripts, and reduced-motion mode never wobble.
 
 ## Files
 
-- `data.nix` evaluates the flake and reads the result. Packages come from
-  `home-manager.users.lynimbus.home.packages`, so versions, descriptions,
-  licences and icons are the derivations' own metadata. Settings come from the
-  home-manager modules, so the page shows what the login shell and the session
-  actually read. `bumpMatrix` supplies the list of packages this repo builds
-  itself, which the page marks separately.
-- `shell.html` is the template: markup, styling and logic, with two
-  placeholders. Both are filled by the build.
-- `i18n/en.json` and `i18n/zh.json` are the language packs. English is the
-  reference; every other pack must carry the same keys.
-- `build.sh` runs the evaluation, assembles the packs, resamples each bitmapped
-  icon to 64px and inlines it as a data URI (a store path is not reachable from
-  `file://`, and the 256px originals added half a megabyte for a 40px card),
-  then writes the result.
-- `verify.sh` is the render check described above.
+- `data.nix` evaluates the flake and exports packages, settings, desktop
+  session info, and toolchain versions.
+- `snapshot.json` is the generated build-time snapshot embedded via `//go:embed`
+  so the app opens immediately without blocking on `nix eval`. Clicking Refresh
+  in the app evaluates `data.nix` in the background and caches the updated
+  snapshot under `$XDG_CACHE_HOME/overview/snapshot.json`.
+- `i18n/en.json` and `i18n/zh.json` are the embedded language packs.
+- `main.go`, `app.go`, `data.go`, `i18n.go`, `theme.go`, `caramel.go`,
+  `island.go`, and `icon.svg` implement the MyGo native UI app.
+- `app_test.go` drives the real view headlessly via `ui.NewTester`.
+- `build.sh` and `verify.sh` power `just overview` and `just overview-verify`.
 
 ## Adding a package
 
-Adding one to `home/packages.nix` is enough for it to appear in English, because
-the derivation carries its own description. Two things then need a hand:
+Adding a package to `home/packages.nix` makes it appear automatically once
+`just overview` regenerates `snapshot.json`:
 
-- **Which shelf it sits on.** `data.nix` has a `sectionOf` table mapping pnames
-  to sections. Anything unlisted lands in "Other", so nothing disappears, it just
-  reads as unshelved.
-- **The Chinese pack.** `build.sh` fails with the package name if
-  `i18n/zh.json` has no `descriptions` entry for it, rather than showing an
-  English sentence in the middle of a Chinese page.
-
-## Adding a language
-
-Drop `i18n/<code>.json` beside the other packs and state its display name in
-`__meta.name`. `build.sh` checks it against `en.json` for missing keys and
-against the package list for missing descriptions, and the picker picks it up
-without any other change. The page opens in its first locale (Chinese) and
-remembers the reader's last choice in `localStorage`.
+1. Place its pname in `sectionOf` inside `data.nix` (unlisted packages fall
+   into "Other").
+2. Add its Chinese description under `descriptions` in `i18n/zh.json`
+   (`build.sh` and `app_test.go` fail if a package is undocumented).

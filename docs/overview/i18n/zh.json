@@ -4,12 +4,13 @@
     "code": "zh"
   },
   "app": {
-    "title": "{host} · 这套配置装了些什么"
+    "title": "{host} · 配置总览"
   },
   "nav": {
     "installed": "已安装",
     "system": "系统",
     "overview": "总览",
+    "allSections": "全部货架",
     "settings": "设置"
   },
   "search": {
@@ -21,6 +22,48 @@
   "filter": {
     "all": "全部",
     "local": "本仓库构建"
+  },
+  "toolbar": {
+    "refresh": "刷新",
+    "refreshing": "正在求值 flake…",
+    "themeAuto": "跟随系统",
+    "themeLight": "浅色",
+    "themeDark": "深色",
+    "slow": "慢放 ×0.25",
+    "normalSpeed": "正常速度"
+  },
+  "island": {
+    "pkgs": "{count} 个软件",
+    "filtered": "{shown} / {count}",
+    "localRatio": "其中 {local} / {count} 个由本仓库自行构建",
+    "snapshotEmbedded": "内置构建快照",
+    "snapshotLive": "已于 {time} 刷新",
+    "refreshNow": "刷新 flake",
+    "refreshDone": "已更新 · {count} 个软件包",
+    "refreshFailed": "刷新失败",
+    "copied": "已复制 {text}",
+    "opened": "已打开 {text}",
+    "close": "收起"
+  },
+  "detail": {
+    "version": "版本",
+    "section": "货架",
+    "source": "来源",
+    "sourceLocal": "本仓库构建",
+    "sourceNixpkgs": "nixpkgs",
+    "license": "许可证",
+    "homepage": "主页",
+    "openHomepage": "打开主页",
+    "copyName": "复制包名",
+    "copyVersion": "复制版本",
+    "filterSection": "查看此货架",
+    "close": "好的"
+  },
+  "menu": {
+    "copyName": "复制包名",
+    "copyVersion": "复制版本",
+    "openHomepage": "打开主页",
+    "viewShelf": "只看此货架"
   },
   "overview": {
     "title": "已安装",
@@ -49,7 +92,8 @@
   "card": {
     "thisRepo": "本仓库",
     "noDescription": "上游未提供说明",
-    "lines": "{n} 行，来自模块"
+    "lines": "{n} 行，来自模块",
+    "copyCode": "复制脚本"
   },
   "value": {
     "on": "已启用",
@@ -57,11 +101,12 @@
   },
   "empty": {
     "packages": "没有匹配的软件包。",
-    "settings": "没有匹配的设置。"
+    "settings": "没有匹配的设置。",
+    "reset": "清除筛选"
   },
   "foot": {
-    "packages": "由求值后的 flake 渲染 · home-manager {hm} · {system}",
-    "settings": "改完配置后执行 just overview 重新生成。"
+    "packages": "由求值后的 NixOS flake 渲染 · home-manager {hm} · {system}",
+    "settings": "改完配置后可点顶部刷新，或执行 just overview 更新快照。"
   },
   "settings": {
     "title": "设置",
@@ -190,6 +235,7 @@
     "nautilus": "GNOME 桌面文件管理器，支持标签页、预览与挂载管理",
     "mygo-music": "原生音乐播放器，既能播本地文件，也能登录流媒体账号",
     "mayoi": "在 GPU 上自绘界面的代码编辑器，支持标签页、分屏、插件和 Vim 模式",
+    "overview": "用 MyGo 编写的原生桌面应用，以焦糖布丁界面展示本 NixOS 配置的软件包与设置",
     "obs-studio": "自由开源的录屏与直播软件",
     "ghostty": "快速、原生、功能丰富的终端模拟器，积极跟进现代特性",
     "nix-init": "从 URL 生成 Nix 包的命令行工具",
