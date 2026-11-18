@@ -4,12 +4,13 @@
     "code": "en"
   },
   "app": {
-    "title": "{host} · what this flake installs"
+    "title": "{host} · Overview"
   },
   "nav": {
     "installed": "Installed",
     "system": "System",
     "overview": "Overview",
+    "allSections": "All shelves",
     "settings": "Settings"
   },
   "search": {
@@ -21,6 +22,48 @@
   "filter": {
     "all": "All",
     "local": "From this repo"
+  },
+  "toolbar": {
+    "refresh": "Refresh",
+    "refreshing": "Evaluating flake…",
+    "themeAuto": "System",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "slow": "Slow ×0.25",
+    "normalSpeed": "Normal 1×"
+  },
+  "island": {
+    "pkgs": "{count} pkgs",
+    "filtered": "{shown} / {count}",
+    "localRatio": "{local} of {count} built in this repo",
+    "snapshotEmbedded": "Built-in snapshot",
+    "snapshotLive": "Refreshed at {time}",
+    "refreshNow": "Refresh flake",
+    "refreshDone": "Updated · {count} packages",
+    "refreshFailed": "Refresh failed",
+    "copied": "Copied {text}",
+    "opened": "Opened {text}",
+    "close": "Close"
+  },
+  "detail": {
+    "version": "Version",
+    "section": "Shelf",
+    "source": "Source",
+    "sourceLocal": "Built in this repo",
+    "sourceNixpkgs": "nixpkgs",
+    "license": "License",
+    "homepage": "Homepage",
+    "openHomepage": "Open homepage",
+    "copyName": "Copy name",
+    "copyVersion": "Copy version",
+    "filterSection": "View shelf",
+    "close": "Done"
+  },
+  "menu": {
+    "copyName": "Copy package name",
+    "copyVersion": "Copy version",
+    "openHomepage": "Open homepage",
+    "viewShelf": "Show this shelf"
   },
   "overview": {
     "title": "Installed",
@@ -49,7 +92,8 @@
   "card": {
     "thisRepo": "this repo",
     "noDescription": "No description upstream",
-    "lines": "{n} lines, from the module"
+    "lines": "{n} lines, from the module",
+    "copyCode": "Copy script"
   },
   "value": {
     "on": "enabled",
@@ -57,11 +101,12 @@
   },
   "empty": {
     "packages": "Nothing matches that search.",
-    "settings": "No setting matches that search."
+    "settings": "No setting matches that search.",
+    "reset": "Clear filters"
   },
   "foot": {
-    "packages": "Rendered from the evaluated flake · home-manager {hm} · {system}",
-    "settings": "Rebuild with just overview after changing the configuration."
+    "packages": "Evaluated from the NixOS flake · home-manager {hm} · {system}",
+    "settings": "Click Refresh or run just overview after changing the configuration."
   },
   "settings": {
     "title": "Settings",
@@ -140,6 +185,7 @@
   },
   "descriptions": {
     "kbd-backlight": "Keyboard backlight key action, shared by both desktop keybinding files",
-    "screenshot": "Region screenshot through grim and slurp, annotated in satty and copied to the clipboard"
+    "screenshot": "Region screenshot through grim and slurp, annotated in satty and copied to the clipboard",
+    "overview": "Native MyGo desktop app that inspects what this NixOS flake installs and configures"
   }
 }

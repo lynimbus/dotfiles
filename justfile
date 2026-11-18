@@ -39,16 +39,19 @@ check:
 scaffold url version="":
     docs/scaffold-package.sh "{{url}}" "{{version}}"
 
-# Render docs/overview.html, the page that shows what this flake installs and
-# how it is configured. Every fact on it comes from evaluating the flake, so it
-# is rebuilt rather than edited.
+# Regenerate docs/overview/snapshot.json from the evaluated flake, validate the
+# language packs, and verify the MyGo overview app compiles.
 overview:
     docs/overview/build.sh
 
-# Drive the rendered page in a headless browser and assert it still shows every
-# package and setting. Run it after a configuration change.
+# Run mygo vet, snapshot parity checks, and the headless ui.NewTester suite
+# for the overview desktop app. Run it after a configuration change.
 overview-verify:
     docs/overview/verify.sh
+
+# Build and launch the MyGo overview desktop app directly from source.
+overview-run:
+    nix run .#legacyPackages.x86_64-linux.overview
 
 # Drive the memo commands through record, digest and search, both failure paths included
 memo-verify:

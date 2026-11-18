@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fff8ec"/>
+      <stop offset="100%" stop-color="#f2e1c6"/>
+    </linearGradient>
+    <linearGradient id="custard" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fde8a6"/>
+      <stop offset="100%" stop-color="#f3c969"/>
+    </linearGradient>
+    <linearGradient id="caramel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#d47d2a"/>
+      <stop offset="100%" stop-color="#8b4212"/>
+    </linearGradient>
+    <linearGradient id="plate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e8d6be"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="6" width="116" height="116" rx="28" fill="url(#bg)" stroke="#dcc5a6" stroke-width="2"/>
+  <ellipse cx="64" cy="98" rx="44" ry="11" fill="url(#plate)"/>
+  <ellipse cx="64" cy="95" rx="34" ry="7" fill="#c6772f" opacity="0.24"/>
+  <path d="M29 90 C31 58, 39 38, 64 38 C89 38, 97 58, 99 90 C99 96, 84 100, 64 100 C44 100, 29 96, 29 90 Z" fill="url(#custard)"/>
+  <path d="M35 58 C38 42, 48 35, 64 35 C80 35, 90 42, 93 58 C90 63, 84 61, 82 56 C80 65, 73 70, 69 61 C66 55, 60 66, 55 62 C50 58, 46 67, 42 63 C38 60, 36 62, 35 58 Z" fill="url(#caramel)"/>
+  <ellipse cx="52" cy="45" rx="9" ry="4" fill="#fff7e6" opacity="0.55" transform="rotate(-14 52 45)"/>
+  <circle cx="83" cy="67" r="3.5" fill="url(#caramel)"/>
+</svg>
