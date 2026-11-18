@@ -1,0 +1,55 @@
+/* Noctalia 用户模板：GTK3 其他样式（hover、选中、菜单、轮廓等）。
+ * 渲染到 ~/.config/gtk-3.0/colors-extras.css。
+ * 窗口按钮样式见 gtk3-buttons.css。 */
+
+/* ---- hover / 选中 ---- */
+button:not(.titlebutton):not(.suggested-action):not(.destructive-action):hover,
+row:hover,
+list row:hover {
+  background-color: alpha({{ colors.primary.default.hex }}, 0.35);
+}
+
+row:selected,
+list row:selected {
+  background-color: {{ colors.primary.default.hex }};
+  color: {{ colors.on_primary.default.hex }};
+}
+
+/* ---- 菜单（含右键菜单） ---- */
+menuitem:hover,
+menu menuitem:hover,
+menuitem:selected {
+  background-color: {{ colors.primary.default.hex }};
+  color: {{ colors.on_primary.default.hex }};
+}
+
+/* 菜单项焦点：主色背景 + 轮廓。 */
+menuitem:focus,
+menu menuitem:focus {
+  background-color: {{ colors.primary.default.hex }};
+  color: {{ colors.on_primary.default.hex }};
+  outline: __DARKLY_MENU_FOCUS__px solid {{ colors.outline.default.hex }};
+}
+
+menu,
+.menu {
+  border: 1px solid alpha({{ colors.on_surface.default.hex }}, 0.2);
+}
+
+/* ---- 选中/激活的按钮和 tab：细轮廓，不改变尺寸（Darkly FullOutline） ---- */
+button:checked,
+button:active,
+notebook tab:checked {
+  outline: __DARKLY_OUTLINE_WIDTH__px solid {{ colors.outline.default.hex }};
+  outline-offset: -1px;
+}
+
+/* ---- 顶部栏普通按钮：细边框 + 稍亮 hover ---- */
+headerbar button:not(.titlebutton):not(.flat):not(.image-button):not(.suggested-action):not(.destructive-action) {
+  outline: 1px solid alpha({{ colors.on_surface.default.hex }}, 0.2);
+  outline-offset: -1px;
+}
+
+headerbar button:not(.titlebutton):not(.flat):not(.image-button):not(.suggested-action):not(.destructive-action):hover {
+  background-color: alpha({{ colors.on_surface.default.hex }}, 0.15);
+}

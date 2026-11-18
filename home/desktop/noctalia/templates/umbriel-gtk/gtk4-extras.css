@@ -1,0 +1,116 @@
+/* Noctalia 用户模板：GTK4 其他样式（hover、选中、菜单、toggle-group、列表等）。
+ * 渲染到 ~/.config/gtk-4.0/umbriel-extras.css。
+ * 窗口按钮样式见 gtk4-buttons.css。 */
+
+list.navigation-sidebar row,
+listview row,
+list row.row {
+  box-shadow: none;
+  border-radius: __DARKLY_CORNER_RADIUS__px;
+}
+
+/* ---- hover / 选中 ---- */
+button:not(.flat):not(.image-button):not(.suggested-action):not(.destructive-action):not(.card):not(.pill):not(.text-button):not(.reset-button):hover,
+list.navigation-sidebar row:hover,
+listview row:hover,
+list row.row:hover {
+  background-color: alpha({{ colors.primary.default.hex }}, 0.35);
+}
+
+list.navigation-sidebar row:selected,
+listview row:selected,
+list row.row:selected {
+  background-color: {{ colors.primary.default.hex }};
+  color: {{ colors.on_primary.default.hex }};
+}
+
+list.navigation-sidebar row:selected:hover,
+listview row:selected:hover,
+list row.row:selected:hover {
+  background-color: alpha({{ colors.primary.default.hex }}, 1);
+}
+
+/* 列表项卡片圆角跟随 darklyrc 的 CornerRadius。 */
+listview row widget.activatable.card,
+list row widget.activatable.card,
+listview row .card,
+list row .card {
+  border-radius: __DARKLY_CORNER_RADIUS__px;
+}
+
+/* ---- 菜单（含右键菜单） ---- */
+menuitem:hover,
+menuitem:selected,
+popover menuitem:hover,
+popover modelbutton:hover {
+  background-color: {{ colors.primary.default.hex }};
+  color: {{ colors.on_primary.default.hex }};
+  border-radius: __DARKLY_CORNER_RADIUS__px;
+}
+
+/* 菜单项焦点：主色背景 + 轮廓。 */
+menuitem:focus,
+popover menuitem:focus,
+popover modelbutton:focus {
+  background-color: {{ colors.primary.default.hex }};
+  color: {{ colors.on_primary.default.hex }};
+  border-radius: __DARKLY_CORNER_RADIUS__px;
+}
+
+/* 弹出菜单边框（含箭头）。 */
+popover.menu > arrow,
+popover.menu > contents,
+.popover.menu > contents {
+  border: 1px solid #3a3a3a;
+  border-radius: __DARKLY_CORNER_RADIUS__px;
+}
+
+/* ---- 选中/激活的按钮和 tab：细轮廓，不改变尺寸（Darkly FullOutline） ---- */
+box list,
+button:not(.close):not(.maximize):not(.minimize) {
+  border-radius: __DARKLY_CORNER_RADIUS__px;
+}
+
+box list:first-child {
+  border-radius: __DARKLY_OUTLINE_WIDTH__px --__DARKLY_OUTLINE_WIDTH__px 0 0;
+}
+
+box list:last-child {
+  border-radius: 0 0 __DARKLY_OUTLINE_WIDTH__px --__DARKLY_OUTLINE_WIDTH__px;
+}
+
+headerbar button:not(.close):not(.maximize):not(.minimize):not(.text-button):hover {
+  border-radius: __DARKLY_CORNER_RADIUS__px;
+  background-color: alpha({{ colors.on_surface.default.hex }}, 0.15);
+}
+
+button:not(.flat):not(.image-button):not(.suggested-action):not(.destructive-action):not(.card):not(.pill).text-button,
+button:not(.flat):not(.image-button):not(.suggested-action):not(.destructive-action):not(.card):not(.pill).reset-button,
+button:not(.suggested-action):not(.close):not(.maximize):not(.minimize):checked,
+button:not(.suggested-action):not(.close):not(.maximize):not(.minimize):active,
+tab:checked {
+  outline: __DARKLY_OUTLINE_WIDTH__px solid {{ colors.outline.default.hex }};
+  outline-offset: -1px;
+}
+
+/* ---- tab 栏（toggle-group）：Darkly tab 样式 ---- */
+toggle-group {
+  border-radius: __DARKLY_CORNER_RADIUS__px;
+}
+
+toggle-group > toggle {
+  background-color: transparent;
+  transition: none;
+  border: none;
+  box-shadow: none;
+  border-radius: __DARKLY_CORNER_RADIUS__px;
+}
+
+toggle-group > toggle:hover {
+  background-color: alpha({{ colors.on_surface.default.hex }}, 0.1);
+}
+
+toggle-group > toggle:checked {
+  background-color: alpha({{ colors.on_surface.default.hex }}, 0.1);
+  border: __DARKLY_OUTLINE_WIDTH__px solid {{ colors.outline.default.hex }};
+}

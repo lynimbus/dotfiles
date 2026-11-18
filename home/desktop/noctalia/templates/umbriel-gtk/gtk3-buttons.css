@@ -1,0 +1,76 @@
+@import url("noctalia.css");
+@import url("colors-extras.css");
+/* Noctalia 用户模板：GTK3 窗口按钮（Umbriel 风格）。
+ * Noctalia 将本文件渲染为 ~/.config/gtk-3.0/colors.css，
+ * 主题变化时 GTK3 应用会重新读取。
+ * 其他样式（hover、菜单、列表等）见 gtk3-extras.css。 */
+
+headerbar box.left {
+  padding-left: __UMBRIEL_BUTTON_PADDING__px;
+}
+
+headerbar box.right {
+  padding-right: __UMBRIEL_BUTTON_PADDING__px;
+}
+
+headerbar button.titlebutton,
+button.titlebutton {
+  min-width: __UMBRIEL_BUTTON_SIZE__px;
+  min-height: __UMBRIEL_BUTTON_SIZE__px;
+  padding: 0;
+  margin: 0 __UMBRIEL_BUTTON_GAP_RIGHT__px 0 __UMBRIEL_BUTTON_GAP_LEFT__px;
+  border-radius: __UMBRIEL_BUTTON_RADIUS__;
+  background-image: none;
+  background-color: transparent;
+  box-shadow: none;
+}
+headerbar button.titlebutton image,
+button.titlebutton image {
+  opacity: 0;
+}
+headerbar button.titlebutton.close,
+button.titlebutton.close {
+  background-color: {{ colors.error.default.hex }};
+}
+headerbar button.titlebutton.maximize,
+button.titlebutton.maximize {
+  background-color: {{ colors.primary.default.hex }};
+}
+headerbar button.titlebutton.minimize,
+button.titlebutton.minimize {
+  background-color: {{ colors.secondary.default.hex }};
+}
+headerbar button.titlebutton.close:hover,
+button.titlebutton.close:hover {
+  background-color: {{ colors.error.default.hex | lighten 8 }};
+}
+headerbar button.titlebutton.maximize:hover,
+button.titlebutton.maximize:hover {
+  background-color: {{ colors.primary.default.hex | lighten 8 }};
+}
+headerbar button.titlebutton.minimize:hover,
+button.titlebutton.minimize:hover {
+  background-color: {{ colors.secondary.default.hex | lighten 8 }};
+}
+headerbar button.titlebutton.close:active,
+button.titlebutton.close:active {
+  background-color: {{ colors.error.default.hex | darken 8 }};
+}
+headerbar button.titlebutton.maximize:active,
+button.titlebutton.maximize:active {
+  background-color: {{ colors.primary.default.hex | darken 8 }};
+}
+headerbar button.titlebutton.minimize:active,
+button.titlebutton.minimize:active {
+  background-color: {{ colors.secondary.default.hex | darken 8 }};
+}
+window.maximized headerbar button.titlebutton,
+window.maximized button.titlebutton,
+window:maximized headerbar button.titlebutton,
+window:maximized button.titlebutton {
+  border-radius: 0;
+}
+headerbar button.titlebutton:active,
+headerbar button.titlebutton:checked {
+  outline: none;
+}
