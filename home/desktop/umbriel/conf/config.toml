@@ -268,7 +268,7 @@ default_workspace = "4entertainment"
 [[window_rule]]
 match.app_id = [
   "^com\\.github\\.johnfactotum\\.Foliate$",
-  "^io\\.github\\.lgse\\.Strata$",
+  "^org\\.gnome\\.Nautilus$",
   "^[Cc]lash-[Vv]erge$",
   "^\\.clash-verge-wrapped$",
   "^org\\.kde\\.easyeffects$",

@@ -93,7 +93,7 @@
       # `nix build .#legacyPackages.${system}.<pkg>` builds one package on its
       # own. It is deliberately not the nixosConfigurations pkgs set: that one
       # hangs off the module fixpoint and is slow to evaluate per package.
-      # allowUnfree mirrors system/nix.nix, or the BSL packages (rtk, strata)
+      # allowUnfree mirrors system/nix.nix, or the BSL package (rtk)
       # would fail checkMeta here.
       legacyPackages.${system} =
         import nixpkgs {

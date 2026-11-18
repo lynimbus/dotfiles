@@ -57,7 +57,7 @@ in
     ungoogled-chromium
     ayugram-desktop
     wechat-uos
-    strata
+    nautilus
     kero
     alma
     mygo-music
