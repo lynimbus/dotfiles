@@ -48,7 +48,6 @@ type OverviewApp struct {
 	sectionID string // "" means all sections
 	query     string
 	localOnly bool
-	slowMo    bool
 
 	// Live refresh state
 	refreshing   bool
@@ -72,12 +71,12 @@ type OverviewApp struct {
 	// Caramel Pudding motion controllers
 	island       *CaramelIsland
 	viewCaramel  *CaramelGroup
-	srcCaramel   *CaramelGroup
 	langCaramel  *CaramelGroup
 	shelfCaramel *CaramelGroup
 
-	// Optional hook to override refresh in tests.
-	refreshFunc func(ctx context.Context) (*Snapshot, error)
+	// Optional hooks for tests.
+	refreshFunc   func(ctx context.Context) (*Snapshot, error)
+	onRefreshDone func()
 }
 
 func newOverviewApp(snap *Snapshot, tr *I18n, repoRoot string, refreshedAt time.Time, live bool, persist bool) *OverviewApp {
@@ -104,17 +103,9 @@ func newOverviewApp(snap *Snapshot, tr *I18n, repoRoot string, refreshedAt time.
 		persistPrefs: persist,
 		island:       newCaramelIsland(),
 		viewCaramel:  newCaramelGroup(999),
-		srcCaramel:   newCaramelGroup(999),
 		langCaramel:  newCaramelGroup(999),
 		shelfCaramel: newCaramelGroup(12),
 	}
-}
-
-func (a *OverviewApp) speed() float64 {
-	if a.slowMo {
-		return 0.25
-	}
-	return 1.0
 }
 
 func (a *OverviewApp) t(key string, vars map[string]any) string {
@@ -184,13 +175,15 @@ func (a *OverviewApp) openURLAndFlash(c *ui.Context, url string) {
 	a.island.Flash(c, a.t("island.opened", map[string]any{"text": trimHomepage(url)}), 1800*time.Millisecond, c.Preferences().ReduceMotion)
 }
 
-func (a *OverviewApp) triggerRefresh(c *ui.Context) {
+func (a *OverviewApp) triggerRefresh(c *ui.Context, silent bool) {
 	if a.refreshing {
 		return
 	}
 	a.refreshing = true
 	a.refreshErr = ""
-	a.island.Flash(c, a.t("toolbar.refreshing", nil), 30*time.Second, c.Preferences().ReduceMotion)
+	if !silent && c != nil {
+		a.island.Flash(c, a.t("toolbar.refreshing", nil), 30*time.Second, c.Preferences().ReduceMotion)
+	}
 
 	fn := a.refreshFunc
 	if fn == nil {
@@ -209,16 +202,23 @@ func (a *OverviewApp) triggerRefresh(c *ui.Context) {
 			a.refreshing = false
 			if err != nil {
 				a.refreshErr = err.Error()
-				a.island.noticeText = a.t("island.refreshFailed", nil)
-				a.island.noticeUntil = time.Now().Add(3 * time.Second)
-				return
+				if !silent {
+					a.island.noticeText = a.t("island.refreshFailed", nil)
+					a.island.noticeUntil = time.Now().Add(3 * time.Second)
+				}
+			} else {
+				a.snap = snap
+				a.refreshedAt = time.Now()
+				a.snapshotLive = true
+				a.refreshErr = ""
+				if !silent {
+					a.island.noticeText = a.t("island.refreshDone", map[string]any{"count": snap.Meta.PackageCount})
+					a.island.noticeUntil = time.Now().Add(2200 * time.Millisecond)
+				}
 			}
-			a.snap = snap
-			a.refreshedAt = time.Now()
-			a.snapshotLive = true
-			a.refreshErr = ""
-			a.island.noticeText = a.t("island.refreshDone", map[string]any{"count": snap.Meta.PackageCount})
-			a.island.noticeUntil = time.Now().Add(2200 * time.Millisecond)
+			if a.onRefreshDone != nil {
+				a.onRefreshDone()
+			}
 		}
 		if win != nil {
 			win.Update(apply)
@@ -302,7 +302,7 @@ func (a *OverviewApp) view(c *ui.Context) {
 		a.searchHandle.Focus(c)
 	}
 	if c.Shortcut(ui.Cmd, ui.KeyR) {
-		a.triggerRefresh(c)
+		a.triggerRefresh(c, false)
 	}
 	if c.Shortcut(0, ui.KeyEscape) {
 		switch {
@@ -317,7 +317,7 @@ func (a *OverviewApp) view(c *ui.Context) {
 		}
 	}
 
-	a.island.Step(c, a.speed())
+	a.island.Step(c)
 
 	winW, _ := c.Size()
 	narrow := winW < 860
@@ -415,22 +415,11 @@ func (a *OverviewApp) buildSidebarFooter(c *ui.Context, pal Palette) {
 	ui.Column(c).Padding(10, 12, 14, 12).Gap(8).
 		BorderWidth(1, 0, 0, 0).BorderColor(pal.Line).Children(func() {
 		a.buildLangSwitcher(c, pal)
-		ui.Row(c).Gap(6).Children(func() {
-			themeBtn := a.tinyChipButton(c, pal, a.themeLabel(), false)
-			themeBtn.Grow(1)
-			if themeBtn.Clicked() {
-				a.cycleTheme()
-			}
-			slowLabel := a.t("toolbar.slow", nil)
-			if a.slowMo {
-				slowLabel = a.t("toolbar.normalSpeed", nil)
-			}
-			slowBtn := a.tinyChipButton(c, pal, slowLabel, a.slowMo)
-			slowBtn.Grow(1)
-			if slowBtn.Clicked() {
-				a.slowMo = !a.slowMo
-			}
-		})
+		themeBtn := a.tinyChipButton(c, pal, a.themeLabel(), false)
+		themeBtn.FillWidth()
+		if themeBtn.Clicked() {
+			a.cycleTheme()
+		}
 	})
 }
 
@@ -440,7 +429,7 @@ func (a *OverviewApp) buildViewSwitcher(c *ui.Context, pal Palette) {
 	if a.viewMode == viewSettings {
 		activeIdx = 1
 	}
-	a.viewCaramel.Sync(c, activeIdx, a.speed())
+	a.viewCaramel.Sync(c, activeIdx)
 
 	items := []struct {
 		label string
@@ -488,7 +477,7 @@ func (a *OverviewApp) buildLangSwitcher(c *ui.Context, pal Palette) {
 			break
 		}
 	}
-	a.langCaramel.Sync(c, activeIdx, a.speed())
+	a.langCaramel.Sync(c, activeIdx)
 
 	row := ui.Row(c.Key("lang-seg")).Padding(3).Gap(3).Radius(999).
 		Background(pal.Track).Role(ui.RoleTabList).Label(a.t("lang.label", nil))
@@ -553,7 +542,7 @@ func (a *OverviewApp) buildShelfNavVertical(c *ui.Context, pal Palette) {
 	}
 
 	if activeIdx >= 0 {
-		a.shelfCaramel.Sync(c, activeIdx, a.speed())
+		a.shelfCaramel.Sync(c, activeIdx)
 	}
 
 	col := ui.Column(c.Key("shelf-nav-v")).Gap(3)
@@ -628,7 +617,7 @@ func (a *OverviewApp) buildShelfNavHorizontal(c *ui.Context, pal Palette) {
 			break
 		}
 	}
-	a.shelfCaramel.Sync(c, activeIdx, a.speed())
+	a.shelfCaramel.Sync(c, activeIdx)
 
 	row := ui.Row(c.Key("shelf-nav-h")).Gap(6).Wrap().Role(ui.RoleTabList)
 	a.shelfCaramel.RecordRow(row)
@@ -677,11 +666,8 @@ func (a *OverviewApp) buildTopBar(c *ui.Context, pal Palette, narrow bool) {
 				sf := ui.SearchField(c.Key("search"), &a.query).
 					Placeholder(a.t("search.placeholder", nil)).
 					Label(a.t("search.placeholder", nil)).
-					Grow(1).MinWidth(160).MaxWidth(440).Radius(14)
+					Grow(1).MinWidth(160).MaxWidth(520).Radius(14)
 				sf.Bind(&a.searchHandle)
-
-				// Source filter Caramel segmented pill (All / From this repo).
-				a.buildSourceFilter(c, pal)
 
 				ui.Spacer(c)
 
@@ -692,7 +678,7 @@ func (a *OverviewApp) buildTopBar(c *ui.Context, pal Palette, narrow bool) {
 				}
 				refBtn := a.tinyChipButton(c, pal, refLabel, a.refreshing)
 				if refBtn.Clicked() {
-					a.triggerRefresh(c)
+					a.triggerRefresh(c, false)
 				}
 
 				if narrow {
@@ -703,51 +689,6 @@ func (a *OverviewApp) buildTopBar(c *ui.Context, pal Palette, narrow bool) {
 				}
 			})
 		})
-}
-
-func (a *OverviewApp) buildSourceFilter(c *ui.Context, pal Palette) {
-	activeIdx := 0
-	if a.localOnly {
-		activeIdx = 1
-	}
-	a.srcCaramel.Sync(c, activeIdx, a.speed())
-
-	opts := []struct {
-		id    string
-		label string
-		local bool
-	}{
-		{"all", a.t("filter.all", nil), false},
-		{"local", a.t("filter.local", nil), true},
-	}
-
-	row := ui.Row(c.Key("src-seg")).Padding(3).Gap(3).Radius(999).
-		Background(pal.Track).Shrink(0).Role(ui.RoleTabList)
-	a.srcCaramel.RecordRow(row)
-	sheen := ui.RGBA(255, 248, 232, 0.24)
-	row.Draw(func(p *ui.Painter, r ui.Rect) {
-		a.srcCaramel.Paint(p, r, pal.Caramel, sheen, c.Preferences().ReduceMotion)
-	})
-	row.Children(func() {
-		for idx, opt := range opts {
-			mix := a.srcCaramel.TextMix(c, idx)
-			ink := pal.Mute.Mix(pal.CaramelInk, mix)
-			btn := ui.Row(c.Key("filter-"+opt.id)).Height(30).Padding(0, 12).Radius(999).Center().
-				Cursor(ui.CursorPointer).Role(ui.RoleTab).Label(opt.label)
-			if btn.Pressed() && idx != activeIdx {
-				btn.Opacity(0.72)
-			}
-			a.srcCaramel.RecordItem(c, idx, btn)
-			btn.Children(func() {
-				ui.Text(c, opt.label).FontSize(12.5).FontWeight(700).TextColor(ink).SingleLine()
-			})
-			if btn.Clicked() {
-				a.localOnly = opt.local
-				a.viewMode = viewOverview
-				a.mainScroll.Y = 0
-			}
-		}
-	})
 }
 
 func (a *OverviewApp) tinyChipButton(c *ui.Context, pal Palette, label string, active bool) ui.Element {
@@ -814,17 +755,17 @@ func (a *OverviewApp) buildOverviewContent(c *ui.Context, pal Palette, contentW 
 		tileCols = 2
 	}
 	ui.Grid(c).Columns(tileCols).Gap(12).Children(func() {
-		a.metricTile(c, pal, "tile-pkgs", fmt.Sprint(a.snap.Meta.PackageCount), a.t("tile.packages", nil), false, func() {
+		a.metricTile(c, pal, "tile-pkgs", fmt.Sprint(a.snap.Meta.PackageCount), a.t("tile.packages", nil), false, false, func() {
 			a.localOnly = false
 			a.sectionID = ""
 		})
-		a.metricTile(c, pal, "tile-local", fmt.Sprint(a.snap.Meta.LocalCount), a.t("tile.local", nil), true, func() {
+		a.metricTile(c, pal, "tile-local", fmt.Sprint(a.snap.Meta.LocalCount), a.t("tile.local", nil), true, a.localOnly, func() {
 			a.localOnly = !a.localOnly
 		})
-		a.metricTile(c, pal, "tile-nix", a.snap.Meta.NixpkgsRev, a.t("tile.nixpkgs", nil), false, func() {
+		a.metricTile(c, pal, "tile-nix", a.snap.Meta.NixpkgsRev, a.t("tile.nixpkgs", nil), false, false, func() {
 			a.copyAndFlash(c, a.snap.Meta.NixpkgsRev)
 		})
-		a.metricTile(c, pal, "tile-state", a.snap.Meta.StateVersion, a.t("tile.state", nil), false, func() {
+		a.metricTile(c, pal, "tile-state", a.snap.Meta.StateVersion, a.t("tile.state", nil), false, false, func() {
 			a.copyAndFlash(c, a.snap.Meta.StateVersion)
 		})
 	})
@@ -868,20 +809,26 @@ func (a *OverviewApp) buildOverviewContent(c *ui.Context, pal Palette, contentW 
 	})
 }
 
-func (a *OverviewApp) metricTile(c *ui.Context, pal Palette, key, value, label string, accent bool, onClick func()) {
+func (a *OverviewApp) metricTile(c *ui.Context, pal Palette, key, value, label string, accent, active bool, onClick func()) {
 	bg := pal.Card
 	if accent {
 		bg = pal.Pudding
 	}
+	borderColor := pal.Line
+	var borderW float32 = 1
+	if active {
+		borderColor = pal.Caramel
+		borderW = 2
+	}
 	tile := ui.Column(c.Key(key)).Padding(15, 17).Gap(4).Radius(22).
-		Background(bg).Border(1, pal.Line).
+		Background(bg).Border(borderW, borderColor).
 		Shadow(0, 10, 22, -12, pal.Shadow).
 		Shadow(0, 2, 6, -2, pal.ShadowTight).
 		Cursor(ui.CursorPointer).Role(ui.RoleButton).Label(value + " " + label)
-	if tile.Hovered() {
+	if tile.Hovered() && !active {
 		tile.Border(1, pal.LineHover)
 	}
-	applyPudding(c, tile, 0.60, a.speed())
+	applyPudding(c, tile, 0.60)
 	tile.Children(func() {
 		ui.Text(c, value).FontSize(24).FontWeight(800).LetterSpacing(-0.4).TextColor(pal.Ink).SingleLine()
 		ui.Text(c, label).FontSize(11.5).FontWeight(650).LetterSpacing(0.4).TextColor(pal.Mute).SingleLine()
@@ -909,7 +856,7 @@ func (a *OverviewApp) buildPackageCard(c *ui.Context, pal Palette, pkg Package) 
 	}
 
 	// Pudding jelly press & release on package cards!
-	applyPudding(c, card, 0.72, a.speed())
+	applyPudding(c, card, 0.72)
 
 	card.Children(func() {
 		// 44x44 Icon well
@@ -999,7 +946,7 @@ func (a *OverviewApp) buildEmptyState(c *ui.Context, pal Palette, msg string) {
 			resetBtn := ui.Row(c.Key("reset-filters")).Height(38).Padding(0, 18).Radius(14).
 				Background(pal.Caramel).Center().Cursor(ui.CursorPointer).
 				Role(ui.RoleButton).Label(a.t("empty.reset", nil))
-			applyPudding(c, resetBtn, 0.55, a.speed())
+			applyPudding(c, resetBtn, 0.55)
 			resetBtn.Children(func() {
 				ui.Text(c, a.t("empty.reset", nil)).FontSize(13.5).FontWeight(700).TextColor(pal.CaramelInk)
 			})
@@ -1507,22 +1454,7 @@ func (a *OverviewApp) buildIslandOverlay(c *ui.Context, pal Palette, winW float3
 						ui.Text(c, a.t("island.refreshNow", nil)).FontSize(12).FontWeight(750).TextColor(pal.CaramelInk)
 					})
 					if ref.Clicked() {
-						a.triggerRefresh(c)
-					}
-
-					slowTxt := a.t("toolbar.slow", nil)
-					if a.slowMo {
-						slowTxt = a.t("toolbar.normalSpeed", nil)
-					}
-					sl := ui.Row(c.Key("isl-slow")).Height(32).Padding(0, 12).Radius(999).
-						Background(pal.IslandBar).Center().Cursor(ui.CursorPointer).
-						Role(ui.RoleButton).Label(slowTxt)
-					applyTinyFade(sl)
-					sl.Children(func() {
-						ui.Text(c, slowTxt).FontSize(12).FontWeight(650).TextColor(pal.IslandInk)
-					})
-					if sl.Clicked() {
-						a.slowMo = !a.slowMo
+						a.triggerRefresh(c, false)
 					}
 
 					ui.Spacer(c)
@@ -1554,7 +1486,7 @@ func (a *OverviewApp) buildDetailSheet(c *ui.Context, pal Palette, winW float32)
 
 	var op, dy, sx, sy float32 = 1, 0, 1, 1
 	if !c.Preferences().ReduceMotion {
-		dur := 0.58 / a.speed()
+		const dur = 0.58
 		t := float32(c.Now().Sub(a.sheetOpenAt).Seconds() / dur)
 		if t < 1 {
 			op, dy, sx, sy = evalPopEntrance(t)
@@ -1631,7 +1563,7 @@ func (a *OverviewApp) buildDetailSheet(c *ui.Context, pal Palette, winW float32)
 						openBtn := ui.Row(c.Key("sheet-open")).Grow(1).Height(44).Radius(16).
 							Background(pal.Caramel).Shadow(0, 10, 20, -10, pal.CarShadow).
 							Center().Cursor(ui.CursorPointer).Role(ui.RoleButton).Label(a.t("detail.openHomepage", nil))
-						applyPudding(c, openBtn, 0.65, a.speed())
+						applyPudding(c, openBtn, 0.65)
 						openBtn.Children(func() {
 							ui.Text(c, a.t("detail.openHomepage", nil)).FontSize(14).FontWeight(750).TextColor(pal.CaramelInk)
 						})
@@ -1643,7 +1575,7 @@ func (a *OverviewApp) buildDetailSheet(c *ui.Context, pal Palette, winW float32)
 					copyBtn := ui.Row(c.Key("sheet-copy")).Grow(1).Height(44).Radius(16).
 						Background(pal.Track).Center().Cursor(ui.CursorPointer).
 						Role(ui.RoleButton).Label(a.t("detail.copyName", nil))
-					applyPudding(c, copyBtn, 0.55, a.speed())
+					applyPudding(c, copyBtn, 0.55)
 					copyBtn.Children(func() {
 						ui.Text(c, a.t("detail.copyName", nil)).FontSize(14).FontWeight(700).TextColor(pal.Ink)
 					})
@@ -1654,7 +1586,7 @@ func (a *OverviewApp) buildDetailSheet(c *ui.Context, pal Palette, winW float32)
 					closeBtn := ui.Row(c.Key("sheet-close")).Height(44).Padding(0, 18).Radius(16).
 						Background(pal.Soft).Center().Cursor(ui.CursorPointer).
 						Role(ui.RoleButton).Label(a.t("detail.close", nil))
-					applyPudding(c, closeBtn, 0.55, a.speed())
+					applyPudding(c, closeBtn, 0.55)
 					closeBtn.Children(func() {
 						ui.Text(c, a.t("detail.close", nil)).FontSize(14).FontWeight(700).TextColor(pal.SoftInk)
 					})
@@ -1696,7 +1628,7 @@ func (a *OverviewApp) buildContextMenu(c *ui.Context, pal Palette, winW float32)
 
 	var op, sx, sy float32 = 1, 1, 1
 	if !c.Preferences().ReduceMotion {
-		dur := 0.60 / a.speed()
+		const dur = 0.60
 		t := float32(c.Now().Sub(a.menuOpenAt).Seconds() / dur)
 		if t < 1 {
 			op, sx, sy = evalMenuEntrance(t)

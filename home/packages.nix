@@ -62,6 +62,7 @@ in
     alma
     mygo-music
     mayoi
+    overview
     obs-studio
     antigravity-hub
 

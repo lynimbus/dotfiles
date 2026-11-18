@@ -133,7 +133,7 @@ func (is *CaramelIsland) progress() float64 {
 
 // Step advances the island springs up to now, requesting another frame only
 // while the springs are in motion.
-func (is *CaramelIsland) Step(c *ui.Context, speed float64) {
+func (is *CaramelIsland) Step(c *ui.Context) {
 	now := c.Now()
 	if is.noticeText != "" && !is.noticeUntil.IsZero() && now.After(is.noticeUntil) {
 		is.noticeText = ""
@@ -154,9 +154,6 @@ func (is *CaramelIsland) Step(c *ui.Context, speed float64) {
 		is.lastTick = now
 		return
 	}
-	if speed <= 0 {
-		speed = 1
-	}
 	dt := 1.0 / 60.0
 	if !is.lastTick.IsZero() {
 		raw := now.Sub(is.lastTick).Seconds()
@@ -165,7 +162,7 @@ func (is *CaramelIsland) Step(c *ui.Context, speed float64) {
 		}
 	}
 	is.lastTick = now
-	is.advance(dt * speed)
+	is.advance(dt)
 	if is.phase != islandStill {
 		c.Invalidate()
 	}

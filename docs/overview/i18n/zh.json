@@ -19,18 +19,12 @@
   "lang": {
     "label": "语言"
   },
-  "filter": {
-    "all": "全部",
-    "local": "本仓库构建"
-  },
   "toolbar": {
     "refresh": "刷新",
     "refreshing": "正在求值 flake…",
     "themeAuto": "跟随系统",
     "themeLight": "浅色",
-    "themeDark": "深色",
-    "slow": "慢放 ×0.25",
-    "normalSpeed": "正常速度"
+    "themeDark": "深色"
   },
   "island": {
     "pkgs": "{count} 个软件",
@@ -106,7 +100,7 @@
   },
   "foot": {
     "packages": "由求值后的 NixOS flake 渲染 · home-manager {hm} · {system}",
-    "settings": "改完配置后可点顶部刷新，或执行 just overview 更新快照。"
+    "settings": "改完配置后点击顶部刷新即可同步最新状态。"
   },
   "settings": {
     "title": "设置",

@@ -174,7 +174,7 @@ func newCaramelGroup(radius float32) *CaramelGroup {
 }
 
 // Sync updates the active index and triggers gooey flow whenever selection moves.
-func (g *CaramelGroup) Sync(c *ui.Context, active int, speed float64) {
+func (g *CaramelGroup) Sync(c *ui.Context, active int) {
 	if !g.hasInit {
 		g.selected = active
 		g.prev = active
@@ -191,20 +191,17 @@ func (g *CaramelGroup) Sync(c *ui.Context, active int, speed float64) {
 		g.animating = false
 		return
 	}
-	if speed <= 0 {
-		speed = 1
-	}
 	delta := active - g.prev
 	if delta < 0 {
 		delta = -delta
 	}
 	g.distant = delta > 1
-	baseMs := 500.0
+	baseMs := 500 * time.Millisecond
 	if g.distant {
-		baseMs = 580.0
+		baseMs = 580 * time.Millisecond
 	}
 	g.startTime = c.Now()
-	g.duration = time.Duration(baseMs/speed) * time.Millisecond
+	g.duration = baseMs
 	g.animating = true
 	c.Invalidate()
 }
@@ -546,13 +543,10 @@ type puddingState struct {
 
 // applyPudding attaches Caramel Pudding's exact 6-stop jelly press & release
 // physics to an element (cards, metric tiles, big buttons).
-// amp matches caramel-pudding's size tiers: card ~0.72, tile ~0.62, big ~0.65.
-func applyPudding(c *ui.Context, el ui.Element, amp float32, speed float64) {
+// amp matches caramel-pudding's size tiers: card ~0.72, tile ~0.60, big ~0.65.
+func applyPudding(c *ui.Context, el ui.Element, amp float32) {
 	if c.Preferences().ReduceMotion {
 		return
-	}
-	if speed <= 0 {
-		speed = 1
 	}
 	st := ui.Local(el, "cp-pudding", func() puddingState {
 		return puddingState{curSX: 1, curSY: 1, fromSX: 1, fromSY: 1}
@@ -568,7 +562,7 @@ func applyPudding(c *ui.Context, el ui.Element, amp float32, speed float64) {
 			st.fromSX = st.curSX
 			st.fromSY = st.curSY
 		}
-		dur := 0.34 / speed
+		const dur = 0.34
 		t := clamp01(float32(now.Sub(st.pressStart).Seconds() / dur))
 		target := 1 - 0.075*amp
 		e := easePress(t)
@@ -590,7 +584,7 @@ func applyPudding(c *ui.Context, el ui.Element, amp float32, speed float64) {
 	}
 
 	if st.releasing {
-		dur := 0.70 / speed
+		const dur = 0.70
 		t := float32(now.Sub(st.relStart).Seconds() / dur)
 		if t >= 1 {
 			st.releasing = false

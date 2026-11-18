@@ -5,27 +5,26 @@
 designed around the tactile interaction language and warm palette of
 [Caramel Pudding](https://github.com/wave2234/caramel-pudding).
 
-It shows what this NixOS flake installs and how the home-manager modules are
-configured, ships in Simplified Chinese and English, supports warm light and
-dark themes (following the desktop by default), and refreshes directly from the
-flake on demand.
+It is packaged in [pkgs/overview.nix](../../pkgs/overview.nix) and installed
+into `home.packages`, replacing the old static HTML workflow:
+
+- Launches instantaneously from its embedded/cached snapshot, then silently
+  evaluates `data.nix` against the live flake in the background.
+- Click **Refresh** (`Ctrl+R`) or expand the top Caramel Island to re-evaluate
+  on demand after editing Nix configurations.
+- Build and run its headless `ui.NewTester` checks with:
 
 ```bash
-just overview         # regenerate docs/overview/snapshot.json and verify build
-just overview-verify  # check snapshot parity, run mygo vet and ui.NewTester suite
-just overview-run     # build and launch the desktop app from source
+nix build --no-link .#legacyPackages.x86_64-linux.overview
 ```
-
-Once activated through `just switch` (`pkgs/overview.nix` + `home/packages.nix`),
-it is also installed as `overview` with a desktop entry and app icon.
 
 ## Interface & tactile design
 
 Following Caramel Pudding's rules (*where to use jelly vs. gooey adhesion*):
 
 - **Caramel adhesion (`caramel.go` + GPU SDF metaball shader):** single-select
-  pill rows (view switch, source filter, language picker, shelf navigation)
-  flow with liquid caramel smooth-union bridging and pre-release surface tension.
+  pill rows (view switch, language picker, shelf navigation) flow with liquid
+  caramel smooth-union bridging and pre-release surface tension.
 - **Pudding jelly (`applyPudding`):** package cards, metric tiles, and primary
   detail-sheet buttons compress on press and release along Caramel Pudding's
   6-stop squash-and-stretch curve.
@@ -42,22 +41,21 @@ Following Caramel Pudding's rules (*where to use jelly vs. gooey adhesion*):
 
 - `data.nix` evaluates the flake and exports packages, settings, desktop
   session info, and toolchain versions.
-- `snapshot.json` is the generated build-time snapshot embedded via `//go:embed`
-  so the app opens immediately without blocking on `nix eval`. Clicking Refresh
-  in the app evaluates `data.nix` in the background and caches the updated
-  snapshot under `$XDG_CACHE_HOME/overview/snapshot.json`.
+- `snapshot.json` is the fallback seed snapshot embedded via `//go:embed` so
+  the app opens immediately without blocking on `nix eval`. Live evaluations
+  are cached under `$XDG_CACHE_HOME/overview/snapshot.json`.
 - `i18n/en.json` and `i18n/zh.json` are the embedded language packs.
 - `main.go`, `app.go`, `data.go`, `i18n.go`, `theme.go`, `caramel.go`,
   `island.go`, and `icon.svg` implement the MyGo native UI app.
-- `app_test.go` drives the real view headlessly via `ui.NewTester`.
-- `build.sh` and `verify.sh` power `just overview` and `just overview-verify`.
+- `app_test.go` drives the real view headlessly via `ui.NewTester` during the
+  Nix build's `checkPhase`.
 
 ## Adding a package
 
-Adding a package to `home/packages.nix` makes it appear automatically once
-`just overview` regenerates `snapshot.json`:
+Adding a package to `home/packages.nix` appears automatically in the app once
+it refreshes:
 
 1. Place its pname in `sectionOf` inside `data.nix` (unlisted packages fall
    into "Other").
-2. Add its Chinese description under `descriptions` in `i18n/zh.json`
-   (`build.sh` and `app_test.go` fail if a package is undocumented).
+2. Add its Chinese description under `descriptions` in `i18n/zh.json` (while
+   untranslated, the app gracefully falls back to upstream `meta.description`).
