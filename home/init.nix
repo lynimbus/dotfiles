@@ -10,6 +10,7 @@
     ./programs/ssh.nix
     ./programs/direnv.nix
     ./programs/zoxide.nix
+    ./programs/yazi.nix
     ./programs/ghostty.nix
     ./programs/hourly-chime.nix
     ./programs/memo.nix
