@@ -55,7 +55,8 @@ let
       "wlsunset"
       "wl-clipboard"
       "tmux"
-      "xwayland-satellite"
+      "adw-gtk3"
+      "umbriel"
       "librewolf"
       "ungoogled-chromium"
       "ayugram-desktop"
@@ -304,8 +305,8 @@ in
       # mode is a token, not a phrase: the page words it in whichever language is
       # selected, so no English leaks into the data.
       {
-        name = "niri";
-        enable = true;
+        name = "umbriel";
+        enable = home.programs.umbriel.enable;
         mode = "scrollable";
       }
       {
