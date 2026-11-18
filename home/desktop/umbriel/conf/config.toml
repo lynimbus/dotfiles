@@ -1,0 +1,303 @@
+# Umbriel configuration
+# Reference: https://docs.noctalia.dev/umbriel/
+
+[include.optional]
+files = ["noctalia.toml"]
+
+[general]
+autostart = ["noctalia"]
+xwayland = true
+show_cheatsheet = false
+
+[output.eDP-1]
+mode = "2560x1600@240"
+position = [0, 0]
+scale = 1.75
+workspaces = ["1terminal", "2browser", "3chat", "4entertainment", "5utility", "0other"]
+
+[appearance]
+prefer_no_csd = true
+border_width = 2
+corner_radius = 12
+
+[appearance.title_bar]
+mode = "negotiated"
+height = 28
+button_size = -1
+button_gap = 8
+button_padding = -1
+button_corner_radius = -1
+button_glyph = "hover"
+
+[appearance.blur]
+enabled = true
+optimized = true
+passes = 2
+radius = 5
+noise = 0.02
+brightness = 0.95
+contrast = 0.95
+saturation = 1.0
+
+[input.keyboard]
+repeat_rate = 25
+repeat_delay = 600
+numlock_toggle = false
+
+[input.touchpad]
+tap = true
+tap_and_drag = true
+drag_lock = "sticky"
+natural_scroll = true
+disable_while_typing = true
+disable_on_external_mouse = true
+accel_profile = "flat"
+
+[input.mouse]
+natural_scroll = false
+accel_profile = "flat"
+
+[input.cursor]
+size = 24
+
+[layout]
+mode = "scrolling"
+gap = 8
+extent_presets = [0.333, 0.5, 0.667]
+
+[layout.scrolling]
+default_extent_fraction = 0.5
+
+[hot_corners.top_left]
+enabled = true
+delay_ms = 500
+action = "overview-open"
+
+[keybinds]
+# Applications and launcher
+"Mod+Return" = { action = "spawn kero", repeat = false }
+"Mod+Shift+Return" = { action = "spawn ghostty --class=com.mitchellh.ghostty.float --maximize=false", repeat = false }
+"Mod+Shift+N" = { action = "spawn ghostty --class=com.mitchellh.ghostty.memo -e memo", repeat = false }
+"Mod+B" = { action = "spawn chromium", repeat = false }
+"Mod+D" = { action = "spawn noctalia msg panel-toggle launcher", repeat = false }
+"Mod+Space" = { action = "spawn noctalia msg panel-toggle launcher", repeat = false }
+"XF86Search" = { action = "spawn noctalia msg panel-toggle launcher", repeat = false }
+"Mod+S" = { action = "spawn noctalia msg panel-toggle control-center", repeat = false }
+"Mod+E" = { action = "spawn noctalia msg panel-toggle session", repeat = false }
+"Mod+Shift+V" = { action = "spawn noctalia msg panel-toggle clipboard", repeat = false }
+"Ctrl+Alt+L" = { action = "spawn noctalia msg session lock", repeat = false }
+
+# Media, volume, and brightness
+"XF86AudioRaiseVolume" = { action = "spawn noctalia msg volume-up", allow_when_locked = true }
+"XF86AudioLowerVolume" = { action = "spawn noctalia msg volume-down", allow_when_locked = true }
+"XF86AudioMute" = { action = "spawn noctalia msg volume-mute", allow_when_locked = true, repeat = false }
+"XF86AudioMicMute" = { action = "spawn noctalia msg mic-mute", allow_when_locked = true, repeat = false }
+"XF86AudioPlay" = { action = "spawn noctalia msg media toggle", allow_when_locked = true, repeat = false }
+"XF86AudioStop" = { action = "spawn noctalia msg media pause", allow_when_locked = true, repeat = false }
+"XF86AudioPrev" = { action = "spawn noctalia msg media previous", allow_when_locked = true }
+"XF86AudioNext" = { action = "spawn noctalia msg media next", allow_when_locked = true }
+"XF86MonBrightnessUp" = { action = "spawn noctalia msg brightness-up", allow_when_locked = true }
+"XF86MonBrightnessDown" = { action = "spawn noctalia msg brightness-down", allow_when_locked = true }
+"XF86KbdBrightnessUp" = { action = "spawn kbd-backlight 10%+", allow_when_locked = true }
+"XF86KbdBrightnessDown" = { action = "spawn kbd-backlight 10%-", allow_when_locked = true }
+
+# Screenshot, cheatsheet, overview, and session
+"Print" = { action = "spawn screenshot", repeat = false }
+"Mod+Shift+slash" = { action = "cheatsheet-toggle", repeat = false }
+"Mod+O" = { action = "overview-toggle", repeat = false }
+"Mod+Escape" = { action = "shortcuts-inhibit-toggle", allow_when_inhibited = true, repeat = false }
+"Ctrl+Alt+Delete" = "session-quit"
+"Mod+Q" = { action = "window-close", repeat = false }
+"Mod+Shift+P" = "dpms-off"
+
+# Focus and movement
+"Mod+Left" = "window-focus-left"
+"Mod+Down" = "window-focus-down"
+"Mod+Up" = "window-focus-up"
+"Mod+Right" = "window-focus-right"
+"Mod+H" = "window-focus-left"
+"Mod+J" = "window-focus-down"
+"Mod+K" = "window-focus-up"
+"Mod+L" = "window-focus-right"
+"Mod+Home" = "column-focus-first"
+"Mod+End" = "column-focus-last"
+
+"Mod+Ctrl+Left" = "column-move-left"
+"Mod+Ctrl+Down" = "window-move-down"
+"Mod+Ctrl+Up" = "window-move-up"
+"Mod+Ctrl+Right" = "column-move-right"
+"Mod+Ctrl+H" = "column-move-left"
+"Mod+Ctrl+J" = "window-move-down"
+"Mod+Ctrl+K" = "window-move-up"
+"Mod+Ctrl+L" = "column-move-right"
+"Mod+Ctrl+Home" = "column-move-to-first"
+"Mod+Ctrl+End" = "column-move-to-last"
+
+# Monitors
+"Mod+Shift+Left" = "output-focus-left"
+"Mod+Shift+Down" = "output-focus-down"
+"Mod+Shift+Up" = "output-focus-up"
+"Mod+Shift+Right" = "output-focus-right"
+"Mod+Shift+H" = "output-focus-left"
+"Mod+Shift+J" = "output-focus-down"
+"Mod+Shift+K" = "output-focus-up"
+"Mod+Shift+L" = "output-focus-right"
+
+"Mod+Shift+Ctrl+Left" = "column-move-to-output-left"
+"Mod+Shift+Ctrl+Down" = "column-move-to-output-down"
+"Mod+Shift+Ctrl+Up" = "column-move-to-output-up"
+"Mod+Shift+Ctrl+Right" = "column-move-to-output-right"
+"Mod+Shift+Ctrl+H" = "column-move-to-output-left"
+"Mod+Shift+Ctrl+J" = "column-move-to-output-down"
+"Mod+Shift+Ctrl+K" = "column-move-to-output-up"
+"Mod+Shift+Ctrl+L" = "column-move-to-output-right"
+
+# Workspaces
+"Mod+Page_Down" = "workspace-next"
+"Mod+Page_Up" = "workspace-previous"
+"Mod+U" = "workspace-next"
+"Mod+I" = "workspace-previous"
+"Mod+Ctrl+Page_Down" = "column-move-to-workspace-next"
+"Mod+Ctrl+Page_Up" = "column-move-to-workspace-previous"
+"Mod+Ctrl+U" = "column-move-to-workspace-next"
+"Mod+Ctrl+I" = "column-move-to-workspace-previous"
+"Mod+Shift+U" = "workspace-move-down"
+"Mod+Shift+I" = "workspace-move-up"
+
+"Mod+1" = "workspace-switch 1terminal"
+"Mod+2" = "workspace-switch 2browser"
+"Mod+3" = "workspace-switch 3chat"
+"Mod+4" = "workspace-switch 4entertainment"
+"Mod+5" = "workspace-switch 5utility"
+"Mod+0" = "workspace-switch 0other"
+"Mod+Ctrl+1" = "column-move-to-workspace 1terminal"
+"Mod+Ctrl+2" = "column-move-to-workspace 2browser"
+"Mod+Ctrl+3" = "column-move-to-workspace 3chat"
+"Mod+Ctrl+4" = "column-move-to-workspace 4entertainment"
+"Mod+Ctrl+5" = "column-move-to-workspace 5utility"
+"Mod+Ctrl+0" = "column-move-to-workspace 0other"
+
+# Columns, tabs, sizing, and states
+"Mod+bracketleft" = "window-consume-or-expel-left"
+"Mod+bracketright" = "window-consume-or-expel-right"
+"Mod+comma" = "window-consume-from-left"
+"Mod+period" = "window-consume-from-right"
+"Mod+R" = "window-cycle-primary-extent"
+"Mod+Shift+R" = "window-cycle-secondary-extent"
+"Mod+F" = { action = "window-toggle-maximize", repeat = false }
+"Mod+Shift+F" = { action = "window-toggle-fullscreen", repeat = false }
+"Mod+Ctrl+F" = { action = "window-toggle-maximize-to-edges", repeat = false }
+"Mod+Minus" = "window-modify-primary-extent -0.05"
+"Mod+Equal" = "window-modify-primary-extent +0.05"
+"Mod+Shift+Minus" = "window-modify-secondary-extent -0.05"
+"Mod+Shift+Equal" = "window-modify-secondary-extent +0.05"
+"Mod+V" = { action = "window-toggle-floating", repeat = false }
+"Mod+W" = { action = "column-toggle-tabbed", repeat = false }
+"Mod+Alt+Right" = "column-focus-tab-next"
+"Mod+Alt+Left" = "column-focus-tab-previous"
+
+# ==============================================================================
+# Window rules
+
+[[window_rule]]
+blur = true
+
+[[window_rule]]
+match.app_id = "^dev\\.noctalia\\.Noctalia$"
+default_floating = true
+default_floating_size_px = { width = 1020, height = 900 }
+
+[[window_rule]]
+match.app_id = "^dev\\.noctalia\\.UmbrielSharePicker$"
+default_floating = true
+default_floating_size_px = { width = 800, height = 600 }
+
+[[window_rule]]
+match.title = "^(Picture-in-Picture|Picture in picture)$"
+default_floating = true
+default_maximize = false
+default_position = { x = 20, y = 20, anchor = "bottom_right" }
+
+[[window_rule]]
+match.app_id = "^com\\.mitchellh\\.ghostty\\.float$"
+default_floating = true
+default_maximize = false
+default_position = { x = 0, y = 60, anchor = "top" }
+default_floating_size_px = { width = 800, height = 520 }
+blur = true
+
+[[window_rule]]
+match.app_id = "^com\\.mitchellh\\.ghostty\\.memo$"
+default_floating = true
+default_maximize = false
+default_position = { x = 0, y = 60, anchor = "top" }
+default_floating_size_px = { width = 800, height = 520 }
+
+[[window_rule]]
+match.app_id = "^com\\.mitchellh\\.ghostty$"
+default_workspace = "1terminal"
+default_maximize = true
+blur = true
+
+[[window_rule]]
+match.app_id = ["^firefox$", "^google-chrome$", "^librewolf$", "^chromium-browser$"]
+default_workspace = "2browser"
+default_maximize = true
+
+[[window_rule]]
+match.title = "^Telegram"
+default_workspace = "3chat"
+
+[[window_rule]]
+match.app_id = ["^wechat$", "^QQ$", "^com\\.ayugram\\.desktop$"]
+default_workspace = "3chat"
+
+[[window_rule]]
+match.app_id = [
+  "^steam$",
+  "^steam_app_default$",
+  "^heroic$",
+  "^net\\.lutris\\.Lutris$",
+  "^com\\.vysp3r\\.ProtonPlus$",
+  "^moe\\.launcher",
+  "\\.exe$",
+  "^mpv$",
+]
+default_workspace = "4entertainment"
+
+[[window_rule]]
+match.app_id = [
+  "^com\\.github\\.johnfactotum\\.Foliate$",
+  "^io\\.github\\.lgse\\.Strata$",
+  "^[Cc]lash-[Vv]erge$",
+  "^\\.clash-verge-wrapped$",
+  "^org\\.kde\\.easyeffects$",
+]
+default_workspace = "5utility"
+
+[[window_rule]]
+match.app_id = ["^BambuStudio$", "^OrcaSlicer$", "^Zoom$"]
+default_workspace = "0other"
+
+[[window_rule]]
+match.app_id = "^Zoom Workplace$"
+default_workspace = "0other"
+
+[[window_rule]]
+match.app_id = "^Zoom Workplace$"
+match.title = "^Zoom Workplace( - Free account)?$"
+default_workspace = "0other"
+default_floating = false
+
+# ==============================================================================
+# Layer rules
+
+[[layer_rule]]
+match.namespace = "^noctalia-(bar-[^\"]+|notification|dock|panel|attached-panel|osd|desktop-widget-[^\"]*)$"
+blur = true
+blur_ignore_alpha = 0.6
+blur_popups = true
+
+[[layer_rule]]
+match.namespace = "^noctalia-(notification|dock|panel|attached-panel|osd)$"
+blur_optimized = false

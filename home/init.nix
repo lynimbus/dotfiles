@@ -22,7 +22,7 @@
 
     ./desktop/screenshot.nix
     ./desktop/keyboard-backlight.nix
-    ./desktop/niri/default.nix
+    ./desktop/umbriel/default.nix
     ./desktop/mango/default.nix
     ./desktop/noctalia/default.nix
   ];

@@ -25,7 +25,7 @@
     ./fhs-compat.nix
     ./packages.nix
     ./linuxqq-wayland-fix.nix
-    ./desktop-niri.nix
+    ./desktop-umbriel.nix
     ./desktop-mango.nix
     ./xdg.nix
     ../defaults/terminal.nix
