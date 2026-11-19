@@ -66,6 +66,12 @@
 #     that and wrong for anything deterministic, hence the narrow match below:
 #     version detection, a regex that matches nothing, an eval failure or a
 #     failed --build behave the same on every attempt.
+#   - A handshake can be cut instead of answered with 504: on 2026-11-19
+#     dl.google.com ended the ClientHello with an unexpected EOF (curl exit 35)
+#     and took the r8 index read with it. That EOF turned out to be DNS -- the
+#     machine resolved the host to a China-only edge node its proxy exit cannot
+#     use, while a Google IP answered 200 -- but a cut handshake is a network
+#     break like a reset, not a deterministic failure, so 35 is retried.
 #   - nix-update only knows how to enumerate releases from github, gitlab,
 #     gitea, codeberg, sourcehut, savannah, pypi, npm, crates.io and rubygems.
 #     A package published only to a Maven repository therefore has no version
@@ -123,7 +129,7 @@ if [ ! -e "$repo_dir/.git" ]; then
 fi
 
 system=x86_64-linux
-NET_RETRY_RE='502|503|504|cannot download|failed to retrieve hash|timed out|Failed to connect|Connection reset|curl: \((6|7|22|28)\)'
+NET_RETRY_RE='502|503|504|cannot download|failed to retrieve hash|timed out|Failed to connect|Connection reset|curl: \((6|7|22|28|35)\)'
 retries=2
 retry_delay=30
 
