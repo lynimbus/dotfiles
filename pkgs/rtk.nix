@@ -19,8 +19,8 @@
   # --github-releases-limit of 1000 releases, which is where the dev flood
   # would break the bump again. Not --version=unstable a la sing-box: the dev
   # channel is an rc of the next minor and not what runs here.
-  version ? "1.2.0",
-  hash ? "sha256-cP7ntKVIxD3elMd+IzVVCYGwvC+wE2kdjIEJtb0O2jc=",
+  version ? "1.2.1",
+  hash ? "sha256-dfZFJXEb6TVlemsijZKcJL2dGrfWQOo3SouRPltbrAU=",
   archiveSuffix ? "x86_64-unknown-linux-musl",
 }:
 
