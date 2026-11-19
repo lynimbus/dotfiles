@@ -10,6 +10,7 @@
         (fcitx5-rime.override {
           rimeDataPkgs = [ rime-ice ];
         })
+        fcitx5-hymt-translate
       ];
     };
   };
