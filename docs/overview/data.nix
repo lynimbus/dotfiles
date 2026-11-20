@@ -43,7 +43,6 @@ let
       "beads"
       "dolt"
       "obelisk-cli"
-      "antigravity-cli"
       "fd"
       "eza"
       "bat"
@@ -67,7 +66,6 @@ let
       "wechat-uos"
       "nautilus"
       "file-roller"
-      "kero"
       "mygo-music"
       "mayoi"
       "overview"
@@ -146,7 +144,6 @@ let
       "delta"
       "man-db"
       "man"
-      "zstd"
     ];
     agents = [
       "magpie"
