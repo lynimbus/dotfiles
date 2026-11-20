@@ -8,6 +8,7 @@
 # page being edited.
 let
   flake = builtins.getFlake (toString ../..);
+  repoSrc = toString flake;
   # The system the configuration builds for, read from the configuration rather
   # than repeated here, so a second host or an arch change does not need an edit.
   system = flake.nixosConfigurations.nixos.pkgs.stdenv.hostPlatform.system;
@@ -15,148 +16,25 @@ let
   home = flake.nixosConfigurations.nixos.config.home-manager.users.lynimbus;
   systemConfig = flake.nixosConfigurations.nixos.config;
 
-  # overlay.nix derives pkgs/* via bumpMatrix, and home/ builds three inline
-  # tools directly without separate pkgs/ files.
-  localNames = (builtins.attrNames pkgs.bumpMatrix) ++ [
-    "memo"
-    "screenshot"
-    "kbd-backlight"
-  ];
+  hasPrefix =
+    prefix: str:
+    builtins.stringLength str >= builtins.stringLength prefix
+    && builtins.substring 0 (builtins.stringLength prefix) str == prefix;
 
-  # sectionOf is the page's own taxonomy, not a second copy of packages.nix:
-  # it only decides which shelf a package sits on. Anything unlisted lands in
-  # "Other", so a new package still shows up without an edit here.
-  # These lists hold pnames, which is not always the attribute name packages.nix
-  # writes: dig arrives as bind, shellcheck as ShellCheck, poppler as
-  # poppler-glib, mango-nightly as mango.
-  sectionOf = {
-    daily = [
-      "neovim"
-      "helix"
-      "ripgrep"
-      "fzf"
-      "jq"
-      "just"
-      "nvd"
-      "gh"
-      "jjui"
-      "beads"
-      "dolt"
-      "obelisk-cli"
-      "fd"
-      "eza"
-      "bat"
-      "fastfetch"
-      "bind"
-      "ShellCheck"
-      "libxml2"
-      "file"
-      "sing-box"
-    ];
-    desktop = [
-      "ddcutil"
-      "wlsunset"
-      "wl-clipboard"
-      "tmux"
-      "adw-gtk3"
-      "umbriel"
-      "librewolf"
-      "ungoogled-chromium"
-      "ayugram-desktop"
-      "wechat-uos"
-      "nautilus"
-      "file-roller"
-      "mygo-music"
-      "mayoi"
-      "overview"
-      "obs-studio"
-      "ghostty"
-      "mango"
-      "shared-mime-info"
-      "kbd-backlight"
-      "screenshot"
-      "memo"
-      "noctalia"
-    ];
-    network = [
-      "wireshark-cli"
-      "termshark"
-      "mitmproxy"
-    ];
-    media = [
-      "zip"
-      "unzip"
-      "p7zip"
-      "7zz"
-      "unrar"
-      "unar"
-      "ouch"
-      "zstd"
-      "xz"
-      "ffmpeg"
-      "imagemagick"
-      "poppler-glib"
-    ];
-    dev = [
-      "nix-init"
-      "nix-update"
-      "nixfmt"
-      "zig"
-      "koka"
-      "go"
-      "mygo"
-      "android-tools"
-      "payload-dumper-go"
-      "python3"
-      "nodejs"
-      "nil"
-      "nixd"
-      "nsh"
-      "rustc"
-      "cargo"
-      "clippy"
-      "rustfmt"
-      "rust-analyzer"
-      "rustup"
-      "sccache"
-      "mold-unwrapped-wrapper"
-      "jdt-language-server"
-      "openjdk"
-      "ast-grep"
-      "typos"
-      "opengrep"
-      "binutils-wrapper"
-      "llvm"
-      "jadx"
-      "apktool"
-      "erofs-utils"
-      "r8"
-    ];
-    tooling = [
-      "git"
-      "fish"
-      "direnv"
-      "jujutsu"
-      "zoxide"
-      "yazi"
-      "meld"
-      "difftastic"
-      "delta"
-      "man-db"
-      "man"
-    ];
-    agents = [
-      "magpie"
-      "pig"
-      "pig-swarm"
-      "kero"
-      "herdr-core"
-      "alma"
-      "antigravity-cli"
-      "rtk"
-      "blackhole"
-    ];
-  };
+  # Local derivations are detected directly from their definition path inside
+  # this flake (covering pkgs/* and inline home/ derivations like memo or
+  # hy-mt2-server), with bumpMatrix pnames as a fallback if position is absent.
+  localBumpPnames = map (name: pkgs.${name}.pname or pkgs.${name}.name or name) (
+    builtins.attrNames pkgs.bumpMatrix
+  );
+
+  isLocalDrv =
+    drv:
+    let
+      pos = (drv.meta or { }).position or "";
+      pname = drv.pname or drv.name or "";
+    in
+    (pos != "" && hasPrefix repoSrc pos) || builtins.elem pname localBumpPnames;
 
   # home-manager's own build-time scaffolding lands in home.packages too
   # (session variables, a manpage, empty MIME and font directories). None of it
@@ -164,23 +42,49 @@ let
   isInternal =
     pname: builtins.match "(dummy-.*|hm-session-vars.*|home-configuration-.*)" pname != null;
 
+  sectionOrder = [
+    "desktop"
+    "local"
+    "cli"
+    "libs"
+  ];
+
   sectionLabels = {
-    daily = "Everyday command line";
-    desktop = "Desktop";
-    network = "Network capture";
-    media = "Archives and conversion";
-    dev = "Development toolchain";
-    agents = "Coding agents";
-    tooling = "Managed by a module";
-    other = "Other";
+    desktop = "Desktop apps";
+    local = "Built in this repo";
+    cli = "CLI & toolchain";
+    libs = "Libraries & assets";
   };
 
+  # Classify every package from its derivation output and repo origin alone, so
+  # adding or removing packages never requires maintaining a manual list here.
   sectionFor =
-    pname:
+    drv:
     let
-      hits = builtins.filter (key: builtins.elem pname sectionOf.${key}) (builtins.attrNames sectionOf);
+      out = if drv.outPath or null == null then null else drv.outPath;
+      appsDir = if out == null then null else out + "/share/applications";
+      hasApps = appsDir != null && builtins.pathExists appsDir;
+      desktopFiles =
+        if hasApps then
+          builtins.filter (f: builtins.match ".*\\.desktop" f != null) (
+            builtins.attrNames (builtins.readDir appsDir)
+          )
+        else
+          [ ];
+      isTermDesktop =
+        f: builtins.match ".*Terminal=true.*" (builtins.readFile (appsDir + "/" + f)) != null;
+      isGuiApp = desktopFiles != [ ] && !(builtins.all isTermDesktop desktopFiles);
+      isWaylandSession = out != null && builtins.pathExists (out + "/share/wayland-sessions");
+      hasBin = out != null && builtins.pathExists (out + "/bin");
     in
-    if hits == [ ] then "other" else builtins.head hits;
+    if isGuiApp || isWaylandSession then
+      "desktop"
+    else if isLocalDrv drv then
+      "local"
+    else if hasBin then
+      "cli"
+    else
+      "libs";
 
   # The icon a desktop package ships, if it ships one. Read from the store the
   # derivation points at, so it is the same icon the launcher shows.
@@ -235,8 +139,8 @@ let
       description = meta.description or null;
       homepage = meta.homepage or null;
       license = licences;
-      local = builtins.elem pname localNames;
-      section = sectionFor pname;
+      local = isLocalDrv drv;
+      section = sectionFor drv;
       icon = findIcon drv;
     };
 
@@ -257,7 +161,7 @@ let
       id = key;
       label = sectionLabels.${key};
       items = builtins.filter (p: p.section == key) packages;
-    }) (builtins.attrNames sectionLabels)
+    }) sectionOrder
   );
 in
 {

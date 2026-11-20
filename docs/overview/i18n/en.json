@@ -70,14 +70,10 @@
     "state": "state version"
   },
   "sections": {
-    "agents": "Coding agents",
-    "daily": "Everyday command line",
-    "desktop": "Desktop",
-    "dev": "Development toolchain",
-    "network": "Network capture",
-    "media": "Archives and conversion",
-    "tooling": "Managed by a module",
-    "other": "Other"
+    "desktop": "Desktop apps",
+    "local": "Built in this repo",
+    "cli": "CLI & toolchain",
+    "libs": "Libraries & assets"
   },
   "wm": {
     "scrollable": "scrollable tiling",
