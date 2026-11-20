@@ -57,6 +57,7 @@ func main() {
 		if *dataFlag == "" && repoRoot != "" {
 			app.triggerRefresh(nil, true)
 		}
+		app.triggerTranslateMissing()
 	})
 
 	if err := mygo.App.Run(); err != nil {

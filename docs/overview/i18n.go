@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 )
 
 type LocaleInfo struct {
@@ -18,6 +19,9 @@ type LocaleInfo struct {
 type I18n struct {
 	packs     map[string]map[string]any
 	languages []LocaleInfo
+
+	mu       sync.RWMutex
+	autoDesc map[string]map[string]TranslatedEntry
 }
 
 func loadI18n() (*I18n, error) {
@@ -27,7 +31,8 @@ func loadI18n() (*I18n, error) {
 	}
 	sort.Slice(entries, func(i, j int) bool { return entries[i].Name() < entries[j].Name() })
 	res := &I18n{
-		packs: make(map[string]map[string]any),
+		packs:    make(map[string]map[string]any),
+		autoDesc: make(map[string]map[string]TranslatedEntry),
 	}
 	for _, entry := range entries {
 		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") {
@@ -124,20 +129,96 @@ func (tr *I18n) TS(locale, key string) string {
 	return key
 }
 
-// Describe returns the localized description for pkg, keeping upstream English
-// descriptions on the English locale unless upstream provides none.
-func (tr *I18n) Describe(locale string, pkg Package) string {
-	if locale == "en" && pkg.Description != nil && strings.TrimSpace(*pkg.Description) != "" {
-		return *pkg.Description
-	}
+func (tr *I18n) staticDescription(locale, pname string) string {
 	if pack := tr.packs[locale]; pack != nil {
 		if descs, ok := pack["descriptions"].(map[string]any); ok {
-			if s, ok := descs[pkg.Pname].(string); ok && strings.TrimSpace(s) != "" {
+			if s, ok := descs[pname].(string); ok && strings.TrimSpace(s) != "" {
 				return s
 			}
 		}
 	}
-	if pkg.Description != nil && strings.TrimSpace(*pkg.Description) != "" {
+	return ""
+}
+
+func (tr *I18n) LoadAutoDescriptions(locale, path string) {
+	loaded := loadTranslationCache(path)
+	if len(loaded) == 0 {
+		return
+	}
+	tr.mu.Lock()
+	defer tr.mu.Unlock()
+	if tr.autoDesc[locale] == nil {
+		tr.autoDesc[locale] = make(map[string]TranslatedEntry)
+	}
+	for k, v := range loaded {
+		tr.autoDesc[locale][k] = v
+	}
+}
+
+func (tr *I18n) SetAutoDescription(locale, pname, source, text string) {
+	tr.mu.Lock()
+	defer tr.mu.Unlock()
+	if tr.autoDesc[locale] == nil {
+		tr.autoDesc[locale] = make(map[string]TranslatedEntry)
+	}
+	tr.autoDesc[locale][pname] = TranslatedEntry{Source: source, Text: text}
+}
+
+func (tr *I18n) SnapshotAutoDescriptions(locale string) map[string]TranslatedEntry {
+	tr.mu.RLock()
+	defer tr.mu.RUnlock()
+	src := tr.autoDesc[locale]
+	out := make(map[string]TranslatedEntry, len(src))
+	for k, v := range src {
+		out[k] = v
+	}
+	return out
+}
+
+// MissingAutoDescriptions returns packages lacking both a static description
+// override in i18n/<locale>.json and an up-to-date cached auto-translation.
+func (tr *I18n) MissingAutoDescriptions(locale string, sections []Section) []Package {
+	if locale == "en" {
+		return nil
+	}
+	tr.mu.RLock()
+	defer tr.mu.RUnlock()
+	cached := tr.autoDesc[locale]
+	var missing []Package
+	for _, sec := range sections {
+		for _, pkg := range sec.Items {
+			src := strings.TrimSpace(strVal(pkg.Description))
+			if src == "" || tr.staticDescription(locale, pkg.Pname) != "" {
+				continue
+			}
+			if entry, ok := cached[pkg.Pname]; ok && entry.Source == src && strings.TrimSpace(entry.Text) != "" {
+				continue
+			}
+			missing = append(missing, pkg)
+		}
+	}
+	return missing
+}
+
+// Describe returns the localized description for pkg, keeping upstream English
+// descriptions on the English locale unless upstream provides none.
+func (tr *I18n) Describe(locale string, pkg Package) string {
+	src := strings.TrimSpace(strVal(pkg.Description))
+	if locale == "en" && src != "" {
+		return *pkg.Description
+	}
+	if s := tr.staticDescription(locale, pkg.Pname); s != "" {
+		return s
+	}
+	if locale != "en" && src != "" {
+		tr.mu.RLock()
+		entry, ok := tr.autoDesc[locale][pkg.Pname]
+		tr.mu.RUnlock()
+		if ok && entry.Source == src && strings.TrimSpace(entry.Text) != "" {
+			return entry.Text
+		}
+	}
+	if src != "" {
 		return *pkg.Description
 	}
 	return tr.T(locale, "card.noDescription", nil)

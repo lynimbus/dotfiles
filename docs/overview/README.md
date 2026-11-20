@@ -52,10 +52,13 @@ Following Caramel Pudding's rules (*where to use jelly vs. gooey adhesion*):
 
 ## Adding a package
 
-Adding a package to `home/packages.nix` appears automatically in the app once
-it refreshes:
+Adding a package to `home/packages.nix` (or enabling a `programs.*` module)
+requires zero manual edits in `docs/overview/`:
 
-1. Place its pname in `sectionOf` inside `data.nix` (unlisted packages fall
-   into "Other").
-2. Add its Chinese description under `descriptions` in `i18n/zh.json` (while
-   untranslated, the app gracefully falls back to upstream `meta.description`).
+1. `data.nix` classifies every package automatically from its derivation output
+   and repo origin (`desktop`, `local`, `cli`, `libs`).
+2. `overview` uses optional static overrides in `i18n/zh.json` when present,
+   and otherwise translates upstream `meta.description` in the background via
+   the local `hy-mt2-server` (`http://127.0.0.1:11435`), caching results in
+   `$XDG_CACHE_HOME/overview/translations-zh.json` (falling back to English if
+   the local translation server is stopped).

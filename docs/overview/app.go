@@ -54,6 +54,7 @@ type OverviewApp struct {
 	refreshErr   string
 	refreshedAt  time.Time
 	snapshotLive bool
+	translating  bool
 
 	// Interactive widgets & scroll state
 	mainScroll   ui.ScrollState
@@ -75,14 +76,21 @@ type OverviewApp struct {
 	shelfCaramel *CaramelGroup
 
 	// Optional hooks for tests.
-	refreshFunc   func(ctx context.Context) (*Snapshot, error)
-	onRefreshDone func()
+	refreshFunc     func(ctx context.Context) (*Snapshot, error)
+	onRefreshDone   func()
+	translateFunc   func(ctx context.Context, text string) (string, error)
+	onTranslateDone func()
 }
 
 func newOverviewApp(snap *Snapshot, tr *I18n, repoRoot string, refreshedAt time.Time, live bool, persist bool) *OverviewApp {
 	prefs := UserPrefs{Theme: ThemeAuto}
 	if persist {
 		prefs = loadPrefs()
+		for _, lang := range tr.Languages() {
+			if lang.Code != "en" {
+				tr.LoadAutoDescriptions(lang.Code, translationCachePath(lang.Code))
+			}
+		}
 	}
 	locale := tr.DefaultLocale()
 	if prefs.Locale != "" && tr.HasLocale(prefs.Locale) {
@@ -133,6 +141,7 @@ func (a *OverviewApp) setLocale(code string) {
 	}
 	a.locale = code
 	a.saveUserPrefs()
+	a.triggerTranslateMissing()
 }
 
 func (a *OverviewApp) cycleTheme() {
@@ -215,6 +224,7 @@ func (a *OverviewApp) triggerRefresh(c *ui.Context, silent bool) {
 					a.island.noticeText = a.t("island.refreshDone", map[string]any{"count": snap.Meta.PackageCount})
 					a.island.noticeUntil = time.Now().Add(2200 * time.Millisecond)
 				}
+				a.triggerTranslateMissing()
 			}
 			if a.onRefreshDone != nil {
 				a.onRefreshDone()
@@ -224,6 +234,71 @@ func (a *OverviewApp) triggerRefresh(c *ui.Context, silent bool) {
 			win.Update(apply)
 		} else {
 			apply()
+		}
+	}()
+}
+
+func (a *OverviewApp) triggerTranslateMissing() {
+	locale := a.locale
+	if locale == "en" || (!a.persistPrefs && a.translateFunc == nil) || a.translating || a.snap == nil {
+		return
+	}
+	missing := a.tr.MissingAutoDescriptions(locale, a.snap.Sections)
+	if len(missing) == 0 {
+		return
+	}
+	a.translating = true
+
+	fn := a.translateFunc
+	if fn == nil {
+		fn = func(ctx context.Context, text string) (string, error) {
+			return translateWithHyMT(ctx, defaultHyMTEndpoint, defaultHyMTModel, text)
+		}
+	}
+
+	win := a.win
+	persist := a.persistPrefs
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+		defer cancel()
+
+		changed := false
+		sinceRepaint := 0
+		for _, pkg := range missing {
+			src := strings.TrimSpace(strVal(pkg.Description))
+			if src == "" {
+				continue
+			}
+			zh, err := fn(ctx, src)
+			if err != nil {
+				if isTransportUnavailable(err) {
+					break
+				}
+				continue
+			}
+			a.tr.SetAutoDescription(locale, pkg.Pname, src, zh)
+			changed = true
+			sinceRepaint++
+			if win != nil && sinceRepaint >= 4 {
+				sinceRepaint = 0
+				win.Update(func() {})
+			}
+		}
+
+		if changed && persist {
+			_ = saveTranslationCache(translationCachePath(locale), a.tr.SnapshotAutoDescriptions(locale))
+		}
+
+		done := func() {
+			a.translating = false
+			if a.onTranslateDone != nil {
+				a.onTranslateDone()
+			}
+		}
+		if win != nil {
+			win.Update(done)
+		} else {
+			done()
 		}
 	}()
 }

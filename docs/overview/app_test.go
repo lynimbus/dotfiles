@@ -32,10 +32,6 @@ func TestI18nCompleteness(t *testing.T) {
 	if err != nil {
 		t.Fatalf("loadI18n: %v", err)
 	}
-	snap, err := parseSnapshot(embeddedSnapshot)
-	if err != nil {
-		t.Fatalf("parseSnapshot: %v", err)
-	}
 
 	var collectKeys func(prefix string, m map[string]any, out map[string]bool)
 	collectKeys = func(prefix string, m map[string]any, out map[string]bool) {
@@ -67,17 +63,6 @@ func TestI18nCompleteness(t *testing.T) {
 		for k := range enKeys {
 			if !packKeys[k] {
 				t.Errorf("i18n/%s.json missing key %q present in en.json", lang.Code, k)
-			}
-		}
-
-		// Every installed package must have a translated description.
-		descs, _ := tr.packs[lang.Code]["descriptions"].(map[string]any)
-		for _, sec := range snap.Sections {
-			for _, pkg := range sec.Items {
-				s, _ := descs[pkg.Pname].(string)
-				if strings.TrimSpace(s) == "" {
-					t.Errorf("i18n/%s.json missing description for package %q", lang.Code, pkg.Pname)
-				}
 			}
 		}
 	}
@@ -450,5 +435,66 @@ func TestSilentStartupRefresh(t *testing.T) {
 	if !app.snapshotLive || app.snap.Meta.PackageCount != updated.Meta.PackageCount {
 		t.Fatalf("expected silent background refresh to update snapshot, live=%v count=%d",
 			app.snapshotLive, app.snap.Meta.PackageCount)
+	}
+}
+
+func TestAutoTranslateDescriptionsAndCache(t *testing.T) {
+	app := mustTestApp(t)
+	enDesc := "Synthetic CLI tool for testing"
+	pkg := Package{
+		Pname:       "synthetic-auto-pkg",
+		Description: &enDesc,
+		Section:     "cli",
+	}
+	app.snap = &Snapshot{
+		Meta: app.snap.Meta,
+		Sections: []Section{
+			{ID: "cli", Label: "CLI & toolchain", Items: []Package{pkg}},
+		},
+	}
+
+	// Before translation, zh falls back to upstream English description.
+	if got := app.describe(pkg); got != enDesc {
+		t.Fatalf("expected English fallback %q, got %q", enDesc, got)
+	}
+
+	done := make(chan struct{}, 1)
+	app.translateFunc = func(ctx context.Context, text string) (string, error) {
+		return "用于测试的命令行工具", nil
+	}
+	app.onTranslateDone = func() {
+		done <- struct{}{}
+	}
+	app.triggerTranslateMissing()
+	select {
+	case <-done:
+	case <-time.After(2 * time.Second):
+		t.Fatalf("background translation did not finish")
+	}
+
+	if got := app.describe(pkg); got != "用于测试的命令行工具" {
+		t.Fatalf("expected auto-translated description, got %q", got)
+	}
+
+	// Changing upstream description invalidates the stale auto-translation.
+	enDesc2 := "Updated synthetic CLI tool"
+	pkg.Description = &enDesc2
+	if got := app.describe(pkg); got != enDesc2 {
+		t.Fatalf("expected stale cache invalidated to %q, got %q", enDesc2, got)
+	}
+
+	// Cache round-trip.
+	cacheFile := t.TempDir() + "/translations-zh.json"
+	if err := saveTranslationCache(cacheFile, app.tr.SnapshotAutoDescriptions("zh")); err != nil {
+		t.Fatalf("saveTranslationCache: %v", err)
+	}
+	tr2, err := loadI18n()
+	if err != nil {
+		t.Fatalf("loadI18n: %v", err)
+	}
+	tr2.LoadAutoDescriptions("zh", cacheFile)
+	origPkg := Package{Pname: "synthetic-auto-pkg", Description: &enDesc, Section: "cli"}
+	if got := tr2.Describe("zh", origPkg); got != "用于测试的命令行工具" {
+		t.Fatalf("expected cached translation after reload, got %q", got)
 	}
 }

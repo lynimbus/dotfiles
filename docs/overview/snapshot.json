@@ -20,6 +20,7 @@
     "shell": "noctalia",
     "userServices": [
       "hourly-chime",
+      "hy-mt2-server",
       "memo-digest",
       "polkit-gnome"
     ],
@@ -43,9 +44,9 @@
   "meta": {
     "homeManagerRev": "2b13c9c",
     "hostname": "nixos",
-    "localCount": 21,
+    "localCount": 22,
     "nixpkgsRev": "0490633",
-    "packageCount": 105,
+    "packageCount": 113,
     "stateVersion": "26.05",
     "system": "x86_64-linux"
   },
@@ -176,371 +177,12 @@
   },
   "sections": [
     {
-      "id": "agents",
-      "items": [
-        {
-          "description": "Local gateway that picks the model for each AI coding agent",
-          "homepage": "https://usemagpie.ai/",
-          "icon": "/nix/store/xq7319niscwy4jx6wymgndijqp9r9k12-magpie-0.1.4501/share/icons/hicolor/256x256/apps/magpie.png",
-          "license": [
-            "mit"
-          ],
-          "local": true,
-          "pname": "magpie",
-          "section": "agents",
-          "version": "0.1.4501"
-        },
-        {
-          "description": "Pi rebuilt in Go as one native binary, running Pi's TypeScript extensions unchanged",
-          "homepage": "https://github.com/MichaelKinsy/PiG",
-          "icon": null,
-          "license": [
-            "mit"
-          ],
-          "local": true,
-          "pname": "pig",
-          "section": "agents",
-          "version": "0.7.0"
-        },
-        {
-          "description": "Fan N pig agents out over one problem, with a bd epic as the ledger",
-          "homepage": null,
-          "icon": null,
-          "license": [],
-          "local": true,
-          "pname": "pig-swarm",
-          "section": "agents",
-          "version": null
-        },
-        {
-          "description": "Google's terminal agent client for Antigravity",
-          "homepage": "https://antigravity.google/product/antigravity-cli",
-          "icon": null,
-          "license": [
-            "unfree"
-          ],
-          "local": true,
-          "pname": "antigravity-cli",
-          "section": "agents",
-          "version": "1.5.11"
-        },
-        {
-          "description": "Terminals for coding agents that stay alive after you leave (hc)",
-          "homepage": "https://herdr.dev/core",
-          "icon": null,
-          "license": [
-            "asl20"
-          ],
-          "local": true,
-          "pname": "herdr-core",
-          "section": "agents",
-          "version": "0.1.21"
-        },
-        {
-          "description": "Run Claude Code in a Linux container with only the current project mounted",
-          "homepage": "https://github.com/tommy0103/blackhole",
-          "icon": null,
-          "license": [
-            "mit"
-          ],
-          "local": true,
-          "pname": "blackhole",
-          "section": "agents",
-          "version": "0-unstable-2026-11-11"
-        },
-        {
-          "description": "Native terminal for coding agents, whose sessions outlive the window",
-          "homepage": "https://github.com/egoist/kero",
-          "icon": "/nix/store/sz8jlnnwi24znsv4di88ymahqd1p4r08-kero-2.1.35/share/icons/hicolor/256x256/apps/kero.png",
-          "license": [
-            "mit"
-          ],
-          "local": true,
-          "pname": "kero",
-          "section": "agents",
-          "version": "2.1.35"
-        },
-        {
-          "description": "Agent harness and GUI client for herdr, Claude Code, Codex and pi",
-          "homepage": "https://alma.now",
-          "icon": "/nix/store/7qr41cwivq53ca8qs71xsi8dwnpmwgd2-alma-0.4.811/share/icons/hicolor/256x256/apps/alma.png",
-          "license": [
-            "unfree"
-          ],
-          "local": true,
-          "pname": "alma",
-          "section": "agents",
-          "version": "0.4.811"
-        }
-      ],
-      "label": "Coding agents"
-    },
-    {
-      "id": "daily",
-      "items": [
-        {
-          "description": "Vim text editor fork focused on extensibility and agility",
-          "homepage": "https://neovim.io",
-          "icon": "/nix/store/sf3sp6pfbgwq0077ligi5i9jlh28cmvk-neovim-0.12.6/share/icons/hicolor/128x128/apps/nvim.png",
-          "license": [
-            "asl20",
-            "vim"
-          ],
-          "local": false,
-          "pname": "neovim",
-          "section": "daily",
-          "version": "0.12.6"
-        },
-        {
-          "description": "Post-modern modal text editor",
-          "homepage": "https://helix-editor.com",
-          "icon": "/nix/store/ic48dhi10i9lmjmivalszk1c996dyj55-helix-25.07.1/share/icons/hicolor/256x256/apps/helix.png",
-          "license": [
-            "mpl20"
-          ],
-          "local": false,
-          "pname": "helix",
-          "section": "daily",
-          "version": "25.07.1"
-        },
-        {
-          "description": "Utility that combines the usability of The Silver Searcher with the raw speed of grep",
-          "homepage": "https://github.com/BurntSushi/ripgrep",
-          "icon": null,
-          "license": [
-            "unknown"
-          ],
-          "local": false,
-          "pname": "ripgrep",
-          "section": "daily",
-          "version": "15.2.0"
-        },
-        {
-          "description": "Command-line fuzzy finder written in Go",
-          "homepage": "https://github.com/junegunn/fzf",
-          "icon": null,
-          "license": [
-            "mit"
-          ],
-          "local": false,
-          "pname": "fzf",
-          "section": "daily",
-          "version": "0.75.0"
-        },
-        {
-          "description": "Lightweight and flexible command-line JSON processor",
-          "homepage": "https://jqlang.github.io/jq/",
-          "icon": null,
-          "license": [
-            "mit"
-          ],
-          "local": false,
-          "pname": "jq",
-          "section": "daily",
-          "version": "1.8.2"
-        },
-        {
-          "description": "Handy way to save and run project-specific commands",
-          "homepage": "https://github.com/casey/just",
-          "icon": null,
-          "license": [
-            "cc0"
-          ],
-          "local": false,
-          "pname": "just",
-          "section": "daily",
-          "version": "1.59.0"
-        },
-        {
-          "description": "Nix/NixOS package version diff tool",
-          "homepage": "https://khumba.net/projects/nvd",
-          "icon": null,
-          "license": [
-            "asl20"
-          ],
-          "local": false,
-          "pname": "nvd",
-          "section": "daily",
-          "version": "0.2.4"
-        },
-        {
-          "description": "GitHub CLI tool",
-          "homepage": "https://cli.github.com/",
-          "icon": null,
-          "license": [
-            "mit"
-          ],
-          "local": false,
-          "pname": "gh",
-          "section": "daily",
-          "version": "2.104.0"
-        },
-        {
-          "description": "TUI for Jujutsu VCS",
-          "homepage": "https://github.com/idursun/jjui",
-          "icon": null,
-          "license": [
-            "mit"
-          ],
-          "local": false,
-          "pname": "jjui",
-          "section": "daily",
-          "version": "0.10.13"
-        },
-        {
-          "description": "Lightweight memory system for AI coding agents with graph-based issue tracking",
-          "homepage": "https://github.com/gastownhall/beads",
-          "icon": null,
-          "license": [
-            "mit"
-          ],
-          "local": false,
-          "pname": "beads",
-          "section": "daily",
-          "version": "1.3.4"
-        },
-        {
-          "description": "SQL database with Git-style versioning",
-          "homepage": "https://github.com/dolthub/dolt",
-          "icon": null,
-          "license": [
-            "asl20"
-          ],
-          "local": true,
-          "pname": "dolt",
-          "section": "daily",
-          "version": "2.7.5"
-        },
-        {
-          "description": "Index past coding-agent sessions into one local SQLite database, queryable by agents",
-          "homepage": "https://github.com/tommy0103/obelisk",
-          "icon": null,
-          "license": [
-            "agpl3Only"
-          ],
-          "local": true,
-          "pname": "obelisk-cli",
-          "section": "daily",
-          "version": "0.3.2"
-        },
-        {
-          "description": "Simple, fast and user-friendly alternative to find",
-          "homepage": "https://github.com/sharkdp/fd",
-          "icon": null,
-          "license": [
-            "unknown"
-          ],
-          "local": false,
-          "pname": "fd",
-          "section": "daily",
-          "version": "10.5.2"
-        },
-        {
-          "description": "Modern, maintained replacement for ls",
-          "homepage": "https://github.com/eza-community/eza",
-          "icon": null,
-          "license": [
-            "eupl12"
-          ],
-          "local": false,
-          "pname": "eza",
-          "section": "daily",
-          "version": "0.23.5"
-        },
-        {
-          "description": "Cat(1) clone with syntax highlighting and Git integration",
-          "homepage": "https://github.com/sharkdp/bat",
-          "icon": null,
-          "license": [
-            "unknown"
-          ],
-          "local": false,
-          "pname": "bat",
-          "section": "daily",
-          "version": "0.26.1"
-        },
-        {
-          "description": "Actively maintained, feature-rich and performance oriented, neofetch like system information tool",
-          "homepage": "https://github.com/fastfetch-cli/fastfetch",
-          "icon": null,
-          "license": [
-            "mit"
-          ],
-          "local": false,
-          "pname": "fastfetch",
-          "section": "daily",
-          "version": "2.71.0"
-        },
-        {
-          "description": "Domain name server",
-          "homepage": "https://www.isc.org/bind/",
-          "icon": null,
-          "license": [
-            "mpl20"
-          ],
-          "local": false,
-          "pname": "bind",
-          "section": "daily",
-          "version": "9.20.30"
-        },
-        {
-          "description": "Shell script analysis tool",
-          "homepage": "https://hackage.haskell.org/package/ShellCheck",
-          "icon": null,
-          "license": [
-            "gpl3Only"
-          ],
-          "local": false,
-          "pname": "ShellCheck",
-          "section": "daily",
-          "version": "0.11.0"
-        },
-        {
-          "description": "XML parsing library for C",
-          "homepage": "https://gitlab.gnome.org/GNOME/libxml2",
-          "icon": null,
-          "license": [
-            "mit"
-          ],
-          "local": false,
-          "pname": "libxml2",
-          "section": "daily",
-          "version": "2.15.4"
-        },
-        {
-          "description": "Program that shows the type of files",
-          "homepage": "https://darwinsys.com/file",
-          "icon": null,
-          "license": [
-            "bsd2"
-          ],
-          "local": false,
-          "pname": "file",
-          "section": "daily",
-          "version": "5.48"
-        },
-        {
-          "description": "Universal proxy platform (upstream unstable prerelease binaries)",
-          "homepage": "https://sing-box.sagernet.org",
-          "icon": null,
-          "license": [
-            "gpl3Only"
-          ],
-          "local": true,
-          "pname": "sing-box",
-          "section": "daily",
-          "version": "1.15.0-alpha.13"
-        }
-      ],
-      "label": "Everyday command line"
-    },
-    {
       "id": "desktop",
       "items": [
         {
           "description": "A sleek, customizable desktop shell crafted for Wayland.",
           "homepage": "https://github.com/noctalia-dev/noctalia",
-          "icon": "/nix/store/9yzg374mpnhkz4bkffypad2i3s16bfjz-noctalia-5.5.0/share/icons/hicolor/scalable/apps/noctalia.svg",
+          "icon": "/nix/store/nvrwsdrwdrmsbddfprng19i9h06ywznd-noctalia-5.5.0/share/icons/hicolor/scalable/apps/noctalia.svg",
           "license": [
             "mit"
           ],
@@ -574,106 +216,28 @@
           "version": "nightly"
         },
         {
-          "description": "Database of common MIME types",
-          "homepage": "http://freedesktop.org/wiki/Software/shared-mime-info",
-          "icon": null,
-          "license": [
-            "gpl2Plus"
-          ],
-          "local": false,
-          "pname": "shared-mime-info",
-          "section": "desktop",
-          "version": "2.5.1"
-        },
-        {
-          "description": null,
-          "homepage": null,
-          "icon": null,
-          "license": [],
-          "local": true,
-          "pname": "kbd-backlight",
-          "section": "desktop",
-          "version": null
-        },
-        {
-          "description": null,
-          "homepage": null,
-          "icon": null,
-          "license": [],
-          "local": true,
-          "pname": "screenshot",
-          "section": "desktop",
-          "version": null
-        },
-        {
-          "description": "Record a stray thought, then let a model group each day's records by theme",
-          "homepage": null,
-          "icon": null,
-          "license": [],
-          "local": true,
-          "pname": "memo",
-          "section": "desktop",
-          "version": null
-        },
-        {
-          "description": "Query and change Linux monitor settings using DDC/CI and USB",
-          "homepage": "http://www.ddcutil.com/",
-          "icon": null,
-          "license": [
-            "gpl2Plus"
-          ],
-          "local": false,
-          "pname": "ddcutil",
-          "section": "desktop",
-          "version": "3.0.2"
-        },
-        {
-          "description": "Day/night gamma adjustments for Wayland",
-          "homepage": "https://sr.ht/~kennylevinsen/wlsunset/",
-          "icon": null,
+          "description": "Local gateway that picks the model for each AI coding agent",
+          "homepage": "https://usemagpie.ai/",
+          "icon": "/nix/store/ybi4gkwax2jrhc9j6ar57qwn01lkhvlz-magpie-0.1.4563/share/icons/hicolor/256x256/apps/magpie.png",
           "license": [
             "mit"
           ],
-          "local": false,
-          "pname": "wlsunset",
+          "local": true,
+          "pname": "magpie",
           "section": "desktop",
-          "version": "0.4.0"
+          "version": "0.1.4563"
         },
         {
-          "description": "Command-line copy/paste utilities for Wayland",
-          "homepage": "https://github.com/bugaevc/wl-clipboard",
-          "icon": null,
+          "description": "Visual diff and merge tool",
+          "homepage": "https://meld.app/",
+          "icon": "/nix/store/vr2ay6rz9z0ivanjwja2mmgpdycpawbh-meld-3.24.1/share/icons/hicolor/scalable/apps/org.gnome.Meld.svg",
           "license": [
-            "gpl3Plus"
+            "gpl2Plus"
           ],
           "local": false,
-          "pname": "wl-clipboard",
+          "pname": "meld",
           "section": "desktop",
-          "version": "2.3.0"
-        },
-        {
-          "description": "Terminal multiplexer",
-          "homepage": "https://tmux.github.io/",
-          "icon": null,
-          "license": [
-            "bsd3"
-          ],
-          "local": false,
-          "pname": "tmux",
-          "section": "desktop",
-          "version": "3.8"
-        },
-        {
-          "description": "Unofficial GTK 3 port of libadwaita",
-          "homepage": "https://github.com/lassekongo83/adw-gtk3",
-          "icon": null,
-          "license": [
-            "lgpl21Only"
-          ],
-          "local": false,
-          "pname": "adw-gtk3",
-          "section": "desktop",
-          "version": "6.5"
+          "version": "3.24.1"
         },
         {
           "description": "Fork of Firefox, focused on privacy, security and freedom",
@@ -736,6 +300,42 @@
           "version": "51.1"
         },
         {
+          "description": "Archive manager for the GNOME desktop environment",
+          "homepage": "https://gitlab.gnome.org/GNOME/file-roller",
+          "icon": "/nix/store/w4sih0g7z9fjjqipjybbxr7wyf6lcrll-file-roller-44.7/share/icons/hicolor/scalable/apps/org.gnome.FileRoller.Devel.svg",
+          "license": [
+            "gpl2Plus"
+          ],
+          "local": false,
+          "pname": "file-roller",
+          "section": "desktop",
+          "version": "44.7"
+        },
+        {
+          "description": "Native terminal for coding agents, whose sessions outlive the window",
+          "homepage": "https://github.com/egoist/kero",
+          "icon": "/nix/store/g65ymwv0w3xim7iwi6kmxy608sg6sj96-kero-2.1.36/share/icons/hicolor/256x256/apps/kero.png",
+          "license": [
+            "mit"
+          ],
+          "local": true,
+          "pname": "kero",
+          "section": "desktop",
+          "version": "2.1.36"
+        },
+        {
+          "description": "Agent harness and GUI client for herdr, Claude Code, Codex and pi",
+          "homepage": "https://alma.now",
+          "icon": "/nix/store/0222kv6wngqyjp6sn99hb0njf13x4ysd-alma-0.4.869/share/icons/hicolor/256x256/apps/alma.png",
+          "license": [
+            "unfree"
+          ],
+          "local": true,
+          "pname": "alma",
+          "section": "desktop",
+          "version": "0.4.869"
+        },
+        {
           "description": "Native music player for your own files and the streaming accounts you sign in to",
           "homepage": "https://github.com/egoist/mygo-music",
           "icon": "/nix/store/n7ara8jvj1gn7f5g4dgyhy1gjhpb98l6-mygo-music-0.1.25/share/icons/hicolor/256x256/apps/mygo-music.png",
@@ -750,19 +350,19 @@
         {
           "description": "Code editor that draws its own UI on the GPU, with tabs, splits, plugins and a Vim mode",
           "homepage": "https://github.com/sorrycc/Mayoi",
-          "icon": "/nix/store/x55miraj1yhgb4d3jiqbafvas8v1vssy-mayoi-0.22.4/share/icons/hicolor/256x256/apps/mayoi.png",
+          "icon": "/nix/store/lkjmimnahq9snqj8ib9m2vlm8qpdc5a6-mayoi-0.23.0/share/icons/hicolor/256x256/apps/mayoi.png",
           "license": [
             "mit"
           ],
           "local": true,
           "pname": "mayoi",
           "section": "desktop",
-          "version": "0.22.4"
+          "version": "0.23.0"
         },
         {
           "description": "Native MyGo desktop app that inspects what this NixOS flake installs and configures",
           "homepage": null,
-          "icon": "/nix/store/lg69b33mljwrm6ldcf50v289wrmi4sij-overview-0.1.0/share/icons/hicolor/scalable/apps/overview.svg",
+          "icon": "/nix/store/pddjr4zph2lwbqv5m8kq341jp46nkprr-overview-0.1.0/share/icons/hicolor/scalable/apps/overview.svg",
           "license": [
             "mit"
           ],
@@ -785,6 +385,30 @@
           "version": "32.2.2"
         },
         {
+          "description": "Desktop environment for managing multiple autonomous agents across independent projects",
+          "homepage": "https://antigravity.google",
+          "icon": "/nix/store/0nxym97d5aw1lzz95slj7gxxqx8yab24-antigravity-hub-2.33.0/share/icons/hicolor/512x512/apps/antigravity.png",
+          "license": [
+            "unfree"
+          ],
+          "local": true,
+          "pname": "antigravity-hub",
+          "section": "desktop",
+          "version": "2.33.0"
+        },
+        {
+          "description": "Dex to Java decompiler",
+          "homepage": "https://github.com/skylot/jadx",
+          "icon": "/nix/store/6a4b0a8chaia74p4mabv1wacp18i7hpc-jadx-1.5.6/share/icons/hicolor/256x256/apps/jadx.png",
+          "license": [
+            "asl20"
+          ],
+          "local": false,
+          "pname": "jadx",
+          "section": "desktop",
+          "version": "1.5.6"
+        },
+        {
           "description": "Fast, native, feature-rich terminal emulator pushing modern features",
           "homepage": "https://ghostty.org/",
           "icon": "/nix/store/jp06ad1735p1fmf19298a93kw05qhh7s-ghostty-1.4.0/share/icons/hicolor/256x256/apps/com.mitchellh.ghostty.png",
@@ -797,82 +421,134 @@
           "version": "1.4.0"
         }
       ],
-      "label": "Desktop"
+      "label": "Desktop apps"
     },
     {
-      "id": "dev",
+      "id": "local",
       "items": [
         {
-          "description": "Command line tool to generate Nix packages from URLs",
-          "homepage": "https://github.com/nix-community/nix-init",
+          "description": null,
+          "homepage": null,
           "icon": null,
-          "license": [
-            "mpl20"
-          ],
-          "local": false,
-          "pname": "nix-init",
-          "section": "dev",
-          "version": "0.3.6"
+          "license": [],
+          "local": true,
+          "pname": "screenshot",
+          "section": "local",
+          "version": null
         },
         {
-          "description": "Swiss-knife for updating nix packages",
-          "homepage": "https://github.com/Mic92/nix-update/",
-          "icon": null,
-          "license": [
-            "mit"
-          ],
-          "local": false,
-          "pname": "nix-update",
-          "section": "dev",
-          "version": "1.16.0"
-        },
-        {
-          "description": "Official formatter for Nix code",
-          "homepage": "https://github.com/NixOS/nixfmt",
-          "icon": null,
-          "license": [
-            "mpl20"
-          ],
-          "local": false,
-          "pname": "nixfmt",
-          "section": "dev",
-          "version": "1.5.0"
-        },
-        {
-          "description": "General-purpose programming language and toolchain for maintaining robust, optimal, and reusable software",
-          "homepage": "https://ziglang.org/",
+          "description": "Pi rebuilt in Go as one native binary, running Pi's TypeScript extensions unchanged",
+          "homepage": "https://github.com/MichaelKinsy/PiG",
           "icon": null,
           "license": [
             "mit"
           ],
-          "local": false,
-          "pname": "zig",
-          "section": "dev",
-          "version": "0.17.1"
+          "local": true,
+          "pname": "pig",
+          "section": "local",
+          "version": "0.7.0"
         },
         {
-          "description": "Koka language compiler and interpreter",
-          "homepage": "https://github.com/koka-lang/koka",
+          "description": "Fan N pig agents out over one problem, with a bd epic as the ledger",
+          "homepage": null,
+          "icon": null,
+          "license": [],
+          "local": true,
+          "pname": "pig-swarm",
+          "section": "local",
+          "version": null
+        },
+        {
+          "description": "Record a stray thought, then let a model group each day's records by theme",
+          "homepage": null,
+          "icon": null,
+          "license": [],
+          "local": true,
+          "pname": "memo",
+          "section": "local",
+          "version": null
+        },
+        {
+          "description": "Local llama.cpp OpenAI-compatible server for tencent/Hy-MT2-1.8B",
+          "homepage": null,
+          "icon": null,
+          "license": [],
+          "local": true,
+          "pname": "hy-mt2-server",
+          "section": "local",
+          "version": null
+        },
+        {
+          "description": "SQL database with Git-style versioning",
+          "homepage": "https://github.com/dolthub/dolt",
           "icon": null,
           "license": [
             "asl20"
           ],
-          "local": false,
-          "pname": "koka",
-          "section": "dev",
-          "version": "3.2.9"
+          "local": true,
+          "pname": "dolt",
+          "section": "local",
+          "version": "2.7.5"
         },
         {
-          "description": "Go Programming language",
-          "homepage": "https://go.dev/",
+          "description": "Index past coding-agent sessions into one local SQLite database, queryable by agents",
+          "homepage": "https://github.com/tommy0103/obelisk",
           "icon": null,
           "license": [
-            "bsd3"
+            "agpl3Only"
           ],
-          "local": false,
-          "pname": "go",
-          "section": "dev",
-          "version": "1.27.3"
+          "local": true,
+          "pname": "obelisk-cli",
+          "section": "local",
+          "version": "0.3.2"
+        },
+        {
+          "description": "Google's terminal agent client for Antigravity",
+          "homepage": "https://antigravity.google/product/antigravity-cli",
+          "icon": null,
+          "license": [
+            "unfree"
+          ],
+          "local": true,
+          "pname": "antigravity-cli",
+          "section": "local",
+          "version": "1.5.12"
+        },
+        {
+          "description": "Terminals for coding agents that stay alive after you leave (hc)",
+          "homepage": "https://herdr.dev/core",
+          "icon": null,
+          "license": [
+            "asl20"
+          ],
+          "local": true,
+          "pname": "herdr-core",
+          "section": "local",
+          "version": "0.1.21"
+        },
+        {
+          "description": "Run Claude Code in a Linux container with only the current project mounted",
+          "homepage": "https://github.com/tommy0103/blackhole",
+          "icon": null,
+          "license": [
+            "mit"
+          ],
+          "local": true,
+          "pname": "blackhole",
+          "section": "local",
+          "version": "0-unstable-2026-11-11"
+        },
+        {
+          "description": "Universal proxy platform (upstream unstable prerelease binaries)",
+          "homepage": "https://sing-box.sagernet.org",
+          "icon": null,
+          "license": [
+            "gpl3Only"
+          ],
+          "local": true,
+          "pname": "sing-box",
+          "section": "local",
+          "version": "1.15.0-alpha.13"
         },
         {
           "description": "CLI that scaffolds, develops and packages MyGo desktop apps",
@@ -883,231 +559,20 @@
           ],
           "local": true,
           "pname": "mygo",
-          "section": "dev",
+          "section": "local",
           "version": "0.10.0"
         },
         {
-          "description": "Android SDK platform tools",
-          "homepage": "https://github.com/nmeum/android-tools",
-          "icon": null,
-          "license": [
-            "asl20",
-            "unicode-dfs-2015",
-            "mit"
-          ],
-          "local": false,
-          "pname": "android-tools",
-          "section": "dev",
-          "version": "37.0.0p1"
-        },
-        {
-          "description": "Android OTA payload dumper written in Go",
-          "homepage": "https://github.com/ssut/payload-dumper-go",
+          "description": "nsh distribution: the CLI and this machine's runtimes",
+          "homepage": "https://nsh.dev",
           "icon": null,
           "license": [
             "asl20"
           ],
-          "local": false,
-          "pname": "payload-dumper-go",
-          "section": "dev",
-          "version": "2.0.0"
-        },
-        {
-          "description": "High-level dynamically-typed programming language",
-          "homepage": "https://www.python.org",
-          "icon": null,
-          "license": [
-            "psfl"
-          ],
-          "local": false,
-          "pname": "python3",
-          "section": "dev",
-          "version": "3.14.10"
-        },
-        {
-          "description": "Event-driven I/O framework for the V8 JavaScript engine",
-          "homepage": "https://nodejs.org",
-          "icon": null,
-          "license": [
-            "mit"
-          ],
-          "local": false,
-          "pname": "nodejs",
-          "section": "dev",
-          "version": "24.22.2"
-        },
-        {
-          "description": "Yet another language server for Nix",
-          "homepage": "https://github.com/oxalica/nil",
-          "icon": null,
-          "license": [
-            "mit",
-            "asl20"
-          ],
-          "local": false,
-          "pname": "nil",
-          "section": "dev",
-          "version": "2026-07-23"
-        },
-        {
-          "description": "Feature-rich Nix language server interoperating with C++ nix",
-          "homepage": "https://github.com/nix-community/nixd",
-          "icon": null,
-          "license": [
-            "lgpl3Plus"
-          ],
-          "local": false,
-          "pname": "nixd",
-          "section": "dev",
-          "version": "2.9.4"
-        },
-        {
-          "description": "Safe, concurrent, practical language (wrapper script)",
-          "homepage": "https://www.rust-lang.org/",
-          "icon": null,
-          "license": [
-            "mit",
-            "asl20"
-          ],
-          "local": false,
-          "pname": "rustc",
-          "section": "dev",
-          "version": "1.99.1"
-        },
-        {
-          "description": "Downloads your Rust project's dependencies and builds your project",
-          "homepage": "https://crates.io",
-          "icon": null,
-          "license": [
-            "mit",
-            "asl20"
-          ],
-          "local": false,
-          "pname": "cargo",
-          "section": "dev",
-          "version": "1.99.1"
-        },
-        {
-          "description": "Bunch of lints to catch common mistakes and improve your Rust code",
-          "homepage": "https://rust-lang.github.io/rust-clippy/",
-          "icon": null,
-          "license": [
-            "mit",
-            "asl20"
-          ],
-          "local": false,
-          "pname": "clippy",
-          "section": "dev",
-          "version": "1.99.1"
-        },
-        {
-          "description": "Tool for formatting Rust code according to style guidelines",
-          "homepage": "https://github.com/rust-lang/rustfmt",
-          "icon": null,
-          "license": [
-            "mit",
-            "asl20"
-          ],
-          "local": false,
-          "pname": "rustfmt",
-          "section": "dev",
-          "version": "1.99.1"
-        },
-        {
-          "description": "Language server for the Rust language",
-          "homepage": "https://rust-analyzer.github.io",
-          "icon": null,
-          "license": [
-            "unknown"
-          ],
-          "local": false,
-          "pname": "rust-analyzer",
-          "section": "dev",
-          "version": "2026-11-09"
-        },
-        {
-          "description": "Rust toolchain installer",
-          "homepage": "https://www.rustup.rs/",
-          "icon": null,
-          "license": [
-            "unknown"
-          ],
-          "local": false,
-          "pname": "rustup",
-          "section": "dev",
-          "version": "1.29.3"
-        },
-        {
-          "description": "Ccache with Cloud Storage",
-          "homepage": "https://github.com/mozilla/sccache",
-          "icon": null,
-          "license": [
-            "asl20"
-          ],
-          "local": false,
-          "pname": "sccache",
-          "section": "dev",
-          "version": "0.19.0"
-        },
-        {
-          "description": "A high-performance ELF linker, rewritten in Rust (wrapper script)",
-          "homepage": "https://github.com/rui314/mold",
-          "icon": null,
-          "license": [
-            "mit"
-          ],
-          "local": false,
-          "pname": "mold-unwrapped-wrapper",
-          "section": "dev",
-          "version": "3.0.0"
-        },
-        {
-          "description": "Java language server",
-          "homepage": "https://github.com/eclipse/eclipse.jdt.ls",
-          "icon": null,
-          "license": [
-            "epl20"
-          ],
-          "local": false,
-          "pname": "jdt-language-server",
-          "section": "dev",
-          "version": "1.63.0"
-        },
-        {
-          "description": "Open-source Java Development Kit",
-          "homepage": "https://openjdk.java.net/",
-          "icon": null,
-          "license": [
-            "gpl2Only"
-          ],
-          "local": false,
-          "pname": "openjdk",
-          "section": "dev",
-          "version": "17.0.21.0.3+1"
-        },
-        {
-          "description": "Fast and polyglot tool for code searching, linting, rewriting at large scale",
-          "homepage": "https://ast-grep.github.io/",
-          "icon": null,
-          "license": [
-            "mit"
-          ],
-          "local": false,
-          "pname": "ast-grep",
-          "section": "dev",
-          "version": "0.51.2"
-        },
-        {
-          "description": "Source code spell checker",
-          "homepage": "https://github.com/crate-ci/typos",
-          "icon": null,
-          "license": [
-            "unknown"
-          ],
-          "local": false,
-          "pname": "typos",
-          "section": "dev",
-          "version": "1.52.0"
+          "local": true,
+          "pname": "nsh-0.5.1",
+          "section": "local",
+          "version": null
         },
         {
           "description": "Open-source static analysis engine (Semgrep fork) with no login and no telemetry",
@@ -1118,68 +583,8 @@
           ],
           "local": true,
           "pname": "opengrep",
-          "section": "dev",
+          "section": "local",
           "version": "2.0.0"
-        },
-        {
-          "description": "Tools for manipulating binaries (linker, assembler, etc.) (wrapper script)",
-          "homepage": "https://www.gnu.org/software/binutils/",
-          "icon": null,
-          "license": [
-            "gpl3Plus"
-          ],
-          "local": false,
-          "pname": "binutils-wrapper",
-          "section": "dev",
-          "version": "2.46"
-        },
-        {
-          "description": "Collection of modular and reusable compiler and toolchain technologies",
-          "homepage": "https://llvm.org/",
-          "icon": null,
-          "license": [
-            "unknown"
-          ],
-          "local": false,
-          "pname": "llvm",
-          "section": "dev",
-          "version": "21.1.8"
-        },
-        {
-          "description": "Dex to Java decompiler",
-          "homepage": "https://github.com/skylot/jadx",
-          "icon": "/nix/store/6a4b0a8chaia74p4mabv1wacp18i7hpc-jadx-1.5.6/share/icons/hicolor/256x256/apps/jadx.png",
-          "license": [
-            "asl20"
-          ],
-          "local": false,
-          "pname": "jadx",
-          "section": "dev",
-          "version": "1.5.6"
-        },
-        {
-          "description": "Tool for reverse engineering Android apk files",
-          "homepage": "https://apktool.org",
-          "icon": null,
-          "license": [
-            "asl20"
-          ],
-          "local": false,
-          "pname": "apktool",
-          "section": "dev",
-          "version": "3.0.3"
-        },
-        {
-          "description": "Userspace utilities for linux-erofs file system",
-          "homepage": "https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/about/",
-          "icon": null,
-          "license": [
-            "gpl2Plus"
-          ],
-          "local": false,
-          "pname": "erofs-utils",
-          "section": "dev",
-          "version": "1.9.4"
         },
         {
           "description": "Android dexer (d8) and shrinker/optimizer (r8) from Google Maven",
@@ -1190,15 +595,374 @@
           ],
           "local": true,
           "pname": "r8",
-          "section": "dev",
+          "section": "local",
           "version": "9.5.33"
         }
       ],
-      "label": "Development toolchain"
+      "label": "Built in this repo"
     },
     {
-      "id": "media",
+      "id": "cli",
       "items": [
+        {
+          "description": "Database of common MIME types",
+          "homepage": "http://freedesktop.org/wiki/Software/shared-mime-info",
+          "icon": null,
+          "license": [
+            "gpl2Plus"
+          ],
+          "local": false,
+          "pname": "shared-mime-info",
+          "section": "cli",
+          "version": "2.5.1"
+        },
+        {
+          "description": null,
+          "homepage": null,
+          "icon": null,
+          "license": [],
+          "local": false,
+          "pname": "kbd-backlight",
+          "section": "cli",
+          "version": null
+        },
+        {
+          "description": "Inference of Meta's LLaMA model (and others) in pure C/C++, with Vulkan support",
+          "homepage": "https://github.com/ggml-org/llama.cpp",
+          "icon": null,
+          "license": [
+            "mit"
+          ],
+          "local": false,
+          "pname": "llama-cpp",
+          "section": "cli",
+          "version": "1.0.0"
+        },
+        {
+          "description": "Syntax-aware diff",
+          "homepage": "https://github.com/Wilfred/difftastic",
+          "icon": null,
+          "license": [
+            "mit"
+          ],
+          "local": false,
+          "pname": "difftastic",
+          "section": "cli",
+          "version": "0.72.0"
+        },
+        {
+          "description": "Syntax-highlighting pager for git",
+          "homepage": "https://github.com/dandavison/delta",
+          "icon": null,
+          "license": [
+            "mit"
+          ],
+          "local": false,
+          "pname": "delta",
+          "section": "cli",
+          "version": "0.20.1"
+        },
+        {
+          "description": "Vim text editor fork focused on extensibility and agility",
+          "homepage": "https://neovim.io",
+          "icon": "/nix/store/sf3sp6pfbgwq0077ligi5i9jlh28cmvk-neovim-0.12.6/share/icons/hicolor/128x128/apps/nvim.png",
+          "license": [
+            "asl20",
+            "vim"
+          ],
+          "local": false,
+          "pname": "neovim",
+          "section": "cli",
+          "version": "0.12.6"
+        },
+        {
+          "description": "Post-modern modal text editor",
+          "homepage": "https://helix-editor.com",
+          "icon": "/nix/store/ic48dhi10i9lmjmivalszk1c996dyj55-helix-25.07.1/share/icons/hicolor/256x256/apps/helix.png",
+          "license": [
+            "mpl20"
+          ],
+          "local": false,
+          "pname": "helix",
+          "section": "cli",
+          "version": "25.07.1"
+        },
+        {
+          "description": "Utility that combines the usability of The Silver Searcher with the raw speed of grep",
+          "homepage": "https://github.com/BurntSushi/ripgrep",
+          "icon": null,
+          "license": [
+            "unknown"
+          ],
+          "local": false,
+          "pname": "ripgrep",
+          "section": "cli",
+          "version": "15.2.0"
+        },
+        {
+          "description": "Command-line fuzzy finder written in Go",
+          "homepage": "https://github.com/junegunn/fzf",
+          "icon": null,
+          "license": [
+            "mit"
+          ],
+          "local": false,
+          "pname": "fzf",
+          "section": "cli",
+          "version": "0.75.0"
+        },
+        {
+          "description": "Lightweight and flexible command-line JSON processor",
+          "homepage": "https://jqlang.github.io/jq/",
+          "icon": null,
+          "license": [
+            "mit"
+          ],
+          "local": false,
+          "pname": "jq",
+          "section": "cli",
+          "version": "1.8.2"
+        },
+        {
+          "description": "Handy way to save and run project-specific commands",
+          "homepage": "https://github.com/casey/just",
+          "icon": null,
+          "license": [
+            "cc0"
+          ],
+          "local": false,
+          "pname": "just",
+          "section": "cli",
+          "version": "1.59.0"
+        },
+        {
+          "description": "Nix/NixOS package version diff tool",
+          "homepage": "https://khumba.net/projects/nvd",
+          "icon": null,
+          "license": [
+            "asl20"
+          ],
+          "local": false,
+          "pname": "nvd",
+          "section": "cli",
+          "version": "0.2.4"
+        },
+        {
+          "description": "GitHub CLI tool",
+          "homepage": "https://cli.github.com/",
+          "icon": null,
+          "license": [
+            "mit"
+          ],
+          "local": false,
+          "pname": "gh",
+          "section": "cli",
+          "version": "2.104.0"
+        },
+        {
+          "description": "TUI for Jujutsu VCS",
+          "homepage": "https://github.com/idursun/jjui",
+          "icon": null,
+          "license": [
+            "mit"
+          ],
+          "local": false,
+          "pname": "jjui",
+          "section": "cli",
+          "version": "0.10.13"
+        },
+        {
+          "description": "Lightweight memory system for AI coding agents with graph-based issue tracking",
+          "homepage": "https://github.com/gastownhall/beads",
+          "icon": null,
+          "license": [
+            "mit"
+          ],
+          "local": false,
+          "pname": "beads",
+          "section": "cli",
+          "version": "1.3.4"
+        },
+        {
+          "description": "Simple, fast and user-friendly alternative to find",
+          "homepage": "https://github.com/sharkdp/fd",
+          "icon": null,
+          "license": [
+            "unknown"
+          ],
+          "local": false,
+          "pname": "fd",
+          "section": "cli",
+          "version": "10.5.2"
+        },
+        {
+          "description": "Modern, maintained replacement for ls",
+          "homepage": "https://github.com/eza-community/eza",
+          "icon": null,
+          "license": [
+            "eupl12"
+          ],
+          "local": false,
+          "pname": "eza",
+          "section": "cli",
+          "version": "0.23.5"
+        },
+        {
+          "description": "Cat(1) clone with syntax highlighting and Git integration",
+          "homepage": "https://github.com/sharkdp/bat",
+          "icon": null,
+          "license": [
+            "unknown"
+          ],
+          "local": false,
+          "pname": "bat",
+          "section": "cli",
+          "version": "0.26.1"
+        },
+        {
+          "description": "Actively maintained, feature-rich and performance oriented, neofetch like system information tool",
+          "homepage": "https://github.com/fastfetch-cli/fastfetch",
+          "icon": null,
+          "license": [
+            "mit"
+          ],
+          "local": false,
+          "pname": "fastfetch",
+          "section": "cli",
+          "version": "2.71.0"
+        },
+        {
+          "description": "Domain name server",
+          "homepage": "https://www.isc.org/bind/",
+          "icon": null,
+          "license": [
+            "mpl20"
+          ],
+          "local": false,
+          "pname": "bind",
+          "section": "cli",
+          "version": "9.20.30"
+        },
+        {
+          "description": "Powerful network protocol analyzer",
+          "homepage": "https://www.wireshark.org",
+          "icon": null,
+          "license": [
+            "gpl2Plus"
+          ],
+          "local": false,
+          "pname": "wireshark-cli",
+          "section": "cli",
+          "version": "4.6.9"
+        },
+        {
+          "description": "Terminal UI for wireshark-cli, inspired by Wireshark",
+          "homepage": "https://termshark.io/",
+          "icon": null,
+          "license": [
+            "mit"
+          ],
+          "local": false,
+          "pname": "termshark",
+          "section": "cli",
+          "version": "2.4.0"
+        },
+        {
+          "description": "Man-in-the-middle proxy",
+          "homepage": "https://mitmproxy.org/",
+          "icon": null,
+          "license": [
+            "mit"
+          ],
+          "local": false,
+          "pname": "mitmproxy",
+          "section": "cli",
+          "version": "12.3.1"
+        },
+        {
+          "description": "Shell script analysis tool",
+          "homepage": "https://hackage.haskell.org/package/ShellCheck",
+          "icon": null,
+          "license": [
+            "gpl3Only"
+          ],
+          "local": false,
+          "pname": "ShellCheck",
+          "section": "cli",
+          "version": "0.11.0"
+        },
+        {
+          "description": "XML parsing library for C",
+          "homepage": "https://gitlab.gnome.org/GNOME/libxml2",
+          "icon": null,
+          "license": [
+            "mit"
+          ],
+          "local": false,
+          "pname": "libxml2",
+          "section": "cli",
+          "version": "2.15.4"
+        },
+        {
+          "description": "Program that shows the type of files",
+          "homepage": "https://darwinsys.com/file",
+          "icon": null,
+          "license": [
+            "bsd2"
+          ],
+          "local": false,
+          "pname": "file",
+          "section": "cli",
+          "version": "5.48"
+        },
+        {
+          "description": "Query and change Linux monitor settings using DDC/CI and USB",
+          "homepage": "http://www.ddcutil.com/",
+          "icon": null,
+          "license": [
+            "gpl2Plus"
+          ],
+          "local": false,
+          "pname": "ddcutil",
+          "section": "cli",
+          "version": "3.0.2"
+        },
+        {
+          "description": "Day/night gamma adjustments for Wayland",
+          "homepage": "https://sr.ht/~kennylevinsen/wlsunset/",
+          "icon": null,
+          "license": [
+            "mit"
+          ],
+          "local": false,
+          "pname": "wlsunset",
+          "section": "cli",
+          "version": "0.4.0"
+        },
+        {
+          "description": "Command-line copy/paste utilities for Wayland",
+          "homepage": "https://github.com/bugaevc/wl-clipboard",
+          "icon": null,
+          "license": [
+            "gpl3Plus"
+          ],
+          "local": false,
+          "pname": "wl-clipboard",
+          "section": "cli",
+          "version": "2.3.0"
+        },
+        {
+          "description": "Terminal multiplexer",
+          "homepage": "https://tmux.github.io/",
+          "icon": null,
+          "license": [
+            "bsd3"
+          ],
+          "local": false,
+          "pname": "tmux",
+          "section": "cli",
+          "version": "3.8"
+        },
         {
           "description": "Compressor/archiver for creating and modifying zipfiles",
           "homepage": "http://www.info-zip.org",
@@ -1208,7 +972,7 @@
           ],
           "local": false,
           "pname": "zip",
-          "section": "media",
+          "section": "cli",
           "version": "3.0"
         },
         {
@@ -1220,7 +984,7 @@
           ],
           "local": false,
           "pname": "unzip",
-          "section": "media",
+          "section": "cli",
           "version": "6.0"
         },
         {
@@ -1233,8 +997,71 @@
           ],
           "local": false,
           "pname": "p7zip",
-          "section": "media",
+          "section": "cli",
           "version": "17.06"
+        },
+        {
+          "description": "Command line version of the 7-Zip archiver utility",
+          "homepage": "https://7-zip.org",
+          "icon": null,
+          "license": [
+            "lgpl2Plus",
+            "bsd3",
+            "unfreeRedistributable"
+          ],
+          "local": false,
+          "pname": "7zz",
+          "section": "cli",
+          "version": "26.04"
+        },
+        {
+          "description": "Utility for RAR archives",
+          "homepage": "https://www.rarlab.com/",
+          "icon": null,
+          "license": [
+            "unfreeRedistributable"
+          ],
+          "local": false,
+          "pname": "unrar",
+          "section": "cli",
+          "version": "7.3.2"
+        },
+        {
+          "description": "Archive unpacker program",
+          "homepage": "https://theunarchiver.com",
+          "icon": null,
+          "license": [
+            "lgpl21Plus"
+          ],
+          "local": false,
+          "pname": "unar",
+          "section": "cli",
+          "version": "1.10.8"
+        },
+        {
+          "description": "Command-line utility for easily compressing and decompressing files and directories",
+          "homepage": "https://github.com/ouch-org/ouch",
+          "icon": null,
+          "license": [
+            "mit",
+            "unfreeRedistributable"
+          ],
+          "local": false,
+          "pname": "ouch",
+          "section": "cli",
+          "version": "0.8.3"
+        },
+        {
+          "description": "Zstandard real-time compression algorithm",
+          "homepage": "https://facebook.github.io/zstd/",
+          "icon": null,
+          "license": [
+            "bsd3"
+          ],
+          "local": false,
+          "pname": "zstd",
+          "section": "cli",
+          "version": "1.5.7"
         },
         {
           "description": "General-purpose data compression software, successor of LZMA",
@@ -1246,7 +1073,7 @@
           ],
           "local": false,
           "pname": "xz",
-          "section": "media",
+          "section": "cli",
           "version": "5.8.4"
         },
         {
@@ -1261,7 +1088,7 @@
           ],
           "local": false,
           "pname": "ffmpeg",
-          "section": "media",
+          "section": "cli",
           "version": "9.0.2"
         },
         {
@@ -1273,134 +1100,351 @@
           ],
           "local": false,
           "pname": "imagemagick",
-          "section": "media",
+          "section": "cli",
           "version": "7.1.2-35"
         },
         {
-          "description": "PDF rendering library",
-          "homepage": "https://poppler.freedesktop.org/",
+          "description": "Command line tool to generate Nix packages from URLs",
+          "homepage": "https://github.com/nix-community/nix-init",
           "icon": null,
           "license": [
-            "gpl2Plus"
+            "mpl20"
           ],
           "local": false,
-          "pname": "poppler-glib",
-          "section": "media",
-          "version": "26.11.0"
-        }
-      ],
-      "label": "Archives and conversion"
-    },
-    {
-      "id": "network",
-      "items": [
-        {
-          "description": "Powerful network protocol analyzer",
-          "homepage": "https://www.wireshark.org",
-          "icon": null,
-          "license": [
-            "gpl2Plus"
-          ],
-          "local": false,
-          "pname": "wireshark-cli",
-          "section": "network",
-          "version": "4.6.9"
+          "pname": "nix-init",
+          "section": "cli",
+          "version": "0.3.6"
         },
         {
-          "description": "Terminal UI for wireshark-cli, inspired by Wireshark",
-          "homepage": "https://termshark.io/",
+          "description": "Swiss-knife for updating nix packages",
+          "homepage": "https://github.com/Mic92/nix-update/",
           "icon": null,
           "license": [
             "mit"
           ],
           "local": false,
-          "pname": "termshark",
-          "section": "network",
-          "version": "2.4.0"
+          "pname": "nix-update",
+          "section": "cli",
+          "version": "1.16.0"
         },
         {
-          "description": "Man-in-the-middle proxy",
-          "homepage": "https://mitmproxy.org/",
+          "description": "Official formatter for Nix code",
+          "homepage": "https://github.com/NixOS/nixfmt",
+          "icon": null,
+          "license": [
+            "mpl20"
+          ],
+          "local": false,
+          "pname": "nixfmt",
+          "section": "cli",
+          "version": "1.5.0"
+        },
+        {
+          "description": "General-purpose programming language and toolchain for maintaining robust, optimal, and reusable software",
+          "homepage": "https://ziglang.org/",
           "icon": null,
           "license": [
             "mit"
           ],
           "local": false,
-          "pname": "mitmproxy",
-          "section": "network",
-          "version": "12.3.1"
-        }
-      ],
-      "label": "Network capture"
-    },
-    {
-      "id": "other",
-      "items": [
-        {
-          "description": "Desktop environment for managing multiple autonomous agents across independent projects",
-          "homepage": "https://antigravity.google",
-          "icon": "/nix/store/0nxym97d5aw1lzz95slj7gxxqx8yab24-antigravity-hub-2.33.0/share/icons/hicolor/512x512/apps/antigravity.png",
-          "license": [
-            "unfree"
-          ],
-          "local": true,
-          "pname": "antigravity-hub",
-          "section": "other",
-          "version": "2.33.0"
+          "pname": "zig",
+          "section": "cli",
+          "version": "0.17.1"
         },
         {
-          "description": "nsh distribution: the CLI and this machine's runtimes",
-          "homepage": "https://nsh.dev",
+          "description": "Koka language compiler and interpreter",
+          "homepage": "https://github.com/koka-lang/koka",
           "icon": null,
           "license": [
             "asl20"
           ],
           "local": false,
-          "pname": "nsh-0.5.1",
-          "section": "other",
-          "version": null
-        }
-      ],
-      "label": "Other"
-    },
-    {
-      "id": "tooling",
-      "items": [
+          "pname": "koka",
+          "section": "cli",
+          "version": "3.2.9"
+        },
         {
-          "description": "Visual diff and merge tool",
-          "homepage": "https://meld.app/",
-          "icon": "/nix/store/vr2ay6rz9z0ivanjwja2mmgpdycpawbh-meld-3.24.1/share/icons/hicolor/scalable/apps/org.gnome.Meld.svg",
+          "description": "Go Programming language",
+          "homepage": "https://go.dev/",
+          "icon": null,
+          "license": [
+            "bsd3"
+          ],
+          "local": false,
+          "pname": "go",
+          "section": "cli",
+          "version": "1.27.3"
+        },
+        {
+          "description": "Android SDK platform tools",
+          "homepage": "https://github.com/nmeum/android-tools",
+          "icon": null,
+          "license": [
+            "asl20",
+            "unicode-dfs-2015",
+            "mit"
+          ],
+          "local": false,
+          "pname": "android-tools",
+          "section": "cli",
+          "version": "37.0.0p1"
+        },
+        {
+          "description": "Android OTA payload dumper written in Go",
+          "homepage": "https://github.com/ssut/payload-dumper-go",
+          "icon": null,
+          "license": [
+            "asl20"
+          ],
+          "local": false,
+          "pname": "payload-dumper-go",
+          "section": "cli",
+          "version": "2.0.0"
+        },
+        {
+          "description": "High-level dynamically-typed programming language",
+          "homepage": "https://www.python.org",
+          "icon": null,
+          "license": [
+            "psfl"
+          ],
+          "local": false,
+          "pname": "python3",
+          "section": "cli",
+          "version": "3.14.10"
+        },
+        {
+          "description": "Event-driven I/O framework for the V8 JavaScript engine",
+          "homepage": "https://nodejs.org",
+          "icon": null,
+          "license": [
+            "mit"
+          ],
+          "local": false,
+          "pname": "nodejs",
+          "section": "cli",
+          "version": "24.22.2"
+        },
+        {
+          "description": "Yet another language server for Nix",
+          "homepage": "https://github.com/oxalica/nil",
+          "icon": null,
+          "license": [
+            "mit",
+            "asl20"
+          ],
+          "local": false,
+          "pname": "nil",
+          "section": "cli",
+          "version": "2026-07-23"
+        },
+        {
+          "description": "Feature-rich Nix language server interoperating with C++ nix",
+          "homepage": "https://github.com/nix-community/nixd",
+          "icon": null,
+          "license": [
+            "lgpl3Plus"
+          ],
+          "local": false,
+          "pname": "nixd",
+          "section": "cli",
+          "version": "2.9.4"
+        },
+        {
+          "description": "Safe, concurrent, practical language (wrapper script)",
+          "homepage": "https://www.rust-lang.org/",
+          "icon": null,
+          "license": [
+            "mit",
+            "asl20"
+          ],
+          "local": false,
+          "pname": "rustc",
+          "section": "cli",
+          "version": "1.99.1"
+        },
+        {
+          "description": "Downloads your Rust project's dependencies and builds your project",
+          "homepage": "https://crates.io",
+          "icon": null,
+          "license": [
+            "mit",
+            "asl20"
+          ],
+          "local": false,
+          "pname": "cargo",
+          "section": "cli",
+          "version": "1.99.1"
+        },
+        {
+          "description": "Bunch of lints to catch common mistakes and improve your Rust code",
+          "homepage": "https://rust-lang.github.io/rust-clippy/",
+          "icon": null,
+          "license": [
+            "mit",
+            "asl20"
+          ],
+          "local": false,
+          "pname": "clippy",
+          "section": "cli",
+          "version": "1.99.1"
+        },
+        {
+          "description": "Tool for formatting Rust code according to style guidelines",
+          "homepage": "https://github.com/rust-lang/rustfmt",
+          "icon": null,
+          "license": [
+            "mit",
+            "asl20"
+          ],
+          "local": false,
+          "pname": "rustfmt",
+          "section": "cli",
+          "version": "1.99.1"
+        },
+        {
+          "description": "Language server for the Rust language",
+          "homepage": "https://rust-analyzer.github.io",
+          "icon": null,
+          "license": [
+            "unknown"
+          ],
+          "local": false,
+          "pname": "rust-analyzer",
+          "section": "cli",
+          "version": "2026-11-09"
+        },
+        {
+          "description": "Rust toolchain installer",
+          "homepage": "https://www.rustup.rs/",
+          "icon": null,
+          "license": [
+            "unknown"
+          ],
+          "local": false,
+          "pname": "rustup",
+          "section": "cli",
+          "version": "1.29.3"
+        },
+        {
+          "description": "Ccache with Cloud Storage",
+          "homepage": "https://github.com/mozilla/sccache",
+          "icon": null,
+          "license": [
+            "asl20"
+          ],
+          "local": false,
+          "pname": "sccache",
+          "section": "cli",
+          "version": "0.19.0"
+        },
+        {
+          "description": "A high-performance ELF linker, rewritten in Rust (wrapper script)",
+          "homepage": "https://github.com/rui314/mold",
+          "icon": null,
+          "license": [
+            "mit"
+          ],
+          "local": false,
+          "pname": "mold-unwrapped-wrapper",
+          "section": "cli",
+          "version": "3.0.0"
+        },
+        {
+          "description": "Java language server",
+          "homepage": "https://github.com/eclipse/eclipse.jdt.ls",
+          "icon": null,
+          "license": [
+            "epl20"
+          ],
+          "local": false,
+          "pname": "jdt-language-server",
+          "section": "cli",
+          "version": "1.63.0"
+        },
+        {
+          "description": "Open-source Java Development Kit",
+          "homepage": "https://openjdk.java.net/",
+          "icon": null,
+          "license": [
+            "gpl2Only"
+          ],
+          "local": false,
+          "pname": "openjdk",
+          "section": "cli",
+          "version": "17.0.21.0.3+1"
+        },
+        {
+          "description": "Fast and polyglot tool for code searching, linting, rewriting at large scale",
+          "homepage": "https://ast-grep.github.io/",
+          "icon": null,
+          "license": [
+            "mit"
+          ],
+          "local": false,
+          "pname": "ast-grep",
+          "section": "cli",
+          "version": "0.51.2"
+        },
+        {
+          "description": "Source code spell checker",
+          "homepage": "https://github.com/crate-ci/typos",
+          "icon": null,
+          "license": [
+            "unknown"
+          ],
+          "local": false,
+          "pname": "typos",
+          "section": "cli",
+          "version": "1.52.0"
+        },
+        {
+          "description": "Tools for manipulating binaries (linker, assembler, etc.) (wrapper script)",
+          "homepage": "https://www.gnu.org/software/binutils/",
+          "icon": null,
+          "license": [
+            "gpl3Plus"
+          ],
+          "local": false,
+          "pname": "binutils-wrapper",
+          "section": "cli",
+          "version": "2.46"
+        },
+        {
+          "description": "Collection of modular and reusable compiler and toolchain technologies",
+          "homepage": "https://llvm.org/",
+          "icon": null,
+          "license": [
+            "unknown"
+          ],
+          "local": false,
+          "pname": "llvm",
+          "section": "cli",
+          "version": "21.1.8"
+        },
+        {
+          "description": "Tool for reverse engineering Android apk files",
+          "homepage": "https://apktool.org",
+          "icon": null,
+          "license": [
+            "asl20"
+          ],
+          "local": false,
+          "pname": "apktool",
+          "section": "cli",
+          "version": "3.0.3"
+        },
+        {
+          "description": "Userspace utilities for linux-erofs file system",
+          "homepage": "https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/about/",
+          "icon": null,
           "license": [
             "gpl2Plus"
           ],
           "local": false,
-          "pname": "meld",
-          "section": "tooling",
-          "version": "3.24.1"
-        },
-        {
-          "description": "Syntax-aware diff",
-          "homepage": "https://github.com/Wilfred/difftastic",
-          "icon": null,
-          "license": [
-            "mit"
-          ],
-          "local": false,
-          "pname": "difftastic",
-          "section": "tooling",
-          "version": "0.72.0"
-        },
-        {
-          "description": "Syntax-highlighting pager for git",
-          "homepage": "https://github.com/dandavison/delta",
-          "icon": null,
-          "license": [
-            "mit"
-          ],
-          "local": false,
-          "pname": "delta",
-          "section": "tooling",
-          "version": "0.20.1"
+          "pname": "erofs-utils",
+          "section": "cli",
+          "version": "1.9.4"
         },
         {
           "description": "Fast cd command that learns your habits",
@@ -1411,7 +1455,7 @@
           ],
           "local": false,
           "pname": "zoxide",
-          "section": "tooling",
+          "section": "cli",
           "version": "0.10.0"
         },
         {
@@ -1423,7 +1467,7 @@
           ],
           "local": false,
           "pname": "yazi",
-          "section": "tooling",
+          "section": "cli",
           "version": "26.9.1"
         },
         {
@@ -1435,7 +1479,7 @@
           ],
           "local": false,
           "pname": "man-db",
-          "section": "tooling",
+          "section": "cli",
           "version": "2.13.1"
         },
         {
@@ -1447,7 +1491,7 @@
           ],
           "local": false,
           "pname": "jujutsu",
-          "section": "tooling",
+          "section": "cli",
           "version": "0.47.1"
         },
         {
@@ -1459,7 +1503,7 @@
           ],
           "local": false,
           "pname": "git",
-          "section": "tooling",
+          "section": "cli",
           "version": "2.56.0"
         },
         {
@@ -1471,7 +1515,7 @@
           ],
           "local": false,
           "pname": "fish",
-          "section": "tooling",
+          "section": "cli",
           "version": "4.9.3"
         },
         {
@@ -1483,11 +1527,41 @@
           ],
           "local": false,
           "pname": "direnv",
-          "section": "tooling",
+          "section": "cli",
           "version": "2.38.2"
         }
       ],
-      "label": "Managed by a module"
+      "label": "CLI & toolchain"
+    },
+    {
+      "id": "libs",
+      "items": [
+        {
+          "description": "Unofficial GTK 3 port of libadwaita",
+          "homepage": "https://github.com/lassekongo83/adw-gtk3",
+          "icon": null,
+          "license": [
+            "lgpl21Only"
+          ],
+          "local": false,
+          "pname": "adw-gtk3",
+          "section": "libs",
+          "version": "6.5"
+        },
+        {
+          "description": "PDF rendering library",
+          "homepage": "https://poppler.freedesktop.org/",
+          "icon": null,
+          "license": [
+            "gpl2Plus"
+          ],
+          "local": false,
+          "pname": "poppler-glib",
+          "section": "libs",
+          "version": "26.11.0"
+        }
+      ],
+      "label": "Libraries & assets"
     }
   ],
   "toolchain": {
@@ -1499,5 +1573,5 @@
     "python": "3.14.10",
     "zig": "0.17.1"
   },
-  "total": 105
+  "total": 113
 }
