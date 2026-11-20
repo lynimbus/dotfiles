@@ -58,6 +58,7 @@ in
     ayugram-desktop
     wechat-uos
     nautilus
+    file-roller
     kero
     alma
     mygo-music
@@ -70,6 +71,11 @@ in
     zip
     unzip
     p7zip
+    _7zz-rar
+    unrar
+    unar
+    ouch-rar
+    zstd
     xz
     ffmpeg
     imagemagick
