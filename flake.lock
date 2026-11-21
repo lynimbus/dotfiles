@@ -1,5 +1,25 @@
 {
   "nodes": {
+    "cherry-magpie": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1795243988,
+        "narHash": "sha256-/ixfXZ1fw32oToM/Ky4km9hC8vRY9jGFkQc/aEwaLX4=",
+        "owner": "lynimbus",
+        "repo": "cherry-magpie",
+        "rev": "fcace898852d9f4c5bef0760835dbd8e4430de80",
+        "type": "github"
+      },
+      "original": {
+        "owner": "lynimbus",
+        "repo": "cherry-magpie",
+        "type": "github"
+      }
+    },
     "crane": {
       "locked": {
         "lastModified": 1794962885,
@@ -360,6 +380,7 @@
     },
     "root": {
       "inputs": {
+        "cherry-magpie": "cherry-magpie",
         "crane": "crane",
         "home-manager": "home-manager",
         "linuxqq-wayland-fix": "linuxqq-wayland-fix",

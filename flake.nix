@@ -48,6 +48,11 @@
     nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
 
     crane.url = "github:ipetkov/crane";
+
+    cherry-magpie = {
+      url = "github:lynimbus/cherry-magpie";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -127,6 +132,7 @@
           inputs.mangowm.nixosModules.mango
           inputs.umbriel.nixosModules.default
           inputs.linuxqq-wayland-fix.nixosModules.default
+          inputs.cherry-magpie.nixosModules.default
           ./system/init.nix
           home-manager.nixosModules.home-manager
           {

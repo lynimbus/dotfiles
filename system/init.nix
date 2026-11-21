@@ -27,6 +27,7 @@
     ./linuxqq-wayland-fix.nix
     ./desktop-umbriel.nix
     ./desktop-mango.nix
+    ./cherry-magpie.nix
     ./xdg.nix
     ../defaults/terminal.nix
     ../defaults/file-chooser.nix
