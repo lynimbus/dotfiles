@@ -13,19 +13,21 @@ let
 
       # Once the GGUF is cached locally (HF hub cache or llama.cpp cache), force
       # offline mode so startup does not block or fail when offline.
-      if [ -n "$(find "$cache_home/huggingface/hub/models--tencent--Hy-MT2-1.8B-GGUF" "$cache_home/llama.cpp" -name '*Hy-MT2-1.8B*Q4_K_M*.gguf' -print -quit 2>/dev/null || true)" ]; then
+      if [ -n "$(find "$cache_home/huggingface/hub/models--tencent--Hy-MT2-1.8B-GGUF" "$cache_home/llama.cpp" -name '*Hy-MT2-1.8B*Q8_0*.gguf' -print -quit 2>/dev/null || true)" ]; then
         extra_args+=(--offline)
       fi
 
       exec llama-server \
-        -hf tencent/Hy-MT2-1.8B-GGUF:Q4_K_M \
+        -hf tencent/Hy-MT2-1.8B-GGUF:Q8_0 \
         --jinja \
         --host 127.0.0.1 \
         --port 11435 \
         --device Vulkan0 \
-        --flash-attn off \
-        --parallel 1 \
-        -c 2048 \
+        --flash-attn on \
+        -ctk q8_0 \
+        -ctv q8_0 \
+        --parallel 2 \
+        -c 4096 \
         -ngl 99 \
         --cache-prompt \
         --alias hy-mt2-1.8b \
