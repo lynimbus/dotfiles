@@ -68,6 +68,17 @@ in
     obs-studio
     antigravity-hub
 
+    # Gaming launchers, compatibility layers, and diagnostics.
+    heroic
+    lutris
+    protonplus
+    mangohud
+    umu-launcher
+    wineWow64Packages.stagingFull
+    winetricks
+    vulkan-tools
+    mesa-demos
+
     # Archives and conversion.
     zip
     unzip

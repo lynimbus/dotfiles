@@ -256,6 +256,7 @@ default_workspace = "3chat"
 match.app_id = [
   "^steam$",
   "^steam_app_default$",
+  "^gamescope$",
   "^heroic$",
   "^net\\.lutris\\.Lutris$",
   "^com\\.vysp3r\\.ProtonPlus$",
