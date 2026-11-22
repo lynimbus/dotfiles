@@ -55,6 +55,13 @@ cp -rf source dest          # NOT: cp -r source dest
 - `apt-get` - use `-y` flag
 - `brew` - use `HOMEBREW_NO_AUTO_UPDATE=1` env var
 
+## Configuration Minimalism
+
+Keep NixOS, Home Manager, and package configurations as minimal as possible:
+
+- Do not duplicate defaults, environment variables, wrappers, or runtime workarounds already handled by upstream packages or modules.
+- When switching to an upstream flake/package or updating one, remove local workarounds, activation scripts, and overrides that are no longer needed.
+
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:46cd31e7 -->
 ## Beads Issue Tracker
 
