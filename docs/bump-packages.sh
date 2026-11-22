@@ -101,11 +101,14 @@ github_token
 #   1. In a jj-only checkout (no .git), nix-update asks git for the old version
 #      string whenever the version it found equals the pin (update.py:
 #      update_version -> git.old_version_from_git). That `git diff` exits 129
-#      and kills the run for every already-current package. Making the diff
-#      succeed is not the answer: nix-update then falls through to
-#      replace_version and re-fetches src and dependency hashes for an unchanged
-#      package. Intercept that probe with a marker and exit 42 instead. A
-#      colocated jj/git checkout keeps its real git repository for this.
+#      and kills the run for every already-current package. Even in a colocated
+#      jj/git checkout, letting an empty `git diff` succeed with exit 0 causes
+#      nix-update to fall through to replace_version; any fetchurl package whose
+#      --version-regex stripped a tag prefix (e.g. sing-box) then sees
+#      new_version.rev != null and re-fetches and rebuilds an unchanged package.
+#      Intercept `--word-diff=porcelain`: in a colocated checkout, delegate to
+#      real git only when the target file actually has an uncommitted diff;
+#      otherwise emit a marker and exit 42 so nix_update treats it as current.
 #   2. nix-update calls `nix flake metadata --json` to copy the local flake into
 #      /nix/store before passing that store path to `nix-instantiate` via
 #      `builtins.getFlake` (options.py: get_flake_store_path). With Nix 2.35's
@@ -141,23 +144,29 @@ EOF
 } >"$shim_dir/nix" || die "cannot write the nix shim"
 chmod +x "$shim_dir/nix" || die "cannot make the nix shim executable"
 
-nix_update_noop_marker='[bump] nix-update probed a jj-only checkout for its old version'
-if [ ! -e "$repo_dir/.git" ]; then
-	real_git="$(command -v git)" || die "git is not on PATH"
-	{
-		printf '#!/usr/bin/env bash\nmarker=%q\nreal_git=%q\n' "$nix_update_noop_marker" "$real_git"
-		cat <<'EOF'
+nix_update_noop_marker='[bump] nix-update probed an unchanged checkout for its old version'
+real_git="$(command -v git)" || die "git is not on PATH"
+has_git=0
+[ -e "$repo_dir/.git" ] && has_git=1
+{
+	printf '#!/usr/bin/env bash\nmarker=%q\nreal_git=%q\nhas_git=%q\n' "$nix_update_noop_marker" "$real_git" "$has_git"
+	cat <<'EOF'
 for arg in "$@"; do
 	if [ "$arg" = "--word-diff=porcelain" ]; then
+		if [ "$has_git" = 1 ]; then
+			if diff_out="$("$real_git" "$@" 2>/dev/null)" && [ -n "$diff_out" ]; then
+				printf '%s\n' "$diff_out"
+				exit 0
+			fi
+		fi
 		printf '%s\n' "$marker" >&2
 		exit 42
 	fi
 done
 exec "$real_git" "$@"
 EOF
-	} >"$shim_dir/git" || die "cannot write the git shim"
-	chmod +x "$shim_dir/git" || die "cannot make the git shim executable"
-fi
+} >"$shim_dir/git" || die "cannot write the git shim"
+chmod +x "$shim_dir/git" || die "cannot make the git shim executable"
 
 system=x86_64-linux
 NET_RETRY_RE='502|503|504|cannot download|failed to retrieve hash|timed out|Failed to connect|Connection reset|curl: \((6|7|22|28|35)\)'
@@ -172,9 +181,9 @@ nix_update_wrapped="$(dirname "$nix_update_bin")/.nix-update-wrapped"
 if [ -x "$nix_update_wrapped" ] && grep -q 'exec -a ' "$nix_update_bin"; then
 	wrapper_path="$(grep -oE '/nix/store/[^'\'':"]+/bin' "$nix_update_bin" | awk '!seen[$0]++' | paste -sd: -)"
 	nix_update_cmd=("$nix_update_wrapped")
-	nix_update_env=(env "PYTHONNOUSERSITE=true" "PATH=$shim_dir${wrapper_path:+:$wrapper_path}:$PATH")
+	nix_update_env=(env "PYTHONNOUSERSITE=true" "PYTHONUNBUFFERED=1" "PATH=$shim_dir${wrapper_path:+:$wrapper_path}:$PATH")
 else
-	nix_update_env=(env "PATH=$shim_dir:$PATH")
+	nix_update_env=(env "PYTHONUNBUFFERED=1" "PATH=$shim_dir:$PATH")
 fi
 
 # The newest stable version a Maven repository publishes, read out of its
@@ -422,24 +431,41 @@ run_nix_update() {
 # wording is never consulted for control flow. The VersionError hint below is
 # just a hint; if its wording changes, the exit code still decides the outcome.
 nix_update() {
-	local p="$1" out rc
+	local p="$1" log rc
 	shift
-	out="$("${nix_update_env[@]}" "${nix_update_cmd[@]}" --flake "legacyPackages.$system.$p" "$@" 2>&1)"
-	rc=$?
-	((rc == 0)) && {
-		printf '%s\n' "$out"
+	log="$(mktemp)" || return 1
+	"${nix_update_env[@]}" "${nix_update_cmd[@]}" --flake "legacyPackages.$system.$p" "$@" 2>&1 |
+		awk -v marker="$nix_update_noop_marker" -v logfile="$log" '
+			BEGIN { suppressed = 0 }
+			{
+				print $0 > logfile
+				fflush(logfile)
+				if (!suppressed) {
+					if (index($0, marker) > 0) {
+						suppressed = 1
+					} else {
+						print $0
+						fflush()
+					}
+				}
+			}
+		'
+	rc=${PIPESTATUS[0]}
+	if ((rc == 0)); then
+		rm -f "$log"
 		return 0
-	}
+	fi
 	# The shim answers before nix-update rewrites anything, so no package file
 	# changed and no traceback needs to reach the terminal.
-	if grep -qF -- "$nix_update_noop_marker" <<<"$out"; then
+	if grep -qF -- "$nix_update_noop_marker" "$log"; then
+		rm -f "$log"
 		echo "[bump] $p: already current" >&2
 		return 0
 	fi
-	printf '%s\n' "$out"
-	if grep -q 'VersionError: Please specify the version' <<<"$out"; then
+	if grep -q 'VersionError: Please specify the version' "$log"; then
 		echo "[bump] $p: nix-update cannot enumerate this package's releases; declare a version index in passthru.bump (--bump-maven=, --bump-manifest= or --bump-feed=)" >&2
 	fi
+	rm -f "$log"
 	return "$rc"
 }
 
