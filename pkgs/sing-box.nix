@@ -14,9 +14,10 @@
   # `just bump sing-box` (nix-update) rewrites them through the
   # legacyPackages attribute path. The channel is pinned to unstable by this
   # file's passthru.bump: --version=unstable lets prereleases past nix-update's
-  # stable preference, and its --version-regex capture group only matches
-  # alpha/beta/rc tags while stripping the v prefix, so a bump cannot drift to
-  # the stable channel. Those tags cover quic/dhcp/wireguard/clash_api/tailscale/
+  # stable preference, and --version-regex keeps stable tags out so a bump
+  # cannot drift to the stable channel (keeping v? inside the capture group so
+  # nix-update's replace_version strips it without setting new_version.rev on a
+  # fetchurl src). Those tags cover quic/dhcp/wireguard/clash_api/tailscale/
   # naive, more than nixpkgs or a source build of the flake offers. Note that
   # upstream's plain linux-amd64 build is dynamically linked PIE (its interpreter
   # points at /lib64/ld-linux) even though CGO is off, so it cannot run in the
@@ -235,7 +236,7 @@ stdenv.mkDerivation {
     # tags out, so a bump cannot drift channels. --build reruns versionCheckHook
     # and the naive smoke check here rather than at switch time.
     "--version=unstable"
-    "--version-regex=v?(\\d+\\.\\d+\\.\\d+-(?:alpha|beta|rc)\\.\\d+)"
+    "--version-regex=(v?\\d+\\.\\d+\\.\\d+-(?:alpha|beta|rc)\\.\\d+)"
     "--build"
   ];
 
