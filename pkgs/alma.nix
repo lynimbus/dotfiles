@@ -37,8 +37,8 @@
   # node server with its prebuilt native modules, and the renderer bundle, none
   # of which is built here. Version and hash are the two literals `just bump
   # alma` (nix-update) moves to the latest release together.
-  version ? "0.4.977",
-  hash ? "sha256-MXtebDejN4kXByWo+KxAFNOni4Y65W8WTtZV89fE1Gs=",
+  version ? "0.4.1044",
+  hash ? "sha256-PTJYu7JetIvVg8em9/baBihe1eOy8oYFe7qehpQU4Do=",
 }:
 
 let
