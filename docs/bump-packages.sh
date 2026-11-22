@@ -96,36 +96,67 @@ cd "$repo_dir" || exit 1
 
 github_token
 
-# nix-update asks git for the old version string whenever the version it found
-# equals the pin (update.py: update_version -> git.old_version_from_git). In a
-# jj-only checkout that `git diff` exits 129 and takes the whole run down, even
-# though "already current" is a successful outcome. Making the diff succeed is
-# not the answer: nix-update then falls through to replace_version and re-fetches
-# src and dependency hashes for an unchanged package.
+# nix-update relies on two assumptions that break in this repo:
 #
-# Intercept exactly that probe instead and answer with a marker and an exit code
-# of our own. The signal the script reads is ours, so a nix-update upgrade that
-# rewords its traceback cannot change what "already current" means; the run also
-# stops before any file is written. Every other git command goes to the real git.
-# A colocated jj/git checkout keeps its real repository and needs no shim.
-nix_update_env=()
+#   1. In a jj-only checkout (no .git), nix-update asks git for the old version
+#      string whenever the version it found equals the pin (update.py:
+#      update_version -> git.old_version_from_git). That `git diff` exits 129
+#      and kills the run for every already-current package. Making the diff
+#      succeed is not the answer: nix-update then falls through to
+#      replace_version and re-fetches src and dependency hashes for an unchanged
+#      package. Intercept that probe with a marker and exit 42 instead. A
+#      colocated jj/git checkout keeps its real git repository for this.
+#   2. nix-update calls `nix flake metadata --json` to copy the local flake into
+#      /nix/store before passing that store path to `nix-instantiate` via
+#      `builtins.getFlake` (options.py: get_flake_store_path). With Nix 2.35's
+#      fetch-tree on a colocated git checkout, `nix flake metadata --json`
+#      computes and prints `/nix/store/...-source` lazily without realizing it
+#      on disk, so `nix-instantiate` fails with "No such file or directory" —
+#      both before and immediately after nix-update edits a package file.
+#      Shimming `nix` to run `nix flake prefetch --json .` before `nix flake
+#      metadata --json` realizes the current (including dirty) tree into the
+#      store so the path exists.
+#
+# nixpkgs wraps nix-update with makeWrapper, which prepends its own nix/bin to
+# PATH and would shadow our nix shim. When `.nix-update-wrapped` sits beside the
+# resolved binary, invoke it directly with our shim dir ahead of the wrapper's
+# PATH entries.
+shim_dir="$(mktemp -d)" || die "cannot create a temporary directory"
+trap 'rm -rf "$shim_dir"' EXIT
+
+real_nix="$(command -v nix)" || die "nix is not on PATH"
+{
+	printf '#!/usr/bin/env bash\nreal_nix=%q\n' "$real_nix"
+	cat <<'EOF'
+if [ "${1:-}" = "flake" ] && [ "${2:-}" = "metadata" ]; then
+	for arg in "$@"; do
+		if [ "$arg" = "--json" ]; then
+			"$real_nix" flake prefetch --json . >/dev/null 2>&1 || true
+			break
+		fi
+	done
+fi
+exec "$real_nix" "$@"
+EOF
+} >"$shim_dir/nix" || die "cannot write the nix shim"
+chmod +x "$shim_dir/nix" || die "cannot make the nix shim executable"
+
 nix_update_noop_marker='[bump] nix-update probed a jj-only checkout for its old version'
 if [ ! -e "$repo_dir/.git" ]; then
-	shim_dir="$(mktemp -d)" || die "cannot create a temporary directory"
 	real_git="$(command -v git)" || die "git is not on PATH"
 	{
-		printf '#!/usr/bin/env bash\n'
-		printf 'for arg in "$@"; do\n'
-		printf '\tif [ "$arg" = "--word-diff=porcelain" ]; then\n'
-		printf '\t\tprintf "%%s\\n" %q >&2\n' "$nix_update_noop_marker"
-		printf '\t\texit 42\n'
-		printf '\tfi\n'
-		printf 'done\n'
-		printf 'exec %q "$@"\n' "$real_git"
+		printf '#!/usr/bin/env bash\nmarker=%q\nreal_git=%q\n' "$nix_update_noop_marker" "$real_git"
+		cat <<'EOF'
+for arg in "$@"; do
+	if [ "$arg" = "--word-diff=porcelain" ]; then
+		printf '%s\n' "$marker" >&2
+		exit 42
+	fi
+done
+exec "$real_git" "$@"
+EOF
 	} >"$shim_dir/git" || die "cannot write the git shim"
 	chmod +x "$shim_dir/git" || die "cannot make the git shim executable"
-	trap 'rm -rf "$shim_dir"' EXIT
-	nix_update_env=(env "PATH=$shim_dir:$PATH")
 fi
 
 system=x86_64-linux
@@ -134,6 +165,17 @@ retries=2
 retry_delay=30
 
 command -v nix-update >/dev/null || die "nix-update is not on PATH (it comes from home/packages.nix)"
+
+nix_update_cmd=(nix-update)
+nix_update_bin="$(readlink -f "$(command -v nix-update)")"
+nix_update_wrapped="$(dirname "$nix_update_bin")/.nix-update-wrapped"
+if [ -x "$nix_update_wrapped" ] && grep -q 'exec -a ' "$nix_update_bin"; then
+	wrapper_path="$(grep -oE '/nix/store/[^'\'':"]+/bin' "$nix_update_bin" | awk '!seen[$0]++' | paste -sd: -)"
+	nix_update_cmd=("$nix_update_wrapped")
+	nix_update_env=(env "PYTHONNOUSERSITE=true" "PATH=$shim_dir${wrapper_path:+:$wrapper_path}:$PATH")
+else
+	nix_update_env=(env "PATH=$shim_dir:$PATH")
+fi
 
 # The newest stable version a Maven repository publishes, read out of its
 # maven-metadata.xml. nix-update has no Maven fetcher, so a package that only
@@ -382,7 +424,7 @@ run_nix_update() {
 nix_update() {
 	local p="$1" out rc
 	shift
-	out="$("${nix_update_env[@]}" nix-update --flake "legacyPackages.$system.$p" "$@" 2>&1)"
+	out="$("${nix_update_env[@]}" "${nix_update_cmd[@]}" --flake "legacyPackages.$system.$p" "$@" 2>&1)"
 	rc=$?
 	((rc == 0)) && {
 		printf '%s\n' "$out"
