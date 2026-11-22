@@ -1,6 +1,7 @@
 {
   imports = [
     ./core.nix
+    ./fonts.nix
     ./packages.nix
     ../defaults/mimeapps.nix
 
