@@ -52,6 +52,11 @@
     nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
 
     crane.url = "github:ipetkov/crane";
+
+    magpie-releases = {
+      url = "github:yetone/magpie-releases";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -106,7 +111,10 @@
           # Mirrors system/nix.nix: the Android SDK packages nsh-android-sdk
           # composes are unfree and gated on this acceptance.
           config.android_sdk.accept_license = true;
-          overlays = [ local.overlay ];
+          overlays = [
+            local.overlay
+            inputs.magpie-releases.overlays.default
+          ];
         }
         // {
           # Per package, the nix-update flags its file declares in
@@ -125,7 +133,10 @@
         specialArgs = moduleArgs;
         modules = [
           {
-            nixpkgs.overlays = [ local.overlay ];
+            nixpkgs.overlays = [
+              local.overlay
+              inputs.magpie-releases.overlays.default
+            ];
           }
           inputs.nixos-hardware.nixosModules.mechrevo-gm5hg0a
           inputs.mangowm.nixosModules.mango

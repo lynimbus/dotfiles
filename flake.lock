@@ -187,6 +187,26 @@
         "type": "github"
       }
     },
+    "magpie-releases": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1795416116,
+        "narHash": "sha256-jZSekpvZa0o8+7JCNJQNEPPTL5NOlCoyicJIztQfvSA=",
+        "owner": "yetone",
+        "repo": "magpie-releases",
+        "rev": "58c66f41d76aee29f0f385840d6ed4d6c269b398",
+        "type": "github"
+      },
+      "original": {
+        "owner": "yetone",
+        "repo": "magpie-releases",
+        "type": "github"
+      }
+    },
     "mangowm": {
       "inputs": {
         "flake-parts": "flake-parts",
@@ -429,6 +449,7 @@
         "linuxqq-wayland-fix": "linuxqq-wayland-fix",
         "luciole": "luciole",
         "mac-style-plymouth": "mac-style-plymouth",
+        "magpie-releases": "magpie-releases",
         "mangowm": "mangowm",
         "nix-cachyos-kernel": "nix-cachyos-kernel",
         "nix-index-database": "nix-index-database",
