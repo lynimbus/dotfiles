@@ -49,7 +49,6 @@ in
 
     # Desktop programs.
     ddcutil
-    wlsunset
     wl-clipboard
     tmux
     adw-gtk3
@@ -57,7 +56,6 @@ in
     ungoogled-chromium
     ayugram-desktop
     wechat-uos
-    nautilus
     file-roller
     kero
     alma

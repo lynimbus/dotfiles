@@ -18,6 +18,10 @@ in
     settings = ./config.toml;
   };
 
+  dconf.settings."org/gnome/desktop/interface" = {
+    gtk-theme = "adw-gtk3";
+  };
+
   xdg.configFile = repo.liveFiles {
     from = "desktop/noctalia/templates";
     into = "noctalia/templates";

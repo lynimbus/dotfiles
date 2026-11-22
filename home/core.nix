@@ -9,13 +9,4 @@
     EDITOR = "hx";
     VISUAL = "hx";
   };
-
-  services.polkit-gnome.enable = true;
-
-  systemd.user.services.polkit-gnome = {
-    Unit.Requires = [ "dbus.service" ];
-    Unit.After = [ "dbus.service" ];
-    Service.Restart = "on-failure";
-    Service.RestartSec = 2;
-  };
 }

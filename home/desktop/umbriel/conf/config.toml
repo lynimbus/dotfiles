@@ -83,9 +83,12 @@ action = "overview-open"
 "Mod+Space" = { action = "spawn noctalia msg panel-toggle launcher", repeat = false }
 "XF86Search" = { action = "spawn noctalia msg panel-toggle launcher", repeat = false }
 "Mod+S" = { action = "spawn noctalia msg panel-toggle control-center", repeat = false }
+"Mod+Shift+comma" = { action = "spawn noctalia msg settings-toggle", repeat = false }
 "Mod+E" = { action = "spawn noctalia msg panel-toggle session", repeat = false }
 "Mod+Shift+V" = { action = "spawn noctalia msg panel-toggle clipboard", repeat = false }
 "Ctrl+Alt+L" = { action = "spawn noctalia msg session lock", repeat = false }
+"Alt+Tab" = { action = "spawn noctalia msg window-switcher hold", repeat = false }
+"Alt+Shift+Tab" = { action = "spawn noctalia msg window-switcher hold reverse", repeat = false }
 
 # Media, volume, and brightness
 "XF86AudioRaiseVolume" = { action = "spawn noctalia msg volume-up", allow_when_locked = true }
@@ -102,7 +105,9 @@ action = "overview-open"
 "XF86KbdBrightnessDown" = { action = "spawn kbd-backlight 10%-", allow_when_locked = true }
 
 # Screenshot, cheatsheet, overview, and session
-"Print" = { action = "spawn screenshot", repeat = false }
+"Print" = { action = "spawn noctalia msg screenshot-region", repeat = false }
+"Mod+Shift+A" = { action = "spawn noctalia msg screenshot-annotate", repeat = false }
+"Mod+Ctrl+A" = { action = "spawn noctalia msg annotate", repeat = false }
 "Mod+Shift+slash" = { action = "cheatsheet-toggle", repeat = false }
 "Mod+O" = { action = "overview-toggle", repeat = false }
 "Mod+Escape" = { action = "shortcuts-inhibit-toggle", allow_when_inhibited = true, repeat = false }
@@ -269,7 +274,7 @@ default_workspace = "4entertainment"
 [[window_rule]]
 match.app_id = [
   "^com\\.github\\.johnfactotum\\.Foliate$",
-  "^org\\.gnome\\.Nautilus$",
+  "^dev\\.noctalia\\.luciole$",
   "^[Cc]lash-[Vv]erge$",
   "^\\.clash-verge-wrapped$",
   "^org\\.kde\\.easyeffects$",

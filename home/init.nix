@@ -23,10 +23,10 @@
     ./programs/rust.nix
     ./audio/rnnoise.nix
 
-    ./desktop/screenshot.nix
     ./desktop/keyboard-backlight.nix
     ./desktop/umbriel/default.nix
     ./desktop/mango/default.nix
     ./desktop/noctalia/default.nix
+    ./desktop/luciole/default.nix
   ];
 }

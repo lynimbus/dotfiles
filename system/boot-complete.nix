@@ -14,12 +14,11 @@ let
   check = pkgs.writeShellScript "boot-complete-check" ''
     set -u
 
-    # No display manager runs here, so no Wayland socket exists until someone
-    # logs in at tty1. Waiting on a compositor would fail every boot. What a
-    # broken boot actually lacks is a GPU device or a login prompt.
+    # Wait for a DRM GPU device and the greetd display manager before marking
+    # this generation good; greetd runs Noctalia Greeter on tty1.
     for _ in $(seq 60); do
       if ls /dev/dri/card* > /dev/null 2>&1 \
-        && [ "$(${pkgs.systemd}/bin/systemctl is-active getty@tty1.service)" = active ]
+        && [ "$(${pkgs.systemd}/bin/systemctl is-active greetd.service)" = active ]
       then
         exit 0
       fi
@@ -27,9 +26,9 @@ let
       sleep 1
     done
 
-    echo "boot-complete check failed: no DRM card or no login prompt" >&2
+    echo "boot-complete check failed: no DRM card or greetd is not active" >&2
     ls -l /dev/dri >&2 || true
-    ${pkgs.systemd}/bin/systemctl status getty@tty1.service --no-pager >&2 || true
+    ${pkgs.systemd}/bin/systemctl status greetd.service --no-pager >&2 || true
     exit 1
   '';
 in

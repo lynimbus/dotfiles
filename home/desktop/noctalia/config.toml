@@ -23,6 +23,7 @@ margin_edge = 5
 radius = 12
 widget_spacing = 6
 shadow = false
+contact_shadow = false
 end = [
     "media",
     "volume",
@@ -70,6 +71,7 @@ enabled = true
 margin_edge = 10
 radius = 20
 reserve_space = false
+shadow = false
 show_dots = true
 smart_auto_hide = true
 
@@ -130,16 +132,31 @@ nightlight = false
 
 [shell]
 font_family = "Noto Sans CJK SC"
+polkit_agent = true
 settings_show_advanced = true
+umbriel_overview_close_on_launch_enabled = true
+umbriel_overview_type_to_launch_enabled = true
+
+[shell.greeter_sync]
+auto_sync = true
 
 [shell.panel]
 control_center_placement = "floating"
 control_center_position = "top_right"
 session_placement = "floating"
 session_position = "center"
+shadow = false
 transparency_mode = "soft"
 wallpaper_placement = "floating"
 wallpaper_position = "center"
+
+[shell.screenshot]
+annotate = true
+close_on_copy = true
+close_on_save = true
+copy_to_clipboard = true
+directory = "~/Pictures/Screenshots"
+save_to_file = true
 
 [theme]
 builtin = "Ayu"
@@ -149,7 +166,8 @@ source = "wallpaper"
 wallpaper_scheme = "m3-content"
 
 [theme.templates]
-builtin_ids = ["umbriel", "mango", "gtk3", "gtk4"]
+enable_builtin_templates = true
+builtin_ids = ["umbriel", "mango", "luciole", "gtk3", "gtk4"]
 
 [theme.templates.user.umbriel_gtk4]
 index = 1

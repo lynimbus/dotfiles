@@ -33,6 +33,10 @@
 
     noctalia.url = "github:noctalia-dev/noctalia/cachix";
 
+    noctalia-greeter.url = "github:noctalia-dev/noctalia-greeter/cachix";
+
+    luciole.url = "github:noctalia-dev/luciole/cachix";
+
     # system/comma.nix uses the comma wrapper that carries a prebuilt nix-index
     # database, so ", foo" resolves a program name without building an index.
     nix-index-database = {
@@ -126,6 +130,8 @@
           inputs.nixos-hardware.nixosModules.mechrevo-gm5hg0a
           inputs.mangowm.nixosModules.mango
           inputs.umbriel.nixosModules.default
+          inputs.noctalia.nixosModules.default
+          inputs.noctalia-greeter.nixosModules.default
           inputs.linuxqq-wayland-fix.nixosModules.default
           ./system/init.nix
           home-manager.nixosModules.home-manager

@@ -28,6 +28,8 @@
     ./linuxqq-wayland-fix.nix
     ./desktop-umbriel.nix
     ./desktop-mango.nix
+    ./desktop-noctalia.nix
+    ./greeter.nix
     ./xdg.nix
     ../defaults/terminal.nix
     ../defaults/file-chooser.nix

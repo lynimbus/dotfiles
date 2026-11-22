@@ -14,10 +14,10 @@
       "x-scheme-handler/http" = [ "chromium-browser.desktop" ];
       "x-scheme-handler/https" = [ "chromium-browser.desktop" ];
 
-      # nautilus
-      "inode/directory" = [ "org.gnome.Nautilus.desktop" ];
+      # luciole
+      "inode/directory" = [ "dev.noctalia.luciole.desktop" ];
 
-      # file-roller: browse/extract/create archives instead of auto-extracting via nautilus
+      # file-roller: browse/extract/create archives instead of opening folders
       "application/bzip2" = [ "org.gnome.FileRoller.desktop" ];
       "application/gzip" = [ "org.gnome.FileRoller.desktop" ];
       "application/vnd.ms-cab-compressed" = [ "org.gnome.FileRoller.desktop" ];
