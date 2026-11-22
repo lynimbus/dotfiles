@@ -294,7 +294,11 @@ feed_verify() {
 	# API answers when raw.githubusercontent.com does not: the raw host was the one
 	# refusing TLS on the network this was written for, and curl's --retry does
 	# not cover that failure.
-	key="$(curl -fsSL --retry 2 --retry-delay 2 \
+	local -a auth_header=()
+	if [ -n "${GITHUB_TOKEN:-}" ]; then
+		auth_header=(-H "Authorization: Bearer $GITHUB_TOKEN")
+	fi
+	key="$(curl -fsSL --retry 2 --retry-delay 2 "${auth_header[@]}" \
 		"https://api.github.com/repos/yetone/magpie/contents/internal/update/signed.go?ref=v$version" |
 		jq -r '.content // empty' | base64 -d 2>/dev/null |
 		grep -o 'var signingKey = "[^"]*"' | head -1 | cut -d'"' -f2)" || key=""
