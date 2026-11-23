@@ -26,6 +26,7 @@
       "uid=1000"
       "gid=100"
       "windows_names"
+      "nofail"
     ];
   };
 
