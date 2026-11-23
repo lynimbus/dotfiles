@@ -18,15 +18,19 @@ let
   };
 in
 {
-  # The package wrapper points PiG at Pi's ~/.pi/agent, where the settings
-  # below, the sessions and the npm packages already live. PiG's own state stays
-  # in ~/.pig.
-  # pig-swarm fans pig out over one problem with a bd epic as the ledger, so it
-  # belongs wherever pig is installed.
+  # Both pi (from the upstream flake) and pig (with PIG_USE_PI_DIRS=1) share
+  # ~/.pi/agent for settings, sessions, extensions, and npm packages; pig's own
+  # state stays in ~/.pig. rtk on PATH serves extensions/rtk.ts for both, and
+  # pig-swarm fans pig out over one problem with a bd epic as the ledger.
   home.packages = [
+    pkgs.pi
     pkgs.pig
     pkgs.pig-swarm
+    pkgs.rtk
   ];
+
+  # Upstream pi is store-managed, so suppress npm update checks at startup.
+  home.sessionVariables.PI_SKIP_VERSION_CHECK = "1";
 
   home.activation.pigSettingsMerge = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     target="$HOME/.pi/agent/settings.json"

@@ -57,6 +57,11 @@
       url = "github:yetone/magpie-releases";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    pi = {
+      url = "github:earendil-works/pi";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -101,6 +106,7 @@
       overlays = [
         local.overlay
         inputs.magpie-releases.overlays.default
+        inputs.pi.overlays.default
       ];
 
       pkgs = import nixpkgs {

@@ -64,20 +64,12 @@ stdenvNoCC.mkDerivation {
   # `pig update` still checks when run by hand.
   # This machine keeps the agent files in Pi's ~/.pi/agent, so PiG is told to
   # share them. It is a default of the wrapper and not a shell variable
-  # because not every launch passes through a shell: Kero restores a saved
-  # conversation by running `pi --session <id>` itself, and a shell-only
-  # variable would leave that restore looking in ~/.pig.
+  # because not every launch passes through a shell.
   postFixup = ''
     wrapProgram $out/bin/pig \
       --prefix PATH : ${runtimePath} \
       --set-default PIG_USE_PI_DIRS 1 \
       --set-default PI_SKIP_VERSION_CHECK 1
-
-    # Kero recognizes an agent pane by the name of its executable from a
-    # fixed list that holds "pi" and not "pig", and restores a saved pi
-    # conversation by running `pi --session <id>`. The alias keeps both
-    # working: it is the same binary, and pig takes the same arguments.
-    ln -s pig $out/bin/pi
   '';
 
   doInstallCheck = true;
