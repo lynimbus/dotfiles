@@ -1,8 +1,9 @@
 {
   lib,
-  stdenv,
+  stdenvNoCC,
   fetchurl,
   makeWrapper,
+  versionCheckHook,
   nodejs_22,
   fd,
   ripgrep,
@@ -23,7 +24,7 @@ let
     rtk
   ];
 in
-stdenv.mkDerivation {
+stdenvNoCC.mkDerivation {
   pname = "pig";
   inherit version;
 
@@ -79,7 +80,10 @@ stdenv.mkDerivation {
     ln -s pig $out/bin/pi
   '';
 
-  passthru.bump = [ ];
+  doInstallCheck = true;
+  nativeInstallCheckInputs = [ versionCheckHook ];
+
+  passthru.bump = [ "--build" ];
 
   meta = {
     description = "Pi rebuilt in Go as one native binary, running Pi's TypeScript extensions unchanged";

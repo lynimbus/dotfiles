@@ -40,13 +40,14 @@ let
     );
 
   call =
-    final: craneLib: name:
+    final: craneLib: buildMyGoApp: name:
     let
       file = ./pkgs + "/${name}.nix";
       fnArgs = builtins.functionArgs (import file);
       extra =
         lib.optionalAttrs (fnArgs ? repoRoot) { inherit repoRoot; }
-        // lib.optionalAttrs (fnArgs ? craneLib) { inherit craneLib; };
+        // lib.optionalAttrs (fnArgs ? craneLib) { inherit craneLib; }
+        // lib.optionalAttrs (fnArgs ? buildMyGoApp) { inherit buildMyGoApp; };
     in
     final.callPackage file extra;
 in
@@ -57,11 +58,12 @@ in
     final: _prev:
     let
       craneLib = mkCraneLib final;
+      buildMyGoApp = final.callPackage ./lib/build-mygo-app.nix { };
     in
     builtins.listToAttrs (
       map (name: {
         inherit name;
-        value = call final craneLib name;
+        value = call final craneLib buildMyGoApp name;
       }) names
     );
 }

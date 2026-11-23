@@ -5,7 +5,7 @@
   fetchurl,
   unzip,
   autoPatchelfHook,
-  patchelf,
+  patchelfUnstable,
   makeWrapper,
   wrapGAppsHook3,
   alsa-lib,
@@ -49,21 +49,11 @@ let
     inherit hash;
   };
 
-  # The release's two big binaries need different patchelf: 0.15.2, the
-  # version nixpkgs went back to in the 26.11 freeze, writes a --set-rpath into
-  # the ~77MB Go shell that leaves it dying with a bare SIGSEGV, while 0.19.2
-  # rewrites it cleanly; on the ~121MB node runtime it is the other way round.
-  # Neither version is wrong about ELF, they disagree about where a section
-  # table this large may be moved to. autoPatchelf is resolved by bare name
-  # from PATH, so both are callable and the shell is the one patched by hand.
+  # The release's two big binaries need different patchelf: 0.15.2 writes a
+  # --set-rpath into the ~77MB Go shell that leaves it dying with SIGSEGV,
+  # while patchelfUnstable (0.19.x) rewrites it cleanly; on the ~121MB node
+  # runtime it is the other way round. Both are invoked explicitly in postFixup.
   # The damage is silent, which is why the install check below is not optional.
-  patchelf-0-19 = patchelf.overrideAttrs (old: rec {
-    version = "0.19.2";
-    src = fetchurl {
-      url = "https://github.com/NixOS/patchelf/releases/download/${version}/patchelf-${version}.tar.bz2";
-      hash = "sha256-1K2aTlxongkRnOLzCpSw6LT5jHhZASPqIWZeNMaSiAE=";
-    };
-  });
 
   # The shell reaches GTK, WebKit and libsecret through cgo, so those land in
   # DT_NEEDED and autoPatchelfHook resolves them from buildInputs. The node
@@ -200,7 +190,7 @@ stdenvNoCC.mkDerivation {
     autoPatchelf -- $out
 
     install -Dm755 "$NIX_BUILD_TOP/$sourceRoot/alma" $out/lib/alma/alma
-    PATH=${patchelf-0-19}/bin:$PATH autoPatchelf --no-recurse -- $out/lib/alma/alma
+    PATH=${patchelfUnstable}/bin:$PATH autoPatchelf --no-recurse -- $out/lib/alma/alma
   '';
 
   doInstallCheck = true;
@@ -222,7 +212,7 @@ stdenvNoCC.mkDerivation {
     runHook postInstallCheck
   '';
 
-  passthru.bump = [ ];
+  passthru.bump = [ "--build" ];
 
   meta = {
     description = "Agent harness and GUI client for herdr, Claude Code, Codex and pi";

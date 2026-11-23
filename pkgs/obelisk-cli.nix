@@ -1,11 +1,12 @@
 {
   lib,
-  stdenv,
+  stdenvNoCC,
   fetchurl,
   makeWrapper,
   nodejs_22,
+  versionCheckHook,
   # The published npm tarball is the only source: it already carries the built
-  # dist/, so nothing is compiled here, and \`just bump obelisk\` moves the
+  # dist/, so nothing is compiled here, and `just bump obelisk-cli` moves the
   # version and its hash to the latest release together. The package declares no
   # runtime dependencies at all, which is why this is a plain fetchurl instead of
   # a node_modules build, and why the tarball is small enough to be the source of
@@ -14,7 +15,7 @@
   hash ? "sha256-W0xh6gjCFIJ6hwGTP4MeP+VRgwNi6NbJZ9HcXUFg0qk=",
 }:
 
-stdenv.mkDerivation {
+stdenvNoCC.mkDerivation {
   pname = "obelisk-cli";
   inherit version;
 
@@ -49,7 +50,10 @@ stdenv.mkDerivation {
     runHook postInstall
   '';
 
-  passthru.bump = [ ];
+  doInstallCheck = true;
+  nativeInstallCheckInputs = [ versionCheckHook ];
+
+  passthru.bump = [ "--build" ];
 
   meta = {
     description = "Index past coding-agent sessions into one local SQLite database, queryable by agents";

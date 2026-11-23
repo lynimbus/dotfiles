@@ -21,6 +21,7 @@ home=${NSH_HOME:-$HOME/.nsh}
 if [ ! -x "$home/bin/nsh" ] || [ "$(cat "$home/.nix-dist" 2>/dev/null || true)" != "$dist" ]; then
   if mkdir "$home.lock" 2>/dev/null; then
     tmp="$home.new.$$"
+    trap 'rm -rf "$tmp" "$home.lock"' EXIT INT TERM
     rm -rf "$tmp"
     cp -a "$dist" "$tmp"
     # The store copy is read-only; the mirror must be writable.
@@ -30,6 +31,7 @@ if [ ! -x "$home/bin/nsh" ] || [ "$(cat "$home/.nix-dist" 2>/dev/null || true)" 
     mv "$tmp" "$home"
     rm -rf "$home.old.$$"
     rmdir "$home.lock"
+    trap - EXIT INT TERM
   else
     # Another nsh is refreshing the mirror; wait for it to finish.
     while [ -d "$home.lock" ]; do sleep 0.2; done
