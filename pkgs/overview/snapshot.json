@@ -14,6 +14,7 @@
       "BLACKHOLE_PROXY": "http://host.docker.internal:7890",
       "EDITOR": "hx",
       "LOCALE_ARCHIVE_2_27": "/nix/store/r07rv0yib31ka9dd8wxli883y32lzs5n-glibc-locales-2.44-57/lib/locale/locale-archive",
+      "PI_SKIP_VERSION_CHECK": "1",
       "SCCACHE_CACHE_SIZE": "20G",
       "VISUAL": "hx"
     },
@@ -43,9 +44,9 @@
   "meta": {
     "homeManagerRev": "3b8140d",
     "hostname": "nixos",
-    "localCount": 21,
+    "localCount": 22,
     "nixpkgsRev": "2786a2a",
-    "packageCount": 121,
+    "packageCount": 123,
     "stateVersion": "26.05",
     "system": "x86_64-linux"
   },
@@ -372,7 +373,7 @@
         {
           "description": "Native MyGo desktop app that inspects what this NixOS flake installs and configures",
           "homepage": null,
-          "icon": "/nix/store/cr45q4b9nx6q3wjsc2wr5m55bwyf6p6s-overview-0.1.0/share/icons/hicolor/scalable/apps/overview.svg",
+          "icon": "/nix/store/a0d2mznrxxsc2r1y7n0bvm0mffqqirrm-overview-0.1.0/share/icons/hicolor/scalable/apps/overview.svg",
           "license": [
             "mit"
           ],
@@ -517,6 +518,19 @@
           "pname": "pig-swarm",
           "section": "local",
           "version": null
+        },
+        {
+          "description": "CLI proxy that shrinks the output of common dev commands before it reaches an LLM",
+          "homepage": "https://github.com/rtk-ai/rtk",
+          "icon": null,
+          "license": [
+            "asl20",
+            "bsl11"
+          ],
+          "local": true,
+          "pname": "rtk",
+          "section": "local",
+          "version": "1.2.1"
         },
         {
           "description": "Record a stray thought, then let a model group each day's records by theme",
@@ -685,6 +699,18 @@
           "pname": "kbd-backlight",
           "section": "cli",
           "version": null
+        },
+        {
+          "description": "Coding agent CLI with read, bash, edit, write tools and session management",
+          "homepage": "https://pi.dev",
+          "icon": null,
+          "license": [
+            "mit"
+          ],
+          "local": false,
+          "pname": "pi",
+          "section": "cli",
+          "version": "1.6.0"
         },
         {
           "description": "Inference of Meta's LLaMA model (and others) in pure C/C++, with Vulkan support",
@@ -1669,5 +1695,5 @@
     "python": "3.14.10",
     "zig": "0.17.1"
   },
-  "total": 121
+  "total": 123
 }
