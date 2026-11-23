@@ -1,13 +1,10 @@
 {
   config,
   inputs,
-  repoRoot,
+  liveFiles,
   ...
 }:
 
-let
-  repo = import ../../lib.nix { inherit config repoRoot; };
-in
 {
   imports = [
     inputs.mangowm.hmModules.mango
@@ -21,7 +18,7 @@ in
     "systemd/user/mango-session.target.wants/xdg-desktop-autostart.target".source =
       config.lib.file.mkOutOfStoreSymlink "/etc/systemd/user/xdg-desktop-autostart.target";
   }
-  // repo.liveFiles {
+  // liveFiles {
     from = "desktop/mango/conf";
     into = "mango";
     files = [

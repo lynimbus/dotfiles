@@ -1,13 +1,9 @@
 {
-  config,
   inputs,
-  repoRoot,
+  liveFiles,
   ...
 }:
 
-let
-  repo = import ../../lib.nix { inherit config repoRoot; };
-in
 {
   imports = [
     inputs.noctalia.homeModules.default
@@ -22,7 +18,7 @@ in
     gtk-theme = "adw-gtk3";
   };
 
-  xdg.configFile = repo.liveFiles {
+  xdg.configFile = liveFiles {
     from = "desktop/noctalia/templates";
     into = "noctalia/templates";
     files = [

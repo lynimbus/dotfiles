@@ -2,22 +2,13 @@
   inputs,
   lib,
   repoRoot,
+  sccache,
   username,
   ...
 }:
 
 {
   nix.registry.nixpkgs.flake = inputs.nixpkgs;
-
-  nixpkgs.config.allowUnfree = true;
-
-  # pkgs/nsh-android-sdk composes the SDK from Google's unfree packages; this
-  # accepts their license the way androidenv reads it (the same acceptance
-  # is in flake.nix's legacyPackages import, so `nix build .#nsh` paths agree
-  # with the system's).
-  nixpkgs.config.android_sdk.accept_license = true;
-
-  documentation.nixos.enable = false;
 
   programs.nh = {
     enable = true;
@@ -66,15 +57,15 @@
     # Expose the host's sccache directory to sandboxed builds (the trailing `?`
     # keeps builds working even before systemd-tmpfiles creates it).
     extra-sandbox-paths = [
-      "/var/cache/sccache?"
+      "${sccache.dir}?"
     ];
   };
 
-  # Share /var/cache/sccache between Nix's nixbld workers and the host user via
-  # setgid + default POSIX ACLs so files created by any UID stay writable by all.
+  # Share sccache between Nix's nixbld workers and the host user via setgid +
+  # default POSIX ACLs so files created by any UID stay writable by all.
   systemd.tmpfiles.rules = [
-    "d /var/cache/sccache 2770 root nixbld -"
-    "a+ /var/cache/sccache - - - - u:${username}:rwx,g:nixbld:rwx,m::rwx,d:u:${username}:rwx,d:g:nixbld:rwx,d:m::rwx"
+    "d ${sccache.dir} 2770 root nixbld -"
+    "a+ ${sccache.dir} - - - - u:${username}:rwx,g:nixbld:rwx,m::rwx,d:u:${username}:rwx,d:g:nixbld:rwx,d:m::rwx"
   ];
 
   # The daemon lowers its own scheduling class so a build cannot starve the

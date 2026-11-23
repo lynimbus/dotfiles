@@ -1,19 +1,24 @@
-{ pkgs, lib, ... }:
+{
+  pkgs,
+  lib,
+  sccache,
+  ...
+}:
 
 let
-  # Share /var/cache/sccache with Nix sandbox builds once systemd-tmpfiles has
-  # created it, falling back to ~/.cache/sccache beforehand so cargo never
-  # fails before the first switch.
+  # Share sccache with Nix sandbox builds once systemd-tmpfiles has created it,
+  # falling back to ~/.cache/sccache beforehand so cargo never fails before the
+  # first switch.
   sccacheWrapper = pkgs.writeShellScript "cargo-sccache-wrapper" ''
-    if [ -d /var/cache/sccache ] && [ -w /var/cache/sccache ]; then
-      export SCCACHE_DIR="/var/cache/sccache"
+    if [ -d ${sccache.dir} ] && [ -w ${sccache.dir} ]; then
+      export SCCACHE_DIR="${sccache.dir}"
     fi
     exec ${lib.getExe pkgs.sccache} "$@"
   '';
 in
 {
   home.sessionVariables = {
-    SCCACHE_CACHE_SIZE = "20G";
+    SCCACHE_CACHE_SIZE = sccache.cacheSize;
   };
 
   # Global Cargo defaults: cache every crate with sccache across projects and
