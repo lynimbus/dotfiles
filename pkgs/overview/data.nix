@@ -9,12 +9,13 @@
 let
   flake = builtins.getFlake (toString ../..);
   repoSrc = toString flake;
-  # The system the configuration builds for, read from the configuration rather
-  # than repeated here, so a second host or an arch change does not need an edit.
-  system = flake.nixosConfigurations.nixos.pkgs.stdenv.hostPlatform.system;
+  hostName = builtins.head (builtins.attrNames flake.nixosConfigurations);
+  nixos = flake.nixosConfigurations.${hostName};
+  system = nixos.pkgs.stdenv.hostPlatform.system;
   pkgs = flake.legacyPackages.${system};
-  home = flake.nixosConfigurations.nixos.config.home-manager.users.lynimbus;
-  systemConfig = flake.nixosConfigurations.nixos.config;
+  systemConfig = nixos.config;
+  userName = builtins.head (builtins.attrNames systemConfig.home-manager.users);
+  home = systemConfig.home-manager.users.${userName};
 
   hasPrefix =
     prefix: str:
@@ -166,7 +167,7 @@ let
 in
 {
   meta = {
-    hostname = "nixos";
+    hostname = hostName;
     inherit system;
     stateVersion = systemConfig.system.stateVersion;
     nixpkgsRev = flake.inputs.nixpkgs.shortRev or "unknown";
