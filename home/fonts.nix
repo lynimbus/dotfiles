@@ -1,7 +1,7 @@
 { ... }:
 
 let
-  fontDefaults = import ../defaults/fonts.nix;
+  fontDefaults = import ../lib/fonts.nix;
 in
 {
   # Steam's Pressure Vessel container shadows /etc/fonts and only reads

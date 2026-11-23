@@ -5,7 +5,7 @@
 designed around the tactile interaction language and warm palette of
 [Caramel Pudding](https://github.com/wave2234/caramel-pudding).
 
-It is packaged in [pkgs/overview.nix](../../pkgs/overview.nix) and installed
+It is packaged in [pkgs/overview.nix](../overview.nix) and installed
 into `home.packages`, replacing the old static HTML workflow:
 
 - Launches instantaneously from its embedded/cached snapshot, then silently
@@ -53,7 +53,7 @@ Following Caramel Pudding's rules (*where to use jelly vs. gooey adhesion*):
 ## Adding a package
 
 Adding a package to `home/packages.nix` (or enabling a `programs.*` module)
-requires zero manual edits in `docs/overview/`:
+requires zero manual edits in `pkgs/overview/`:
 
 1. `data.nix` classifies every package automatically from its derivation output
    and repo origin (`desktop`, `local`, `cli`, `libs`).

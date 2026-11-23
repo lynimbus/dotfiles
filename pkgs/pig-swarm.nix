@@ -10,7 +10,7 @@
   git,
 }:
 
-# The driver itself is docs/pig-swarm.sh, which also runs in-tree while it is being
+# The driver itself is pkgs/pig-swarm.sh, which also runs in-tree while it is being
 # worked on; this only puts it on PATH together with the tools it shells out to.
 # Those are prepended to PATH instead of replacing it, so the pig instances it
 # spawns still find rg, fd and the rest in the user's environment. git is here for
@@ -39,7 +39,7 @@ writeShellApplication {
   # The source starts with a #! line for in-tree use; writeShellApplication writes
   # its own, so the original would only survive as a stray comment.
   text = builtins.replaceStrings [ "#!/usr/bin/env bash\n" ] [ "" ] (
-    builtins.readFile ../docs/pig-swarm.sh
+    builtins.readFile ./pig-swarm.sh
   );
 
   meta = {

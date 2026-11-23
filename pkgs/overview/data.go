@@ -28,7 +28,7 @@ var embeddedAppIcon []byte
 //go:embed i18n/*.json
 var embeddedI18n embed.FS
 
-// Snapshot matches the JSON emitted by `nix eval --json -f docs/overview/data.nix`.
+// Snapshot matches the JSON emitted by `nix eval --json -f pkgs/overview/data.nix`.
 type Snapshot struct {
 	Meta      Meta              `json:"meta"`
 	Sections  []Section         `json:"sections"`
@@ -187,7 +187,7 @@ func loadInitialSnapshot(dataPath string) (*Snapshot, time.Time, bool, error) {
 	return snap, time.Time{}, false, nil
 }
 
-// resolveRepoRoot locates the dotfiles repository holding docs/overview/data.nix.
+// resolveRepoRoot locates the dotfiles repository holding pkgs/overview/data.nix.
 func resolveRepoRoot(explicit, builtIn string) string {
 	candidates := []string{explicit}
 	if cwd, err := os.Getwd(); err == nil {
@@ -203,17 +203,17 @@ func resolveRepoRoot(explicit, builtIn string) string {
 		if dir == "" {
 			continue
 		}
-		if st, err := os.Stat(filepath.Join(dir, "docs", "overview", "data.nix")); err == nil && !st.IsDir() {
+		if st, err := os.Stat(filepath.Join(dir, "pkgs", "overview", "data.nix")); err == nil && !st.IsDir() {
 			return dir
 		}
 	}
 	return builtIn
 }
 
-// evalFlakeSnapshot runs `nix eval --json -f docs/overview/data.nix` inside
+// evalFlakeSnapshot runs `nix eval --json -f pkgs/overview/data.nix` inside
 // repoRoot, validates the JSON, and persists it to the user cache.
 func evalFlakeSnapshot(ctx context.Context, repoRoot string) (*Snapshot, error) {
-	dataNix := filepath.Join(repoRoot, "docs", "overview", "data.nix")
+	dataNix := filepath.Join(repoRoot, "pkgs", "overview", "data.nix")
 	if _, err := os.Stat(dataNix); err != nil {
 		return nil, fmt.Errorf("cannot locate %s: %w", dataNix, err)
 	}

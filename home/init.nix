@@ -3,7 +3,7 @@
     ./core.nix
     ./fonts.nix
     ./packages.nix
-    ../defaults/mimeapps.nix
+    ./mimeapps.nix
 
     ./programs/fish.nix
     ./programs/git.nix

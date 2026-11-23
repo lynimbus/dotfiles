@@ -38,7 +38,7 @@
 
 set -uo pipefail
 
-# Inlined rather than sourced from docs/lib.sh: this file is also installed as a
+# Inlined rather than sourced from scripts/lib.sh: this file is also installed as a
 # standalone program by pkgs/pig-swarm.nix, where no sibling script is on disk.
 die() {
 	printf '%s: %s\n' "${0##*/}" "$*" >&2

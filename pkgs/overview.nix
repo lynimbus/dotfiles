@@ -53,14 +53,14 @@ let
   ];
 
   src = lib.fileset.toSource {
-    root = ../docs/overview;
+    root = ./overview;
     fileset = lib.fileset.unions [
-      ../docs/overview/go.mod
-      ../docs/overview/go.sum
-      ../docs/overview/snapshot.json
-      ../docs/overview/icon.svg
-      ../docs/overview/i18n
-      (lib.fileset.fileFilter (file: file.hasExt "go") ../docs/overview)
+      ./overview/go.mod
+      ./overview/go.sum
+      ./overview/snapshot.json
+      ./overview/icon.svg
+      ./overview/i18n
+      (lib.fileset.fileFilter (file: file.hasExt "go") ./overview)
     ];
   };
 in

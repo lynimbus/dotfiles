@@ -17,7 +17,7 @@ build:
 
 update:
     #!/usr/bin/env bash
-    . docs/lib.sh
+    . scripts/lib.sh
     github_token
     nix flake update
 
@@ -28,7 +28,7 @@ update:
 #   just bump            # every package that tracks a release
 #   just bump pig kero   # just those
 bump *pkgs:
-    docs/bump-packages.sh {{pkgs}}
+    scripts/bump-packages.sh {{pkgs}}
 
 check:
     nix flake check
@@ -37,7 +37,7 @@ check:
 # overlay.nix picks the file up as it is. version may be omitted.
 #   just scaffold https://github.com/owner/repo 1.2.3
 scaffold url version="":
-    docs/scaffold-package.sh "{{url}}" "{{version}}"
+    scripts/scaffold-package.sh "{{url}}" "{{version}}"
 
 # Drive the memo commands through record, digest and search, both failure paths included
 memo-verify:

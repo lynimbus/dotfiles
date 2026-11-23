@@ -1,7 +1,7 @@
 { pkgs, ... }:
 
 let
-  fontDefaults = import ../defaults/fonts.nix;
+  fontDefaults = import ../lib/fonts.nix;
 in
 {
   # Disable NixOS's default font set because it pulls in the CFF2 variable

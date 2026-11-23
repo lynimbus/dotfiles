@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Setup shared by the scripts under docs/. Sourced, not executed.
+# Setup shared by the scripts under scripts/. Sourced, not executed.
 
-docs_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+scripts_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck disable=SC2034 # both are read by the scripts that source this
-repo_dir="$(dirname "$docs_dir")"
+repo_dir="$(dirname "$scripts_dir")"
 
 # Without this nix, nix-init, and nix-update reach the GitHub API anonymously,
 # at 60 requests per hour per IP. Handing nix the gh token via NIX_CONFIG and

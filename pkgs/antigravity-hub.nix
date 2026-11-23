@@ -172,7 +172,7 @@ stdenv.mkDerivation {
   '';
 
   passthru = {
-    # The literal the URL is built from, read back by docs/bump-packages.sh so a
+    # The literal the URL is built from, read back by scripts/bump-packages.sh so a
     # build id is never replaced by matching a number it guesses at.
     inherit buildId;
 
