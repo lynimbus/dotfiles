@@ -17,12 +17,10 @@
                 plugin = "${pkgs.ladspaPlugins}/lib/ladspa/dyson_compress_1403.so"
                 label = dysonCompress
                 control = {
-                  "Input Gain" = 2.0
-                  "Threshold" = -18.0
-                  "Ratio" = 3.0
-                  "Attack Time" = 0.02
-                  "Release Time" = 0.2
-                  "Makeup Gain" = 3.0
+                  "Peak limit (dB)" = -6.0
+                  "Release time (s)" = 0.2
+                  "Fast compression ratio" = 0.6
+                  "Compression ratio" = 0.6
                 }
               }
               {
