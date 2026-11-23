@@ -1,13 +1,9 @@
 {
-  config,
   inputs,
-  repoRoot,
+  liveFiles,
   ...
 }:
 
-let
-  repo = import ../../lib.nix { inherit config repoRoot; };
-in
 {
   imports = [
     inputs.umbriel.homeModules.default
@@ -15,7 +11,7 @@ in
 
   programs.umbriel.enable = true;
 
-  xdg.configFile = repo.liveFiles {
+  xdg.configFile = liveFiles {
     from = "desktop/umbriel/conf";
     into = "umbriel";
     files = [

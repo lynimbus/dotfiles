@@ -38,4 +38,14 @@
       alsa-lib
     ];
   };
+
+  # Mount /usr/bin (and bind /bin) as a FUSE view of the calling process PATH
+  # so generic #!/usr/bin/* shebang scripts resolve without patching.
+  services.envfs.enable = true;
+
+  # AppImage runner for programs that ship their own complete root; steam-run
+  # is provided by programs.steam in system/gaming.nix.
+  environment.systemPackages = with pkgs; [
+    appimage-run
+  ];
 }

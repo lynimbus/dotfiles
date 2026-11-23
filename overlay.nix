@@ -5,6 +5,7 @@
   lib,
   repoRoot,
   crane,
+  sccache,
 }:
 let
   names = map (lib.removeSuffix ".nix") (
@@ -12,8 +13,8 @@ let
   );
 
   # Shared Crane library for local Rust derivations: link with mold and
-  # opportunistically enable sccache whenever /var/cache/sccache is mounted
-  # inside the sandbox, so failed or incremental rebuilds keep crate caches.
+  # opportunistically enable sccache whenever the shared cache directory is
+  # mounted inside the sandbox, so failed or incremental rebuilds keep crate caches.
   mkCraneLib =
     final:
     (crane.mkLib final).overrideScope (
@@ -26,10 +27,10 @@ let
             // {
               nativeBuildInputs = (args.nativeBuildInputs or [ ]) ++ [ final.sccache ];
               preBuild = ''
-                if [ -d /var/cache/sccache ] && [ -w /var/cache/sccache ]; then
+                if [ -d ${sccache.dir} ] && [ -w ${sccache.dir} ]; then
                   export RUSTC_WRAPPER="${lib.getExe final.sccache}"
-                  export SCCACHE_DIR="/var/cache/sccache"
-                  export SCCACHE_CACHE_SIZE="20G"
+                  export SCCACHE_DIR="${sccache.dir}"
+                  export SCCACHE_CACHE_SIZE="${sccache.cacheSize}"
                 fi
               ''
               + (args.preBuild or "");

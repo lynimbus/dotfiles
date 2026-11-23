@@ -1,37 +1,25 @@
 {
   imports = [
     ./hardware-configuration.nix
+    ./core.nix
     ./boot.nix
     ./boot-complete.nix
-    ./plymouth.nix
+    ./hardware.nix
+    ./audio.nix
+    ./fonts.nix
+    ./input-method.nix
     ./network.nix
     ./sing-box.nix
     ./docker.nix
     ./wireshark.nix
     ./ssh.nix
-    ./locale.nix
-    ./fonts.nix
-    ./input-method.nix
-    ./audio.nix
-    ./hardware.nix
     ./users.nix
     ./password-guard.nix
-    ./secrets.nix
     ./nix.nix
-    ./etc-overlay.nix
-    ./envfs.nix
-    ./nix-ld.nix
     ./comma.nix
-    ./fhs-compat.nix
+    ./compat.nix
     ./gaming.nix
-    ./packages.nix
-    ./linuxqq-wayland-fix.nix
-    ./desktop-umbriel.nix
-    ./desktop-mango.nix
-    ./desktop-noctalia.nix
-    ./greeter.nix
+    ./desktop.nix
     ./xdg.nix
   ];
-
-  system.stateVersion = "26.05";
 }

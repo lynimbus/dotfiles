@@ -77,10 +77,35 @@
 
       sshKey = "${homeDirectory}/.ssh/id_ed25519";
 
+      # Shared across overlay.nix (Crane builds), system/nix.nix (Nix sandbox
+      # mount + tmpfiles ACLs), and home/programs/rust.nix (Cargo wrapper).
+      sccache = {
+        dir = "/var/cache/sccache";
+        cacheSize = "20G";
+      };
+
       local = import ./overlay.nix {
-        inherit repoRoot;
+        inherit repoRoot sccache;
         lib = nixpkgs.lib;
         crane = inputs.crane;
+      };
+
+      # Single source of truth for nixpkgs config and overlays shared between
+      # legacyPackages/packages (fast per-package eval and nix-update) and the
+      # NixOS module fixpoint.
+      nixpkgsConfig = {
+        allowUnfree = true;
+        android_sdk.accept_license = true;
+      };
+
+      overlays = [
+        local.overlay
+        inputs.magpie-releases.overlays.default
+      ];
+
+      pkgs = import nixpkgs {
+        inherit system overlays;
+        config = nixpkgsConfig;
       };
 
       # One set of arguments for the system and the home modules, so a value
@@ -94,49 +119,46 @@
           homeDirectory
           repoRoot
           sshKey
+          sccache
           ;
       };
     in
     {
+      # Direct local packages so `nix build .#<pkg>` works for any derivation in
+      # pkgs/ (excluding non-derivation compositions such as nsh-android-sdk).
+      packages.${system} = nixpkgs.lib.filterAttrs (_: nixpkgs.lib.isDerivation) (
+        builtins.listToAttrs (
+          map (name: {
+            inherit name;
+            value = pkgs.${name};
+          }) local.names
+        )
+      );
+
       # nix-update rewrites a package through this attribute path, and
       # `nix build .#legacyPackages.${system}.<pkg>` builds one package on its
-      # own. It is deliberately not the nixosConfigurations pkgs set: that one
-      # hangs off the module fixpoint and is slow to evaluate per package.
-      # allowUnfree mirrors system/nix.nix, or the BSL package (rtk)
-      # would fail checkMeta here.
-      legacyPackages.${system} =
-        import nixpkgs {
-          inherit system;
-          config.allowUnfree = true;
-          # Mirrors system/nix.nix: the Android SDK packages nsh-android-sdk
-          # composes are unfree and gated on this acceptance.
-          config.android_sdk.accept_license = true;
-          overlays = [
-            local.overlay
-            inputs.magpie-releases.overlays.default
-          ];
-        }
-        // {
-          # Per package, the nix-update flags its file declares in
-          # passthru.bump, or null for a package that does not track a release of
-          # its own. scripts/bump-packages.sh runs from this, so adding a package
-          # never means editing the script.
-          bumpMatrix = builtins.listToAttrs (
-            map (name: {
-              inherit name;
-              value = self.legacyPackages.${system}.${name}.passthru.bump or null;
-            }) local.names
-          );
-        };
+      # own without evaluating the full NixOS module fixpoint.
+      legacyPackages.${system} = pkgs // {
+        # Per package, the nix-update flags its file declares in passthru.bump,
+        # or null for a package that does not track a release of its own.
+        # scripts/bump-packages.sh reads this, so adding a package never means
+        # editing the script.
+        bumpMatrix = builtins.listToAttrs (
+          map (name: {
+            inherit name;
+            value = pkgs.${name}.passthru.bump or null;
+          }) local.names
+        );
+      };
 
       nixosConfigurations.${hostname} = nixpkgs.lib.nixosSystem {
         specialArgs = moduleArgs;
         modules = [
           {
-            nixpkgs.overlays = [
-              local.overlay
-              inputs.magpie-releases.overlays.default
-            ];
+            nixpkgs = {
+              config = nixpkgsConfig;
+              inherit overlays;
+            };
           }
           inputs.nixos-hardware.nixosModules.mechrevo-gm5hg0a
           inputs.mangowm.nixosModules.mango

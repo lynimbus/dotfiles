@@ -1,14 +1,10 @@
 {
-  config,
-  repoRoot,
+  liveFiles,
   ...
 }:
 
-let
-  repo = import ../../lib.nix { inherit config repoRoot; };
-in
 {
-  xdg.dataFile = repo.liveFiles {
+  xdg.dataFile = liveFiles {
     from = "desktop/fcitx5/rime";
     into = "fcitx5/rime";
     files = [

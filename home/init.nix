@@ -1,4 +1,21 @@
+{ config, repoRoot, ... }:
+
 {
+  # Shared out-of-store symlink helper for desktop configs kept editable without
+  # rebuilding, passed to every Home Manager module without relative imports.
+  _module.args.liveFiles =
+    {
+      from,
+      into,
+      files,
+    }:
+    builtins.listToAttrs (
+      map (file: {
+        name = "${into}/${file}";
+        value.source = config.lib.file.mkOutOfStoreSymlink "${repoRoot}/home/${from}/${file}";
+      }) files
+    );
+
   imports = [
     ./core.nix
     ./fonts.nix
