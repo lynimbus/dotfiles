@@ -46,10 +46,7 @@ in
   ];
 
   systemd.user.services.hy-mt2-server = {
-    Unit = {
-      Description = "Local Hy-MT2-1.8B translation server (llama.cpp Vulkan)";
-      After = [ "network-online.target" ];
-    };
+    Unit.Description = "Local Hy-MT2-1.8B translation server (llama.cpp Vulkan)";
     Service = {
       ExecStart = "${hyMtServer}/bin/hy-mt2-server";
       Restart = "on-failure";

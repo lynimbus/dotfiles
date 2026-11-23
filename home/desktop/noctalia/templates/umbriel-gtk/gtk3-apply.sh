@@ -7,13 +7,15 @@ gtk_css="$config_dir/gtk-3.0/gtk.css"
 mkdir -p "$(dirname "$gtk_css")"
 touch "$gtk_css"
 
+tmp=""
+trap 'rm -f "$tmp"' EXIT
+
 for import_line in '@import url("colors.css");' '@import url("colors-extras.css");'; do
     if grep -qxF "$import_line" "$gtk_css"; then
         continue
     fi
 
     tmp="$(mktemp "${gtk_css}.tmp.XXXXXX")"
-    trap 'rm -f "$tmp"' EXIT
 
     awk -v imp="$import_line" '
         BEGIN { inserted = 0 }
@@ -33,6 +35,8 @@ for import_line in '@import url("colors.css");' '@import url("colors-extras.css"
     ' "$gtk_css" >"$tmp"
 
     cat "$tmp" >"$gtk_css"
+    rm -f "$tmp"
+    tmp=""
 done
 
 # Ask GTK to re-read its user stylesheet so running apps pick up the new colors.

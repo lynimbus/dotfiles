@@ -91,7 +91,6 @@ literal_padding=$padding
 [ "$literal_padding" -lt 0 ] && literal_padding=$vertical_inset
 [ "$literal_padding" -lt "$corner_inset" ] && literal_padding=$corner_inset
 # GTK3 按钮取最小尺寸。
-diameter=$diameter
 [ "$diameter" -lt 8 ] && diameter=8
 # 按钮间距跟随 umbriel：偶数右比左多 1px（gap=8 → 左1右2），奇数左右相等（gap=9 → 左2右2）。
 base=$(( gap / 2 - 3 ))
