@@ -7,13 +7,15 @@ gtk_css="$config_dir/gtk-4.0/gtk.css"
 mkdir -p "$(dirname "$gtk_css")"
 touch "$gtk_css"
 
+tmp=""
+trap 'rm -f "$tmp"' EXIT
+
 for import_line in '@import url("umbriel.css");' '@import url("umbriel-extras.css");'; do
     if grep -qxF "$import_line" "$gtk_css"; then
         continue
     fi
 
     tmp="$(mktemp "${gtk_css}.tmp.XXXXXX")"
-    trap 'rm -f "$tmp"' EXIT
 
     # Insert before the first real rule so the @import stays at the top of the file.
     awk -v imp="$import_line" '
@@ -34,6 +36,8 @@ for import_line in '@import url("umbriel.css");' '@import url("umbriel-extras.cs
     ' "$gtk_css" >"$tmp"
 
     cat "$tmp" >"$gtk_css"
+    rm -f "$tmp"
+    tmp=""
 done
 
 # Ask GTK to re-read its user stylesheet so running apps pick up the new colors.

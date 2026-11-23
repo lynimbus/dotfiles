@@ -36,6 +36,7 @@ in
     else
       cp "${ownedSettings}" "$merged"
     fi
+    $DRY_RUN_CMD mkdir -p "$(dirname "$target")"
     $DRY_RUN_CMD install -m 0644 "$merged" "$target"
     rm -f "$merged"
   '';

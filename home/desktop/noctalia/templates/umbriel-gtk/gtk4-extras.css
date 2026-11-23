@@ -72,11 +72,11 @@ button:not(.close):not(.maximize):not(.minimize) {
 }
 
 box list:first-child {
-  border-radius: __DARKLY_OUTLINE_WIDTH__px --__DARKLY_OUTLINE_WIDTH__px 0 0;
+  border-radius: __DARKLY_CORNER_RADIUS__px __DARKLY_CORNER_RADIUS__px 0 0;
 }
 
 box list:last-child {
-  border-radius: 0 0 __DARKLY_OUTLINE_WIDTH__px --__DARKLY_OUTLINE_WIDTH__px;
+  border-radius: 0 0 __DARKLY_CORNER_RADIUS__px __DARKLY_CORNER_RADIUS__px;
 }
 
 headerbar button:not(.close):not(.maximize):not(.minimize):not(.text-button):hover {

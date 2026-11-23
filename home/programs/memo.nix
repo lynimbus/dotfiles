@@ -8,6 +8,7 @@ let
     name = "memo";
     runtimeInputs = with pkgs; [
       coreutils
+      gawk
       gnugrep
       gnused
       findutils
@@ -27,19 +28,8 @@ let
   # without readline. There `read -e` silently degrades to a raw read: the tty
   # erases one byte per Backspace, which mangles a Chinese character, and
   # Ctrl-H is recorded as text instead of deleting. Keep the generated body --
-  # its PATH setup and shellcheck -- and swap only the shebang for a bash that
-  # can edit a line.
-  editable = pkgs.runCommandLocal "memo-editable" { } ''
-    mkdir -p $out/bin
-    {
-      printf '#!%s\n' "${pkgs.bashInteractive}/bin/bash"
-      tail -n +2 ${script}/bin/memo
-    } > $out/bin/memo
-    chmod +x $out/bin/memo
-  '';
-
-  # runCommandLocal names the derivation but leaves pname unset, and the
-  # overview page reads pname to shelve a package.
+  # its PATH setup and shellcheck -- swap only the shebang for bashInteractive,
+  # and expose all three entrypoints on one derivation with pname set for overview.
   memo =
     pkgs.runCommandLocal "memo"
       {
@@ -48,9 +38,13 @@ let
       }
       ''
         mkdir -p $out/bin
-        for name in memo memo-digest memo-read; do
-          ln -s ${editable}/bin/memo $out/bin/$name
-        done
+        {
+          printf '#!%s\n' "${pkgs.bashInteractive}/bin/bash"
+          tail -n +2 ${script}/bin/memo
+        } > $out/bin/memo
+        chmod +x $out/bin/memo
+        ln -s memo $out/bin/memo-digest
+        ln -s memo $out/bin/memo-read
       '';
 in
 {
