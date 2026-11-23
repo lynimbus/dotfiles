@@ -171,8 +171,9 @@ else
   sed -i -e '0,/^  meta = {/s//  passthru.bump = [ ];\n\n  meta = {/' "$pkg"
 fi
 
-mv "$pkg" "pkgs/$name.nix"
+mv -f "$pkg" "pkgs/$name.nix"
 rm -rf "$work"
+nixfmt "pkgs/$name.nix"
 
 echo
 echo "wrote pkgs/$name.nix; overlay.nix picks it up as it is."

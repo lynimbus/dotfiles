@@ -10,7 +10,7 @@
     ],
     "inputMethod": "fcitx5",
     "sessionVariables": {
-      "ANDROID_HOME": "/nix/store/qgl41ydysg61mq6apnndfayx620pgv44-androidsdk/libexec/android-sdk",
+      "ANDROID_HOME": "/nix/store/mmi1vzhrp0d42w8njip0bjmypww5ivyb-androidsdk/libexec/android-sdk",
       "BLACKHOLE_PROXY": "http://host.docker.internal:7890",
       "EDITOR": "hx",
       "LOCALE_ARCHIVE_2_27": "/nix/store/r07rv0yib31ka9dd8wxli883y32lzs5n-glibc-locales-2.44-57/lib/locale/locale-archive",
@@ -21,8 +21,7 @@
     "userServices": [
       "hourly-chime",
       "hy-mt2-server",
-      "memo-digest",
-      "polkit-gnome"
+      "memo-digest"
     ],
     "userTimers": [
       "hourly-chime",
@@ -42,11 +41,11 @@
     ]
   },
   "meta": {
-    "homeManagerRev": "2b13c9c",
+    "homeManagerRev": "3b8140d",
     "hostname": "nixos",
-    "localCount": 22,
-    "nixpkgsRev": "0490633",
-    "packageCount": 113,
+    "localCount": 21,
+    "nixpkgsRev": "2786a2a",
+    "packageCount": 121,
     "stateVersion": "26.05",
     "system": "x86_64-linux"
   },
@@ -136,7 +135,6 @@
           ]
         },
         "git": {
-          "colocate": false,
           "private-commits": "description(glob:'wip:*') | description(glob:'private:*')"
         },
         "revset-aliases": {
@@ -180,16 +178,28 @@
       "id": "desktop",
       "items": [
         {
+          "description": "Luciole, a native Wayland file manager using Noctalia rendering and controls (in development)",
+          "homepage": "https://github.com/noctalia-dev/luciole",
+          "icon": "/nix/store/2iimnjk51p1nh83pf7r5w4yqp3pcnf0r-luciole-0.1.0/share/icons/hicolor/scalable/apps/dev.noctalia.luciole.svg",
+          "license": [
+            "mit"
+          ],
+          "local": false,
+          "pname": "luciole",
+          "section": "desktop",
+          "version": "0.1.0"
+        },
+        {
           "description": "A sleek, customizable desktop shell crafted for Wayland.",
           "homepage": "https://github.com/noctalia-dev/noctalia",
-          "icon": "/nix/store/nvrwsdrwdrmsbddfprng19i9h06ywznd-noctalia-5.5.0/share/icons/hicolor/scalable/apps/noctalia.svg",
+          "icon": "/nix/store/zcw80145niywmdbrj0jf7kns76pr91g3-noctalia-5.6.0/share/icons/hicolor/scalable/apps/noctalia.svg",
           "license": [
             "mit"
           ],
           "local": false,
           "pname": "noctalia",
           "section": "desktop",
-          "version": "5.5.0"
+          "version": "5.6.0"
         },
         {
           "description": "A Wayland compositor built on wlroots",
@@ -216,16 +226,16 @@
           "version": "nightly"
         },
         {
-          "description": "Local gateway that picks the model for each AI coding agent",
+          "description": "Pick the model each AI coding agent on your machine uses",
           "homepage": "https://usemagpie.ai/",
-          "icon": "/nix/store/ybi4gkwax2jrhc9j6ar57qwn01lkhvlz-magpie-0.1.4563/share/icons/hicolor/256x256/apps/magpie.png",
+          "icon": "/nix/store/0j3b7qyz3jyf2rik8sfgv46hjj1ican2-magpie-0.1.4705/share/icons/hicolor/scalable/apps/magpie.svg",
           "license": [
             "mit"
           ],
-          "local": true,
+          "local": false,
           "pname": "magpie",
           "section": "desktop",
-          "version": "0.1.4563"
+          "version": "0.1.4705"
         },
         {
           "description": "Visual diff and merge tool",
@@ -242,31 +252,31 @@
         {
           "description": "Fork of Firefox, focused on privacy, security and freedom",
           "homepage": "https://librewolf.net/",
-          "icon": "/nix/store/1wr6m6kda3wfh2dciss7csaz4qq82ag0-librewolf-160.0-1/share/icons/hicolor/128x128/apps/librewolf.png",
+          "icon": "/nix/store/fnr3kffdz9hhgwh3zlgncawwsi56zalw-librewolf-160.0.1-1/share/icons/hicolor/128x128/apps/librewolf.png",
           "license": [
             "mpl20"
           ],
           "local": false,
           "pname": "librewolf",
           "section": "desktop",
-          "version": "160.0-1"
+          "version": "160.0.1-1"
         },
         {
           "description": "Open source web browser from Google, with dependencies on Google web services removed",
           "homepage": "https://github.com/ungoogled-software/ungoogled-chromium",
-          "icon": "/nix/store/8nnhl6h7rrsmvypzrg8klawk3wvm6839-ungoogled-chromium-157.0.8103.78/share/icons/hicolor/256x256/apps/chromium.png",
+          "icon": "/nix/store/jfzyljfjs2d6n31lljnz59vqr6w04lrj-ungoogled-chromium-158.0.8127.36/share/icons/hicolor/256x256/apps/chromium.png",
           "license": [
             "bsd3"
           ],
           "local": false,
           "pname": "ungoogled-chromium",
           "section": "desktop",
-          "version": "157.0.8103.78"
+          "version": "158.0.8127.36"
         },
         {
           "description": "Desktop Telegram client with good customization and Ghost mode",
           "homepage": "https://github.com/AyuGram/AyuGramDesktop",
-          "icon": "/nix/store/20zlrhn08iygrgavb9inqwc7p3i1r3mi-ayugram-desktop-7.2.9/share/icons/hicolor/256x256/apps/com.ayugram.desktop.png",
+          "icon": "/nix/store/jxspxy3lzbcr70nc4yf3x5hdw5madbs5-ayugram-desktop-7.2.9/share/icons/hicolor/256x256/apps/com.ayugram.desktop.png",
           "license": [
             "gpl3Only"
           ],
@@ -288,18 +298,6 @@
           "version": "4.1.1.7"
         },
         {
-          "description": "File manager for GNOME",
-          "homepage": "https://apps.gnome.org/Nautilus/",
-          "icon": "/nix/store/lavjq9zw900k4s0l4rxralx2dyvxghkm-nautilus-51.1/share/icons/hicolor/scalable/apps/org.gnome.Nautilus.svg",
-          "license": [
-            "gpl3Plus"
-          ],
-          "local": false,
-          "pname": "nautilus",
-          "section": "desktop",
-          "version": "51.1"
-        },
-        {
           "description": "Archive manager for the GNOME desktop environment",
           "homepage": "https://gitlab.gnome.org/GNOME/file-roller",
           "icon": "/nix/store/w4sih0g7z9fjjqipjybbxr7wyf6lcrll-file-roller-44.7/share/icons/hicolor/scalable/apps/org.gnome.FileRoller.Devel.svg",
@@ -314,7 +312,7 @@
         {
           "description": "Native terminal for coding agents, whose sessions outlive the window",
           "homepage": "https://github.com/egoist/kero",
-          "icon": "/nix/store/g65ymwv0w3xim7iwi6kmxy608sg6sj96-kero-2.1.36/share/icons/hicolor/256x256/apps/kero.png",
+          "icon": "/nix/store/f06xid80zn4351hz46672k7p0kpc7vdz-kero-2.1.36/share/icons/hicolor/256x256/apps/kero.png",
           "license": [
             "mit"
           ],
@@ -326,19 +324,31 @@
         {
           "description": "Agent harness and GUI client for herdr, Claude Code, Codex and pi",
           "homepage": "https://alma.now",
-          "icon": "/nix/store/0222kv6wngqyjp6sn99hb0njf13x4ysd-alma-0.4.869/share/icons/hicolor/256x256/apps/alma.png",
+          "icon": "/nix/store/jv77s2hzhq34srq9bgqazh6vgy2s2pgn-alma-0.4.1044/share/icons/hicolor/256x256/apps/alma.png",
           "license": [
             "unfree"
           ],
           "local": true,
           "pname": "alma",
           "section": "desktop",
-          "version": "0.4.869"
+          "version": "0.4.1044"
+        },
+        {
+          "description": "Minimal web GUI for coding agents",
+          "homepage": "https://t3.codes",
+          "icon": "/nix/store/ia6pqbzp86s4qqz2g9jv78cvkz37srga-t3code-0.1.11/share/icons/hicolor/scalable/apps/t3code.svg",
+          "license": [
+            "mit"
+          ],
+          "local": true,
+          "pname": "t3code",
+          "section": "desktop",
+          "version": "0.1.11"
         },
         {
           "description": "Native music player for your own files and the streaming accounts you sign in to",
           "homepage": "https://github.com/egoist/mygo-music",
-          "icon": "/nix/store/n7ara8jvj1gn7f5g4dgyhy1gjhpb98l6-mygo-music-0.1.25/share/icons/hicolor/256x256/apps/mygo-music.png",
+          "icon": "/nix/store/s8yzjxyqg35407l3bk9pay5nij3n8azf-mygo-music-0.1.25/share/icons/hicolor/256x256/apps/mygo-music.png",
           "license": [
             "agpl3Only"
           ],
@@ -350,19 +360,19 @@
         {
           "description": "Code editor that draws its own UI on the GPU, with tabs, splits, plugins and a Vim mode",
           "homepage": "https://github.com/sorrycc/Mayoi",
-          "icon": "/nix/store/lkjmimnahq9snqj8ib9m2vlm8qpdc5a6-mayoi-0.23.0/share/icons/hicolor/256x256/apps/mayoi.png",
+          "icon": "/nix/store/ladxp5xk16c7jbxgp1ykmp2sa0lvaiz6-mayoi-0.23.2/share/icons/hicolor/256x256/apps/mayoi.png",
           "license": [
             "mit"
           ],
           "local": true,
           "pname": "mayoi",
           "section": "desktop",
-          "version": "0.23.0"
+          "version": "0.23.2"
         },
         {
           "description": "Native MyGo desktop app that inspects what this NixOS flake installs and configures",
           "homepage": null,
-          "icon": "/nix/store/pddjr4zph2lwbqv5m8kq341jp46nkprr-overview-0.1.0/share/icons/hicolor/scalable/apps/overview.svg",
+          "icon": "/nix/store/cr45q4b9nx6q3wjsc2wr5m55bwyf6p6s-overview-0.1.0/share/icons/hicolor/scalable/apps/overview.svg",
           "license": [
             "mit"
           ],
@@ -387,19 +397,79 @@
         {
           "description": "Desktop environment for managing multiple autonomous agents across independent projects",
           "homepage": "https://antigravity.google",
-          "icon": "/nix/store/0nxym97d5aw1lzz95slj7gxxqx8yab24-antigravity-hub-2.33.0/share/icons/hicolor/512x512/apps/antigravity.png",
+          "icon": "/nix/store/g08dds3xq1zigqgfv4xmg19j0l0kqh05-antigravity-hub-2.34.0/share/icons/hicolor/512x512/apps/antigravity.png",
           "license": [
             "unfree"
           ],
           "local": true,
           "pname": "antigravity-hub",
           "section": "desktop",
-          "version": "2.33.0"
+          "version": "2.34.0"
+        },
+        {
+          "description": "Native GOG, Epic, and Amazon Games Launcher for Linux, Windows and Mac",
+          "homepage": "https://heroicgameslauncher.com/",
+          "icon": "/nix/store/8fibq74ivaa77brfja8pw3q8ajbj749d-heroic-2.22.4/share/icons/hicolor/scalable/apps/com.heroicgameslauncher.hgl.svg",
+          "license": [
+            "gpl3Only"
+          ],
+          "local": false,
+          "pname": "heroic",
+          "section": "desktop",
+          "version": "2.22.4"
+        },
+        {
+          "description": "Open Source gaming platform for GNU/Linux",
+          "homepage": "https://lutris.net",
+          "icon": "/nix/store/pv78fq24nksyvw59f54m0bbmpb1sydpw-lutris-0.5.22/share/icons/hicolor/scalable/apps/net.lutris.Lutris.svg",
+          "license": [
+            "gpl3Plus"
+          ],
+          "local": false,
+          "pname": "lutris",
+          "section": "desktop",
+          "version": "0.5.22"
+        },
+        {
+          "description": "Simple Wine and Proton-based compatibility tools manager",
+          "homepage": "https://github.com/Vysp3r/ProtonPlus",
+          "icon": "/nix/store/sv5vq9plz139arzq7a157zrai85hvzqp-protonplus-0.6.8/share/icons/hicolor/256x256/apps/com.vysp3r.ProtonPlus.png",
+          "license": [
+            "gpl3Only"
+          ],
+          "local": false,
+          "pname": "protonplus",
+          "section": "desktop",
+          "version": "0.6.8"
+        },
+        {
+          "description": "Open Source implementation of the Windows API on top of X, OpenGL, and Unix (with staging patches)",
+          "homepage": "https://www.winehq.org/",
+          "icon": null,
+          "license": [
+            "lgpl21Plus"
+          ],
+          "local": false,
+          "pname": "wine-wow64-staging",
+          "section": "desktop",
+          "version": "11.21"
+        },
+        {
+          "description": "Script to install DLLs needed to work around problems in Wine",
+          "homepage": "https://github.com/Winetricks/winetricks",
+          "icon": "/nix/store/2p4fm5lwgb7nqblq8rgmw67l711dn32i-winetricks-20260125/share/icons/hicolor/scalable/apps/winetricks.svg",
+          "license": [
+            "lgpl21"
+          ],
+          "local": false,
+          "pname": "winetricks",
+          "section": "desktop",
+          "version": "20260125"
         },
         {
           "description": "Dex to Java decompiler",
           "homepage": "https://github.com/skylot/jadx",
-          "icon": "/nix/store/6a4b0a8chaia74p4mabv1wacp18i7hpc-jadx-1.5.6/share/icons/hicolor/256x256/apps/jadx.png",
+          "icon": "/nix/store/zgc55ax3nx295if56swvx20972x6m71d-jadx-1.5.6/share/icons/hicolor/256x256/apps/jadx.png",
           "license": [
             "asl20"
           ],
@@ -426,16 +496,6 @@
     {
       "id": "local",
       "items": [
-        {
-          "description": null,
-          "homepage": null,
-          "icon": null,
-          "license": [],
-          "local": true,
-          "pname": "screenshot",
-          "section": "local",
-          "version": null
-        },
         {
           "description": "Pi rebuilt in Go as one native binary, running Pi's TypeScript extensions unchanged",
           "homepage": "https://github.com/MichaelKinsy/PiG",
@@ -488,7 +548,7 @@
           "local": true,
           "pname": "dolt",
           "section": "local",
-          "version": "2.7.5"
+          "version": "2.7.6"
         },
         {
           "description": "Index past coding-agent sessions into one local SQLite database, queryable by agents",
@@ -512,7 +572,7 @@
           "local": true,
           "pname": "antigravity-cli",
           "section": "local",
-          "version": "1.5.12"
+          "version": "1.5.14"
         },
         {
           "description": "Terminals for coding agents that stay alive after you leave (hc)",
@@ -524,7 +584,7 @@
           "local": true,
           "pname": "herdr-core",
           "section": "local",
-          "version": "0.1.21"
+          "version": "0.1.22"
         },
         {
           "description": "Run Claude Code in a Linux container with only the current project mounted",
@@ -570,9 +630,9 @@
             "asl20"
           ],
           "local": true,
-          "pname": "nsh-0.5.1",
+          "pname": "nsh",
           "section": "local",
-          "version": null
+          "version": "0.5.1"
         },
         {
           "description": "Open-source static analysis engine (Semgrep fork) with no login and no telemetry",
@@ -660,7 +720,7 @@
           "local": false,
           "pname": "delta",
           "section": "cli",
-          "version": "0.20.1"
+          "version": "0.21.2"
         },
         {
           "description": "Vim text editor fork focused on extensibility and agility",
@@ -757,7 +817,7 @@
           "local": false,
           "pname": "gh",
           "section": "cli",
-          "version": "2.104.0"
+          "version": "2.105.0"
         },
         {
           "description": "TUI for Jujutsu VCS",
@@ -928,18 +988,6 @@
           "version": "3.0.2"
         },
         {
-          "description": "Day/night gamma adjustments for Wayland",
-          "homepage": "https://sr.ht/~kennylevinsen/wlsunset/",
-          "icon": null,
-          "license": [
-            "mit"
-          ],
-          "local": false,
-          "pname": "wlsunset",
-          "section": "cli",
-          "version": "0.4.0"
-        },
-        {
           "description": "Command-line copy/paste utilities for Wayland",
           "homepage": "https://github.com/bugaevc/wl-clipboard",
           "icon": null,
@@ -962,6 +1010,54 @@
           "pname": "tmux",
           "section": "cli",
           "version": "3.8"
+        },
+        {
+          "description": "Vulkan and OpenGL overlay for monitoring FPS, temperatures, CPU/GPU load and more",
+          "homepage": "https://github.com/flightlessmango/MangoHud",
+          "icon": "/nix/store/7zx52awyg9hkhyzb9cv9iqjjnvzzrb1h-mangohud-0.8.4/share/icons/hicolor/scalable/apps/io.github.flightlessmango.mangohud.svg",
+          "license": [
+            "mit"
+          ],
+          "local": false,
+          "pname": "mangohud",
+          "section": "cli",
+          "version": "0.8.4"
+        },
+        {
+          "description": "Unified launcher for Windows games on Linux using the Steam Linux Runtime and Tools",
+          "homepage": "https://github.com/Open-Wine-Components/umu-launcher",
+          "icon": null,
+          "license": [
+            "gpl3"
+          ],
+          "local": false,
+          "pname": "umu-launcher",
+          "section": "cli",
+          "version": "1.4.4"
+        },
+        {
+          "description": "Khronos official Vulkan Tools and Utilities",
+          "homepage": "https://github.com/KhronosGroup/Vulkan-Tools",
+          "icon": null,
+          "license": [
+            "asl20"
+          ],
+          "local": false,
+          "pname": "vulkan-tools",
+          "section": "cli",
+          "version": "1.4.363.0"
+        },
+        {
+          "description": "Collection of demos and test programs for OpenGL and Mesa",
+          "homepage": "https://www.mesa3d.org/",
+          "icon": null,
+          "license": [
+            "mit"
+          ],
+          "local": false,
+          "pname": "mesa-demos",
+          "section": "cli",
+          "version": "9.0.0"
         },
         {
           "description": "Compressor/archiver for creating and modifying zipfiles",
@@ -1312,7 +1408,7 @@
           "local": false,
           "pname": "rust-analyzer",
           "section": "cli",
-          "version": "2026-11-09"
+          "version": "2026-11-16"
         },
         {
           "description": "Rust toolchain installer",
@@ -1384,7 +1480,7 @@
           "local": false,
           "pname": "ast-grep",
           "section": "cli",
-          "version": "0.51.2"
+          "version": "0.51.3"
         },
         {
           "description": "Source code spell checker",
@@ -1573,5 +1669,5 @@
     "python": "3.14.10",
     "zig": "0.17.1"
   },
-  "total": 113
+  "total": 121
 }

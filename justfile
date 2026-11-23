@@ -22,24 +22,38 @@ update:
     nix flake update
 
 # Move the packages in pkgs/ that track an upstream release to that release's
-# latest version. The package file itself declares the version and hash
-# literals and the nix-update flags it needs (passthru.bump), so nothing here
-# knows which package needs what.
+# latest version. Each package declares its own nix-update flags in passthru.bump.
 #   just bump            # every package that tracks a release
 #   just bump pig kero   # just those
 bump *pkgs:
     scripts/bump-packages.sh {{pkgs}}
 
+# Format all Nix files with nixfmt-tree.
+fmt:
+    nix fmt
+
+# Run flake checks (formatting, shellcheck, package invariants, overview tests, NixOS eval).
 check:
     nix flake check
 
+# Refresh the embedded fallback snapshot shipped inside the overview desktop app.
+# Write to a temp file first so nix eval (which builds overview to inspect its
+# outPath) never reads a half-truncated snapshot.json.
+snapshot:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    tmp="$(mktemp)"
+    trap 'rm -f "$tmp"' EXIT
+    nix eval --json -f pkgs/overview/data.nix | jq . > "$tmp"
+    mv -f "$tmp" pkgs/overview/snapshot.json
+
 # Generate a package with nix-init and land it in pkgs/ in this repo's shape;
-# overlay.nix picks the file up as it is. version may be omitted.
+# overlay.nix picks the file up automatically. version may be omitted.
 #   just scaffold https://github.com/owner/repo 1.2.3
 scaffold url version="":
     scripts/scaffold-package.sh "{{url}}" "{{version}}"
 
-# Drive the memo commands through record, digest and search, both failure paths included
+# Drive the memo commands through record, digest and search, both failure paths included.
 memo-verify:
     bash home/programs/memo-verify.sh
 

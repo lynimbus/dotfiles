@@ -179,6 +179,62 @@
         ];
       };
 
+      checks.${system} =
+        let
+          pkgDerivations = self.packages.${system};
+          invariantFailures = builtins.concatMap (
+            name:
+            let
+              drv = pkgDerivations.${name};
+              bump = drv.passthru.bump or null;
+              src = drv.src or null;
+              isFetchUrl = src != null && (src ? url) && !(src ? rev) && !(src ? tag);
+              pos = (drv.meta or { }).position or "";
+              expectedPos = "/pkgs/${name}.nix:";
+            in
+            nixpkgs.lib.optional ((drv.pname or drv.name or "") == "") "${name}: missing pname/name"
+            ++ nixpkgs.lib.optional (
+              (drv.version or null) != null && (drv.pname or "") == ""
+            ) "${name}: versioned derivation must set pname"
+            ++ nixpkgs.lib.optional (
+              ((drv.meta or { }).description or "") == ""
+            ) "${name}: missing meta.description"
+            ++ nixpkgs.lib.optional (
+              bump != null && !(nixpkgs.lib.hasInfix expectedPos pos)
+            ) "${name}: meta.position (${pos}) must point into pkgs/${name}.nix for nix-update"
+            ++ nixpkgs.lib.optional (
+              bump != null && isFetchUrl && !(builtins.elem "--build" bump)
+            ) "${name}: fetchurl package with passthru.bump must include \"--build\""
+          ) (builtins.attrNames pkgDerivations);
+        in
+        {
+          formatting = pkgs.runCommandLocal "check-formatting" { nativeBuildInputs = [ pkgs.nixfmt ]; } ''
+            find ${self} -name '*.nix' -print0 | xargs -0 nixfmt --check
+            touch $out
+          '';
+
+          shellcheck = pkgs.runCommandLocal "check-shellcheck" { nativeBuildInputs = [ pkgs.shellcheck ]; } ''
+            cd ${self}
+            find scripts pkgs home -name '*.sh' -print0 | xargs -0 shellcheck
+            touch $out
+          '';
+
+          pkg-invariants = pkgs.runCommandLocal "check-pkg-invariants" { } (
+            if invariantFailures == [ ] then
+              "touch $out"
+            else
+              ''
+                cat >&2 <<'EOF'
+                Package invariant check failed:
+                ${nixpkgs.lib.concatStringsSep "\n" invariantFailures}
+                EOF
+                exit 1
+              ''
+          );
+
+          overview = pkgs.overview;
+        };
+
       formatter.${system} = nixpkgs.legacyPackages.${system}.nixfmt-tree;
     };
 }

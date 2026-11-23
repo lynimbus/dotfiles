@@ -175,7 +175,6 @@
   },
   "descriptions": {
     "kbd-backlight": "Keyboard backlight key action, shared by both desktop keybinding files",
-    "screenshot": "Region screenshot through grim and slurp, annotated in satty and copied to the clipboard",
     "overview": "Native MyGo desktop app that inspects what this NixOS flake installs and configures"
   }
 }
