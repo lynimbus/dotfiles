@@ -1,6 +1,6 @@
 {
   lib,
-  stdenv,
+  stdenvNoCC,
   fetchurl,
   versionCheckHook,
   # The release asset is the only source: `just bump opengrep` (nix-update)
@@ -22,7 +22,7 @@
 # run, which had to be pre-unpacked at build time; if a future bump brings
 # that shape back, `patchelf --print-interpreter` on the asset tells you
 # immediately (`patchelf: cannot find section '.interp'` is the static case).
-stdenv.mkDerivation {
+stdenvNoCC.mkDerivation {
   pname = "opengrep";
   inherit version;
 
@@ -46,7 +46,7 @@ stdenv.mkDerivation {
   doInstallCheck = true;
   nativeInstallCheckInputs = [ versionCheckHook ];
 
-  passthru.bump = [ ];
+  passthru.bump = [ "--build" ];
 
   meta = {
     description = "Open-source static analysis engine (Semgrep fork) with no login and no telemetry";

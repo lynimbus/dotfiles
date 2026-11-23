@@ -1,11 +1,7 @@
 {
   lib,
   repoRoot,
-  buildGoModule,
-  go_1_27,
-  autoPatchelfHook,
-  makeWrapper,
-  wrapGAppsHook3,
+  buildMyGoApp,
   makeDesktopItem,
   copyDesktopItems,
   at-spi2-atk,
@@ -30,8 +26,6 @@
 let
   version = "0.1.0";
 
-  # mygo loads these through purego/dlopen at runtime rather than DT_NEEDED,
-  # so they must live on the binary's rpath via runtimeDependencies.
   runtimeLibs = map lib.getLib [
     at-spi2-atk
     at-spi2-core
@@ -64,34 +58,21 @@ let
     ];
   };
 in
-(buildGoModule.override { go = go_1_27; }) {
+buildMyGoApp {
   pname = "overview";
-  inherit version src;
-
+  inherit
+    version
+    src
+    runtimeLibs
+    ;
   vendorHash = "sha256-TNAiiIsSkFQGvPr8d2lLVALjWrzS0ElRcgo2rl4zwMU=";
-
-  subPackages = [ "." ];
-
-  ldflags = [
-    "-s"
-    "-w"
-    "-X github.com/egoist/mygo.production=1"
-    "-X github.com/egoist/mygo.packageName=Overview"
-    "-X github.com/egoist/mygo.packageVersion=${version}"
-    "-X github.com/egoist/mygo.packageIdentifier=dev.lynimbus.overview"
+  packageName = "Overview";
+  packageIdentifier = "dev.lynimbus.overview";
+  extraLdflags = [
     "-X main.appVersion=${version}"
     "-X main.defaultRepoRoot=${repoRoot}"
   ];
-
-  nativeBuildInputs = [
-    autoPatchelfHook
-    copyDesktopItems
-    makeWrapper
-    wrapGAppsHook3
-  ];
-
-  buildInputs = runtimeLibs;
-  runtimeDependencies = runtimeLibs;
+  extraNativeBuildInputs = [ copyDesktopItems ];
 
   # Headless ui.NewTester unit tests run with real Pango/Cairo text shaping
   # during the build so layout and overflow regressions are caught immediately.
@@ -103,8 +84,6 @@ in
     export XDG_CONFIG_HOME="$TMPDIR/config"
     mkdir -p "$XDG_CACHE_HOME" "$XDG_CONFIG_HOME"
   '';
-
-  dontWrapGApps = true;
 
   desktopItems = [
     (makeDesktopItem {
@@ -127,10 +106,6 @@ in
     mkdir -p $out/lib/overview
     mv $out/bin/overview $out/lib/overview/overview
     install -Dm644 ${src}/icon.svg $out/share/icons/hicolor/scalable/apps/overview.svg
-  '';
-
-  preFixup = ''
-    makeWrapper $out/lib/overview/overview $out/bin/overview "''${gappsWrapperArgs[@]}"
   '';
 
   doInstallCheck = true;

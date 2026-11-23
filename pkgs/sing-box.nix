@@ -1,12 +1,12 @@
 {
   lib,
-  stdenv,
+  stdenvNoCC,
   fetchurl,
   autoPatchelfHook,
   coreutils,
   glibc,
   libgcc,
-  patchelf,
+  patchelfUnstable,
   versionCheckHook,
   # sing-box's unstable channel is upstream's GitHub prereleases (alpha/beta/rc
   # tags), and every tag carries prebuilt tarballs for each platform; this takes
@@ -27,38 +27,14 @@
   # holds libm and other glibc parts). The musl variant is fully static but has
   # no libcronet.so, which drops the naive outbound, so it is not used.
   #
-  # A second patchelf, 0.19.2, is pinned below because nixpkgs reverted
-  # "patchelf: 0.15.2 -> 0.19.2" in 61a15beb37 on 2026-10-30 (nixpkgs#577387,
-  # the 26.11 freeze): the default patchelf went back to 0.15.2 and 0.19.x was
-  # left as patchelfUnstable. 0.15.2's --set-rpath corrupts this ~79MB Go PIE
-  # binary: --set-interpreter alone is fine, and a --set-rpath right after it
-  # leaves the binary segfaulting with no output, while the same two steps with
-  # 0.19.2 work (three years of ELF-rewriting fixes between 0.16 and 0.19.2).
-  # auto-patchelf.py and patchelf's own shrink-rpath hook both resolve a bare
-  # patchelf from PATH, and patchelf is not among autoPatchelfHook's inputs: it
-  # arrives from stdenv's default nativeBuildInputs as 0.15.2. So 0.19.2 is
-  # pinned as patchelf-0-19 and put first on PATH in preFixup. A corrupted binary
-  # fails silently: versionCheckPhase gets empty output and reports "Did not find
-  # version". Once nixpkgs defaults to a patchelf with the fix (or offers a
-  # cleaner override point), this pin and the preFixup go away together.
+  # patchelf 0.15.2's --set-rpath corrupts this ~79MB Go PIE binary (leaving it
+  # segfaulting with no output); nixpkgs provides 0.19.x as patchelfUnstable,
+  # put first on PATH in preFixup ahead of shrink-rpath and autoPatchelfHook.
   version ? "1.15.0-alpha.13",
   hash ? "sha256-v8OfZDpezBtwLFcj/2YuYd3oE/ErOvDQz85PYp/3QEc=",
 }:
 
-let
-  # The expression nixpkgs had before the revert (a release tarball); the hash is
-  # the sha256 of that download, as in that expression. The current nixpkgs
-  # patchelf carries an empty patch list, so overrideAttrs needs nothing else.
-  patchelf-0-19 = patchelf.overrideAttrs (old: rec {
-    version = "0.19.2";
-    src = fetchurl {
-      url = "https://github.com/NixOS/patchelf/releases/download/${version}/patchelf-${version}.tar.bz2";
-      hash = "sha256-1K2aTlxongkRnOLzCpSw6LT5jHhZASPqIWZeNMaSiAE=";
-    };
-  });
-in
-
-stdenv.mkDerivation {
+stdenvNoCC.mkDerivation {
   pname = "sing-box";
   inherit version;
 
@@ -85,7 +61,7 @@ stdenv.mkDerivation {
   # autoPatchelfPostFixup, so putting the pinned 0.19.2 first on PATH here
   # covers the whole fixup.
   preFixup = ''
-    export PATH="${patchelf-0-19}/bin:$PATH"
+    export PATH="${patchelfUnstable}/bin:$PATH"
   '';
 
   dontConfigure = true;

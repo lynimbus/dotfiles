@@ -21,11 +21,8 @@
   gdk-pixbuf,
   shared-mime-info,
   gsettings-desktop-schemas,
-  # Rust the launcher falls back to when the app builds its own runner and no
-  # cargo is on PATH (rustup wins if it is; the runner build of an app with
-  # Rust code calls cargo). Everything the build resolves is in this list, so
-  # the fallback works without a dev shell.
-  rustc,
+  # Rust cargo the launcher falls back to when an app builds its own runner and
+  # no cargo is on PATH (rustup wins if present).
   cargo,
   version ? "0.5.1",
   rev ? "224d9a795c7ac9d10d75750de9351adac5549675",
@@ -206,6 +203,9 @@ in
 # the distribution's compile.
 runCommand "nsh-${version}"
   {
+    pname = "nsh";
+    inherit version;
+
     passthru = {
       inherit distribution runnerEnv;
     };

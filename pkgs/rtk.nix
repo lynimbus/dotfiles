@@ -1,7 +1,8 @@
 {
   lib,
-  stdenv,
+  stdenvNoCC,
   fetchurl,
+  versionCheckHook,
   # The release tarball is the only source: `just bump rtk` (nix-update)
   # moves the version and its hash to the latest release together.
   #
@@ -27,7 +28,7 @@
 let
   archive = "rtk-${archiveSuffix}.tar.gz";
 in
-stdenv.mkDerivation {
+stdenvNoCC.mkDerivation {
   pname = "rtk";
   inherit version;
 
@@ -51,7 +52,13 @@ stdenv.mkDerivation {
     runHook postInstall
   '';
 
-  passthru.bump = [ "--use-github-releases" ];
+  doInstallCheck = true;
+  nativeInstallCheckInputs = [ versionCheckHook ];
+
+  passthru.bump = [
+    "--use-github-releases"
+    "--build"
+  ];
 
   meta = {
     description = "CLI proxy that shrinks the output of common dev commands before it reaches an LLM";

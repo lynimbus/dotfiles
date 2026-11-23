@@ -1,6 +1,6 @@
 {
   lib,
-  stdenv,
+  stdenvNoCC,
   fetchurl,
   versionCheckHook,
   # The version and the archive hash come from the same release tag;
@@ -18,16 +18,15 @@ let
       x86_64-linux = "linux-amd64";
       aarch64-linux = "linux-arm64";
     }
-    .${stdenv.hostPlatform.system}
-      or (throw "dolt: no release asset for ${stdenv.hostPlatform.system}");
+    .${stdenvNoCC.hostPlatform.system}
+      or (throw "dolt: no release asset for ${stdenvNoCC.hostPlatform.system}");
 in
-stdenv.mkDerivation {
+stdenvNoCC.mkDerivation {
   pname = "dolt";
   inherit version;
 
   # The linux asset is statically linked, so it runs from the store as it is
-  # and needs neither patchelf nor an ICU build input. nixpkgs still carries
-  # dolt 2.5.0, below the 2.6.0 floor that `gt install` and `gt doctor` enforce.
+  # and needs neither patchelf nor an ICU build input.
   src = fetchurl {
     url = "https://github.com/dolthub/dolt/releases/download/v${version}/dolt-${asset}.tar.gz";
     inherit hash;

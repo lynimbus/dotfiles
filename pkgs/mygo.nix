@@ -2,7 +2,7 @@
   lib,
   buildGoModule,
   fetchFromGitHub,
-  go_1_27,
+  go,
   makeWrapper,
   versionCheckHook,
   bun,
@@ -24,7 +24,7 @@ let
     inherit hash;
   };
 in
-(buildGoModule.override { go = go_1_27; }) {
+buildGoModule {
   pname = "mygo";
   inherit version;
 
@@ -45,13 +45,9 @@ in
   # smoke below covers the CLI running at all.
   doCheck = false;
 
-  # mygo dev and mygo build run `go` and `bun` as subprocesses. The go on
-  # PATH is a minor behind what mygo and the apps it scaffolds ask for, and
-  # the build's GOTOOLCHAIN=local means the toolchain on PATH is the only one
-  # they get, so the wrapper puts the go the module names there itself, and
-  # bun with it, which the web template's `bun install` and `bun run` need.
-  # go is a forbidden reference in a go build by default, allowed here because
-  # the tool exists to run it.
+  # mygo dev and mygo build run `go` and `bun` as subprocesses, so put both on
+  # PATH directly. go is a forbidden reference in a go build by default, allowed
+  # here because the tool exists to run it.
   allowGoReference = true;
 
   nativeBuildInputs = [ makeWrapper ];
@@ -59,7 +55,7 @@ in
   postInstall = ''
     wrapProgram $out/bin/mygo --prefix PATH : ${
       lib.makeBinPath [
-        go_1_27
+        go
         bun
       ]
     }
