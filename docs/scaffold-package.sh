@@ -24,9 +24,7 @@
 #
 # The skeleton only guarantees that it evaluates and that a bump can rewrite
 # it. The build phases and meta.description stay for whoever knows the project:
-# nix-init has no installer to invent for anything that is not a compiled
-# language, and leaves an empty skeleton there (magpie, a TypeScript app that
-# runs its bundle with bun, is that case).
+# nix-init has no installer to invent for non-compiled or prebuilt releases.
 set -euo pipefail
 # shellcheck source=docs/lib.sh
 source "$(dirname "$0")/lib.sh"
