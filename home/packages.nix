@@ -13,7 +13,6 @@ in
     neovim
     helix
     ripgrep
-    fzf
     jq
     just
     nvd

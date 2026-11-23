@@ -9,7 +9,6 @@
   home.packages = with pkgs; [
     meld
     difftastic
-    delta
   ];
 
   programs.jujutsu = {

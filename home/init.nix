@@ -27,6 +27,7 @@
     ./programs/jujutsu.nix
     ./programs/ssh.nix
     ./programs/direnv.nix
+    ./programs/fzf.nix
     ./programs/zoxide.nix
     ./programs/yazi.nix
     ./programs/ghostty.nix
