@@ -28,5 +28,6 @@
     ./desktop/mango/default.nix
     ./desktop/noctalia/default.nix
     ./desktop/luciole/default.nix
+    ./desktop/fcitx5/default.nix
   ];
 }
