@@ -35,8 +35,8 @@
 # nix-update fetches that version, so it is written first.
 #
 # Usage:
-#   docs/bump-packages.sh              # every package that tracks a release
-#   docs/bump-packages.sh pig kero     # just those
+#   scripts/bump-packages.sh              # every package that tracks a release
+#   scripts/bump-packages.sh pig kero     # just those
 #
 # A failed rewrite can leave a half-updated file, version written and hash not.
 # The run compares pkgs/ before and after each package and says whether that
@@ -79,7 +79,7 @@
 #     empty diff succeed makes nix-update fall through to replace_version and
 #     re-fetch every src and dependency hash for an unchanged package. See the
 #     git shim below.
-# shellcheck source=docs/lib.sh
+# shellcheck source=scripts/lib.sh
 source "$(dirname "$0")/lib.sh"
 cd "$repo_dir" || exit 1
 

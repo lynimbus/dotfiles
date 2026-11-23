@@ -4,7 +4,7 @@
 #
 #   - version and the hashes (vendorHash, cargoHash, ...) become function
 #     arguments with default values, and the literals in the body become
-#     inherit of those arguments. docs/bump-packages.sh drives nix-update over
+#     inherit of those arguments. scripts/bump-packages.sh drives nix-update over
 #     the file, and nix-update rewrites either form, but a parameter is what
 #     makes the value overridable and shows that it belongs to the release tag.
 #   - nix-update-script is dropped: bumping runs through nix-update --flake and
@@ -20,17 +20,17 @@
 #     that directory into an attribute, so nothing else needs wiring.
 #
 # Usage:
-#   docs/scaffold-package.sh https://github.com/owner/repo [version]
+#   scripts/scaffold-package.sh https://github.com/owner/repo [version]
 #
 # The skeleton only guarantees that it evaluates and that a bump can rewrite
 # it. The build phases and meta.description stay for whoever knows the project:
 # nix-init has no installer to invent for non-compiled or prebuilt releases.
 set -euo pipefail
-# shellcheck source=docs/lib.sh
+# shellcheck source=scripts/lib.sh
 source "$(dirname "$0")/lib.sh"
 cd "$repo_dir" || exit 1
 
-url="${1:?usage: docs/scaffold-package.sh <url> [version]}"
+url="${1:?usage: scripts/scaffold-package.sh <url> [version]}"
 version="${2:-}"
 
 github_token

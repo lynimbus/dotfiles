@@ -119,7 +119,7 @@
         // {
           # Per package, the nix-update flags its file declares in
           # passthru.bump, or null for a package that does not track a release of
-          # its own. docs/bump-packages.sh runs from this, so adding a package
+          # its own. scripts/bump-packages.sh runs from this, so adding a package
           # never means editing the script.
           bumpMatrix = builtins.listToAttrs (
             map (name: {

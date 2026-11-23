@@ -91,8 +91,8 @@ in
     imagemagick
     poppler
 
-    # Development toolchain. nix-init and nix-update are what docs/
-    # scaffold-package.sh and docs/bump-packages.sh drive, so they have to be on
+    # Development toolchain. nix-init and nix-update are what scripts/
+    # scaffold-package.sh and scripts/bump-packages.sh drive, so they have to be on
     # PATH where those scripts run.
     nix-init
     nix-update

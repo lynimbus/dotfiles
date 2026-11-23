@@ -47,7 +47,7 @@ stdenv.mkDerivation {
   nativeInstallCheckInputs = [ versionCheckHook ];
 
   # nix-update cannot enumerate a Maven repository, so the bump hands it the
-  # version instead: docs/bump-packages.sh reads this index and passes the
+  # version instead: scripts/bump-packages.sh reads this index and passes the
   # newest stable version as a fixed --version. --build reruns
   # versionCheckHook, so a bump that lands on a jar whose r8 --version does
   # not match fails here rather than at switch time.
