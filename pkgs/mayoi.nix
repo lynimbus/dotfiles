@@ -5,11 +5,11 @@
   fetchurl,
   # The release archive supplies icons, mayoi.desktop, and libghostty-vt.so.
   # `just bump mayoi` (nix-update --custom-dep tarball) moves all hashes together.
-  version ? "0.23.2",
-  hash ? "sha256-CvPEX53MGLl0PFalUjUXg1sQj/weTaWVJJBt6IxrDT8=",
+  version ? "0.23.4",
+  hash ? "sha256-HsSehFevRb1UFc+k4NmEOjxryJzNSJDzeaBwixkASDs=",
   archiveSuffix ? "linux-amd64",
-  archiveHash ? "sha256-rg5N3Kl1gL/nkTCGUjhCFkj+f10KQLsq7F0rzOvOXjg=",
-  vendorHash ? "sha256-983V5VXFVDi2NCPBdgjAk6Sxe4XUL8wIdN0aObM9V1k=",
+  archiveHash ? "sha256-/0OhUx+1tgHA2grDV3H89b2UwU7JxXHZ9U/JP/cFm8w=",
+  vendorHash ? "sha256-JVgp+X+k0KG+poaejlsSR27Ci2eppboEFF1lORkMDYM=",
 }:
 
 let
