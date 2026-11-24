@@ -319,6 +319,22 @@
         "type": "github"
       }
     },
+    "nixpkgs-darwin-x64_2": {
+      "locked": {
+        "lastModified": 1795387764,
+        "narHash": "sha256-c2VS34FJxgjfNbfKgh837LzPzx9S2FXTez+Th1iKDZ8=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "f0b41a99f28c34ffeaff61d4b419afff0516a923",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixpkgs-26.05-darwin",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "nixpkgs-lib": {
       "locked": {
         "lastModified": 1782614948,
@@ -495,6 +511,7 @@
         "noctalia": "noctalia",
         "noctalia-greeter": "noctalia-greeter",
         "pi": "pi",
+        "t3code-jj": "t3code-jj",
         "umbriel": "umbriel"
       }
     },
@@ -548,6 +565,27 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default-linux",
+        "type": "github"
+      }
+    },
+    "t3code-jj": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "nixpkgs-darwin-x64": "nixpkgs-darwin-x64_2"
+      },
+      "locked": {
+        "lastModified": 1795536568,
+        "narHash": "sha256-JXWd5h/Jr4UaQgpEuVKCJzejQcE4O0JF31EkWGMRnOs=",
+        "owner": "lynimbus",
+        "repo": "t3code-jj",
+        "rev": "81ed1aa7ab04d9a2719e77c210b04aa06eeb7db9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "lynimbus",
+        "repo": "t3code-jj",
         "type": "github"
       }
     },

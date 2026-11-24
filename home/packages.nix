@@ -59,7 +59,6 @@ in
     file-roller
     kero
     alma
-    t3code
     mygo-music
     mayoi
     overview

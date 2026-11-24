@@ -36,6 +36,7 @@
     ./programs/memo.nix
     ./programs/pig.nix
     ./programs/magpie.nix
+    ./programs/t3code-jj.nix
     ./programs/blackhole.nix
     ./programs/nsh.nix
     ./programs/rust.nix

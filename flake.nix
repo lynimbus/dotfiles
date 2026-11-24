@@ -62,6 +62,11 @@
       url = "github:earendil-works/pi";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    t3code-jj = {
+      url = "github:lynimbus/t3code-jj";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
