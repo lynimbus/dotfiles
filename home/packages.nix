@@ -23,6 +23,7 @@ in
     obelisk-cli
     antigravity-cli
     herdr-core
+    agent-purge
     # Claude Code in a container that mounts nothing but the directory it is
     # started in. The package supplies both names, `blackhole` and `claude`;
     # the engine it talks to is system/docker.nix.
