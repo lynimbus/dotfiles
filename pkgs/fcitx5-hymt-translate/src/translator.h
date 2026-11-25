@@ -26,6 +26,10 @@ struct TranslationResult {
 /// Return true if UTF-8 input contains at least one CJK ideograph.
 bool containsChinese(std::string_view text);
 
+/// Return true if a committed string should be captured into the phrase buffer.
+bool shouldBufferCommit(std::string_view currentBuffer,
+                        std::string_view committed);
+
 /// Remove the last UTF-8 codepoint from a string in place.
 void popLastUtf8Char(std::string &text);
 

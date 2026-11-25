@@ -94,6 +94,17 @@ bool containsChinese(std::string_view text) {
     return false;
 }
 
+bool shouldBufferCommit(std::string_view currentBuffer,
+                        std::string_view committed) {
+    if (committed.empty()) {
+        return false;
+    }
+    if (currentBuffer.empty() && trimWhitespace(committed).empty()) {
+        return false;
+    }
+    return true;
+}
+
 void popLastUtf8Char(std::string &text) {
     if (text.empty()) {
         return;

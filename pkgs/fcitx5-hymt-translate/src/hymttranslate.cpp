@@ -470,7 +470,11 @@ void HyMtTranslateEngine::onKeyEvent(KeyEvent &event) {
         if (norm.check(Key(FcitxKey_Return)) ||
             norm.check(Key(FcitxKey_KP_Enter))) {
             event.filterAndAccept();
-            triggerCommitTranslation(ic, state, state->sentenceBuffer);
+            if (hymt::containsChinese(state->sentenceBuffer)) {
+                triggerCommitTranslation(ic, state, state->sentenceBuffer);
+            } else {
+                commitTextBypass(ic, state->sentenceBuffer, false);
+            }
             return;
         }
         if (norm.check(Key(FcitxKey_Return, KeyState::Shift)) ||
@@ -533,13 +537,10 @@ void HyMtTranslateEngine::onCommitFilter(InputContext *ic, std::string &orig) {
         return;
     }
 
-    // Hold Chinese commits (and follow-up punctuation/mixed English once a
-    // sentence buffer is active) inside the per-IC buffer so phrase-by-phrase
-    // typing assembles one coherent sentence before translating.
-    if (state->sentenceBuffer.empty() && !hymt::containsChinese(orig)) {
-        return;
-    }
-    if (orig.empty()) {
+    // Hold committed text (including leading English letters/words and
+    // punctuation) inside the per-IC buffer so phrase-by-phrase typing
+    // assembles one coherent sentence before translating.
+    if (!hymt::shouldBufferCommit(state->sentenceBuffer, orig)) {
         return;
     }
 

@@ -13,6 +13,14 @@ int main() {
     assert(!containsChinese("hello world 123!"));
     assert(!containsChinese(""));
 
+    assert(shouldBufferCommit("", "a"));
+    assert(shouldBufferCommit("", "Rust"));
+    assert(shouldBufferCommit("", "你好"));
+    assert(!shouldBufferCommit("", ""));
+    assert(!shouldBufferCommit("", "   \t\n"));
+    assert(shouldBufferCommit("a", " "));
+    assert(shouldBufferCommit("你好", "world"));
+
     std::string buf = "今天a好";
     popLastUtf8Char(buf);
     assert(buf == "今天a");
