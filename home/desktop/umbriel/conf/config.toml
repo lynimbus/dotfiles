@@ -339,6 +339,8 @@ match.app_id = [
   "^moe\\.launcher",
   "\\.exe$",
   "^mpv$",
+  "^org\\.kde\\.haruna$",
+  "^haruna$",
 ]
 default_workspace = "4entertainment"
 

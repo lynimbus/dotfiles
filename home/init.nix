@@ -31,6 +31,7 @@
     ./programs/zoxide.nix
     ./programs/yazi.nix
     ./programs/ghostty.nix
+    ./programs/mpv.nix
     ./programs/hourly-chime.nix
     ./programs/hy-mt2.nix
     ./programs/memo.nix

@@ -64,6 +64,8 @@ in
     overview
     obs-studio
     qbittorrent-enhanced
+    # GUI over libmpv; mpv itself and its config live in home/programs/mpv.nix.
+    haruna
     antigravity-hub
 
     # Gaming launchers, compatibility layers, and diagnostics.

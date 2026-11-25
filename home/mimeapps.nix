@@ -18,6 +18,20 @@
       "application/x-bittorrent" = [ "org.qbittorrent.qBittorrent.desktop" ];
       "x-scheme-handler/magnet" = [ "org.qbittorrent.qBittorrent.desktop" ];
 
+      # haruna: double-clicking a video opens the GUI player; mpv itself is the
+      # CLI and keeps its own desktop entry for "Open with".
+      "video/mp4" = [ "org.kde.haruna.desktop" ];
+      "video/mp2t" = [ "org.kde.haruna.desktop" ];
+      "video/mpeg" = [ "org.kde.haruna.desktop" ];
+      "video/ogg" = [ "org.kde.haruna.desktop" ];
+      "video/quicktime" = [ "org.kde.haruna.desktop" ];
+      "video/vnd.avi" = [ "org.kde.haruna.desktop" ];
+      "video/webm" = [ "org.kde.haruna.desktop" ];
+      "video/x-flv" = [ "org.kde.haruna.desktop" ];
+      "video/x-matroska" = [ "org.kde.haruna.desktop" ];
+      "video/x-ms-wmv" = [ "org.kde.haruna.desktop" ];
+      "video/x-msvideo" = [ "org.kde.haruna.desktop" ];
+
       # luciole
       "inode/directory" = [ "dev.noctalia.luciole.desktop" ];
 
