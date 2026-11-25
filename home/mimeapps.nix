@@ -14,6 +14,10 @@
       "x-scheme-handler/http" = [ "chromium-browser.desktop" ];
       "x-scheme-handler/https" = [ "chromium-browser.desktop" ];
 
+      # qbittorrent
+      "application/x-bittorrent" = [ "org.qbittorrent.qBittorrent.desktop" ];
+      "x-scheme-handler/magnet" = [ "org.qbittorrent.qBittorrent.desktop" ];
+
       # luciole
       "inode/directory" = [ "dev.noctalia.luciole.desktop" ];
 

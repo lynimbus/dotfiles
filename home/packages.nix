@@ -63,6 +63,7 @@ in
     mayoi
     overview
     obs-studio
+    qbittorrent-enhanced
     antigravity-hub
 
     # Gaming launchers, compatibility layers, and diagnostics.
