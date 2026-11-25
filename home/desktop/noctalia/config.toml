@@ -53,7 +53,7 @@ border_width = 1.0
 fill = "surface_container"
 foreground = "on_surface"
 id = "status"
-members = ["volume", "tray", "notifications", "wallpaper_depth", "control-center"]
+members = ["volume", "tray", "notifications"]
 opacity = 0.88
 padding = 10.0
 
@@ -438,9 +438,15 @@ visualization = "none"
 [widget.tray]
 detached_panel = true
 drawer = true
-
-[widget.wallpaper_depth]
-type = "noctalia/wallpaper_depth:bar"
+pinned = [
+    "qq",
+    "AyuGramDesktop",
+    "MyGo Music",
+    "Antigravity",
+    "kero-kero",
+    "magpie",
+    "wechat",
+]
 
 [widget.workspaces]
 active_pill_size = 2.4
