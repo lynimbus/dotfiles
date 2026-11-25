@@ -5,8 +5,8 @@
   versionCheckHook,
   # The version and the archive hash come from the same release tag;
   # "just bump dolt" (nix-update) rewrites these literals together.
-  version ? "2.7.6",
-  hash ? "sha256-Akeb9X88RsRsT2l36UjVboj17l8qc9qCJufrwxA5Y54=",
+  version ? "2.7.7",
+  hash ? "sha256-CH07yk+M3mEoG+5FH2AYv1L1Z0VPV4oUkznvkfRmvZI=",
 }:
 
 let
