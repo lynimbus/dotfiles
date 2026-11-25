@@ -5,8 +5,8 @@
   versionCheckHook,
   # The release asset is the only source: `just bump opengrep` (nix-update)
   # moves the version and its hash to the latest release together.
-  version ? "2.0.0",
-  hash ? "sha256-N+k/TaX9BKGMXB/rvdEvfpjfzNTQyc8lk7yyXutGLaA=",
+  version ? "2.1.0",
+  hash ? "sha256-1qaKhMAaPY7pM/YIR97PG00P13kaJoM7MrlZIrryiXQ=",
   # 1.33.1 called this asset opengrep_manylinux_x86, 2.0.0 renamed it to
   # opengrep_linux_x86; nix-update cannot see a rename, only a version, so
   # this follows the releases by hand.

@@ -5,10 +5,10 @@
   fetchurl,
   # The release archive supplies icons and mygo-music.desktop.
   # `just bump mygo-music` (nix-update --custom-dep tarball) moves all hashes together.
-  version ? "0.1.25",
-  hash ? "sha256-SDzmceRbQ8uPgWHQhhhHB55ZYIgsHQct0QGPGblGEmc=",
+  version ? "0.1.26",
+  hash ? "sha256-mZAOGMnOSLmxR61iEjt7pp0TosA0oBwMel9xvuQHyws=",
   archiveSuffix ? "linux-amd64",
-  archiveHash ? "sha256-tGiBlasxCErTBvA2g23m5XTE/zPlZ/0mTDX3hB1kdCs=",
+  archiveHash ? "sha256-iy7D/U7xhP9vt/RhTdSPGQcap7j3U5LKiD87QpKl2kA=",
   vendorHash ? "sha256-CgAnPtjfDxOxjVvIG8zvMXwbrqjhF3spEqXEagQSIvE=",
 }:
 
