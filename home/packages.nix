@@ -104,6 +104,7 @@ in
     payload-dumper-go
     python3
     nodejs
+    pnpm
     nil
     nixd
     # Rust: the toolchain nsh builds an app's runner with (the nsh launcher
