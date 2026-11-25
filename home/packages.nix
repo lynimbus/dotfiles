@@ -102,7 +102,15 @@ in
     mygo
     android-tools
     payload-dumper-go
-    python3
+    # Python with numpy/onnxruntime/pillow so Noctalia's wallpaper_depth plugin
+    # uses system packages directly instead of an FHS venv on NixOS.
+    (python3.withPackages (
+      ps: with ps; [
+        numpy
+        onnxruntime
+        pillow
+      ]
+    ))
     nodejs
     pnpm
     nil

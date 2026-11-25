@@ -66,6 +66,7 @@ schema_version = 2
 widget_order = [
     "m3_cookie_clock",
     "m3_media",
+    "m3_lyrics",
     "m3_resources",
     "m3_calendar",
     "m3_user_card",
@@ -93,7 +94,7 @@ background = false
 box_height = 136.0
 box_width = 300.0
 cx = 196.0
-cy = 408.0
+cy = 376.0
 output = "eDP-1"
 rotation = 0.0
 type = "media_player"
@@ -110,6 +111,26 @@ background_radius = 24.0
 hide_when_no_media = true
 layout = "horizontal"
 shadow = false
+
+[desktop_widgets.widget.m3_lyrics]
+box_height = 0.0
+box_width = 0.0
+cx = 731.0
+cy = 742.0
+output = "eDP-1"
+rotation = 0.0
+type = "noctalia/lyrics:desktop"
+
+[desktop_widgets.widget.m3_lyrics.settings]
+active_color = "primary"
+background = false
+color = "on_surface"
+font_size = 18
+hide_when_idle = true
+hide_when_no_media = true
+line_count = 3
+shadow = true
+width = 560
 
 [desktop_widgets.widget.m3_resources]
 box_height = 0.0
@@ -245,8 +266,17 @@ scale = 0.92
 media = false
 nightlight = false
 
+[plugin_settings."noctalia/wallpaper_depth"]
+auto_generate = true
+feather = 6
+threshold = 78
+
 [plugins]
-enabled = ["lynimbus/m3-expressive"]
+enabled = [
+    "lynimbus/m3-expressive",
+    "noctalia/lyrics",
+    "noctalia/wallpaper_depth",
+]
 
 [shell]
 button_borders = false
@@ -297,7 +327,7 @@ builtin = "Ayu"
 community_palette = "One Dark Two"
 mode = "dark"
 source = "wallpaper"
-wallpaper_scheme = "vibrant"
+wallpaper_scheme = "m3-tonal-spot"
 
 [theme.templates]
 enable_builtin_templates = true
