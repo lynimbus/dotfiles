@@ -26,4 +26,12 @@
       "fcitx5-mellow"
     ];
   };
+
+  xdg.dataFile = liveFiles {
+    from = "desktop/noctalia/plugins";
+    into = "noctalia/plugins";
+    files = [
+      "m3-expressive"
+    ];
+  };
 }

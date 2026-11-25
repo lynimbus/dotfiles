@@ -18,11 +18,17 @@ workspaces = ["1terminal", "2browser", "3chat", "4entertainment", "5utility", "0
 [appearance]
 prefer_no_csd = true
 border_width = 2
-corner_radius = 12
+corner_radius = 20
+
+[appearance.shadow]
+enabled = true
+offset_x = 0
+offset_y = 6
+softness = 24
 
 [appearance.title_bar]
 mode = "negotiated"
-height = 28
+height = 30
 button_size = -1
 button_gap = 8
 button_padding = -1
@@ -32,12 +38,77 @@ button_glyph = "hover"
 [appearance.blur]
 enabled = true
 optimized = true
-passes = 2
-radius = 5
-noise = 0.02
-brightness = 0.95
-contrast = 0.95
-saturation = 1.0
+passes = 3
+radius = 6
+noise = 0.015
+brightness = 0.92
+contrast = 0.98
+saturation = 1.15
+
+# Material 3 Expressive spring physics:
+# Spatial springs (damping 0.6–0.8) carry expressive overshoot on moves/resizes;
+# effects springs (damping 1.0) never overshoot on color/opacity transitions.
+[animation]
+enabled = true
+curve = "m3_default_spatial"
+
+[animation.springs]
+m3_fast_spatial = { damping = 0.6, stiffness = 800 }
+m3_default_spatial = { damping = 0.8, stiffness = 380 }
+m3_slow_spatial = { damping = 0.8, stiffness = 200 }
+m3_fast_effects = { damping = 1.0, stiffness = 3800 }
+m3_default_effects = { damping = 1.0, stiffness = 1600 }
+
+[animation.windows_in]
+enabled = true
+style = "popin"
+scale = 0.88
+curve = "m3_fast_spatial"
+
+[animation.windows_out]
+enabled = true
+style = "popin"
+scale = 0.9
+curve = "m3_fast_spatial"
+
+[animation.windows_move]
+enabled = true
+curve = "m3_default_spatial"
+
+[animation.windows_resize]
+enabled = true
+curve = "m3_default_spatial"
+
+[animation.windows_opacity]
+enabled = true
+curve = "m3_default_effects"
+
+[animation.border]
+enabled = true
+curve = "m3_fast_effects"
+
+[animation.workspaces]
+enabled = true
+style = "slide"
+curve = "m3_default_spatial"
+
+[animation.overview]
+enabled = true
+curve = "m3_default_spatial"
+workspace_curve = "m3_fast_spatial"
+
+[animation.layers]
+enabled = true
+curve = "m3_fast_effects"
+
+[animation.windows_drag]
+physics = true
+stiffness = 48.0
+damping = 7.5
+coupling = 100.0
+pointer_response = 1.8
+max_displacement_px = 140.0
+settle_after_pause_s = 0.22
 
 [input.keyboard]
 repeat_rate = 25
@@ -62,7 +133,7 @@ size = 24
 
 [layout]
 mode = "scrolling"
-gap = 8
+gap = 12
 extent_presets = [0.333, 0.5, 0.667]
 
 [layout.scrolling]

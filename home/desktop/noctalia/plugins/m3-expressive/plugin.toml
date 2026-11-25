@@ -1,0 +1,25 @@
+id = "lynimbus/m3-expressive"
+name = "M3 Expressive Widgets"
+version = "1.0.0"
+plugin_api = 51
+author = "lynimbus"
+license = "MIT"
+icon = "palette"
+description = "Material 3 Expressive desktop widgets inspired by end4-pC: scalloped Cookie analog clock, tonal system resource cards, week calendar strip, and profile quick-actions card."
+tags = ["desktop", "theming", "clock", "system"]
+
+[[desktop_widget]]
+id = "cookie_clock"
+entry = "cookie_clock.luau"
+
+[[desktop_widget]]
+id = "resources"
+entry = "resources.luau"
+
+[[desktop_widget]]
+id = "calendar"
+entry = "calendar.luau"
+
+[[desktop_widget]]
+id = "user_card"
+entry = "user_card.luau"

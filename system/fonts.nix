@@ -19,6 +19,7 @@ in
     noto-fonts-cjk-sans-static
     noto-fonts-cjk-serif-static
     noto-fonts-color-emoji
+    rubik
     nerd-fonts.jetbrains-mono
     maple-mono."NF-CN"
     fira-code

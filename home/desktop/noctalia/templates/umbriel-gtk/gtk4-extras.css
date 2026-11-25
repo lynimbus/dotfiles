@@ -61,7 +61,7 @@ popover modelbutton:focus {
 popover.menu > arrow,
 popover.menu > contents,
 .popover.menu > contents {
-  border: 1px solid #3a3a3a;
+  border: 1px solid {{ colors.outline_variant.default.hex }};
   border-radius: __DARKLY_CORNER_RADIUS__px;
 }
 

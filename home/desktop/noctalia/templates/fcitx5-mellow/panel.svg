@@ -8,8 +8,8 @@
       <feComposite in="SourceGraphic" in2="offset" operator="over"/>
     </filter>
   </defs>
-  <rect x="5.75" y="5.75" width="19.5" height="19.5" rx="9.5" ry="9.5"
+  <rect x="5.75" y="5.75" width="19.5" height="19.5" rx="9.75" ry="9.75"
         fill="{{ colors.surface_container.default.hex }}"
-        stroke="{{ colors.outline.default.hex }}"
-        stroke-width="0.5" stroke-opacity="0.6" filter="url(#shadow)"/>
+        stroke="{{ colors.outline_variant.default.hex }}"
+        stroke-width="0.75" stroke-opacity="0.75" filter="url(#shadow)"/>
 </svg>

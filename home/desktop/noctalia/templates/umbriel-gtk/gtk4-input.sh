@@ -39,7 +39,7 @@ button_radius=$(number "$(read_toml "$umbriel_config" "appearance.title_bar" "bu
 corner_radius=$(number "$(read_toml "$umbriel_config" "appearance" "corner_radius")" 10)
 
 darkly_rc="${XDG_CONFIG_HOME:-$HOME/.config}/darklyrc"
-darkly_radius=$(number "$(read_toml "$darkly_rc" "Common" "CornerRadius")" 6)
+darkly_radius=$(number "$(read_toml "$darkly_rc" "Common" "CornerRadius")" 14)
 darkly_button_height=$(number "$(read_toml "$darkly_rc" "Common" "ButtonHeight")" 1)
 darkly_button_px=$(awk -v v="$darkly_button_height" 'BEGIN { h = v * 34; if (h < 0) h = 0; printf "%d", int(h + 0.5) }')
 darkly_full_outline=$(read_toml "$darkly_rc" "Style" "FullOutline")
