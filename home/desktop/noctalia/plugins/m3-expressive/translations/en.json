@@ -1,0 +1,20 @@
+{
+  "settings": {
+    "depth_enabled": {
+      "label": "Widget-safe wallpaper depth",
+      "description": "Place decorative widgets behind wallpaper foregrounds while keeping interactive cards and legible clocks unobscured."
+    },
+    "depth_threshold": {
+      "label": "Foreground threshold",
+      "description": "Normalized depth cutoff (0-100). Lower values bring more foreground scenery in front of decorative widgets."
+    },
+    "depth_feather": {
+      "label": "Edge feather",
+      "description": "Soft-transition width around the depth cutoff (0-50)."
+    },
+    "clock_max_occlusion": {
+      "label": "Clock max occlusion (%)",
+      "description": "Maximum fraction of the clock dial allowed behind the foreground before the clock automatically moves in front."
+    }
+  }
+}

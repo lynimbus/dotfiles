@@ -23,3 +23,44 @@ entry = "calendar.luau"
 [[desktop_widget]]
 id = "user_card"
 entry = "user_card.luau"
+
+[[service]]
+id = "depth"
+entry = "depth_service.luau"
+
+[[setting]]
+key = "depth_enabled"
+type = "bool"
+label_key = "settings.depth_enabled.label"
+description_key = "settings.depth_enabled.description"
+default = true
+
+[[setting]]
+key = "depth_threshold"
+type = "int"
+label_key = "settings.depth_threshold.label"
+description_key = "settings.depth_threshold.description"
+default = 58
+min = 0
+max = 100
+step = 1
+
+[[setting]]
+key = "depth_feather"
+type = "int"
+label_key = "settings.depth_feather.label"
+description_key = "settings.depth_feather.description"
+default = 6
+min = 0
+max = 50
+step = 1
+
+[[setting]]
+key = "clock_max_occlusion"
+type = "int"
+label_key = "settings.clock_max_occlusion.label"
+description_key = "settings.clock_max_occlusion.description"
+default = 28
+min = 0
+max = 100
+step = 1

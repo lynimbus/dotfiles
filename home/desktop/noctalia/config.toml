@@ -266,16 +266,16 @@ scale = 0.92
 media = false
 nightlight = false
 
-[plugin_settings."noctalia/wallpaper_depth"]
-auto_generate = true
-feather = 6
-threshold = 78
+[plugin_settings."lynimbus/m3-expressive"]
+clock_max_occlusion = 28
+depth_enabled = true
+depth_feather = 6
+depth_threshold = 58
 
 [plugins]
 enabled = [
     "lynimbus/m3-expressive",
     "noctalia/lyrics",
-    "noctalia/wallpaper_depth",
 ]
 
 [shell]
