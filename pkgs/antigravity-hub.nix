@@ -48,9 +48,9 @@
   # 2026-11-16 nixpkgs still held 2.29.0 while the app was on 2.32.1, and the
   # bump for it was sitting unmerged in NixOS/nixpkgs#587894. overlay.nix
   # replaces the nixpkgs attribute in place.
-  version ? "2.35.1",
-  buildId ? "4615540875067392",
-  hash ? "sha256-2SEDmob7+g0GloyXPq3/qDVytDSjUadxuK2fJBpJPX4=",
+  version ? "2.35.2",
+  buildId ? "4585983447007232",
+  hash ? "sha256-LTPbKCsemzx1gsFA2rnoaEjxs3oFv6Sh3/f0TeG/ME8=",
 }:
 
 stdenv.mkDerivation {
