@@ -54,7 +54,11 @@ in
         PROTON_HIDE_APU = "1";
         PROTON_LOCAL_SHADER_CACHE = "1";
         PROTON_DXVK_LOWLATENCY = "1";
-        # Raise NVIDIA shader disk cache from 1 GiB default to 10 GiB to prevent eviction.
+        # Raise NVIDIA shader disk cache from 1 GiB default to 10 GiB to prevent eviction,
+        # and read across numbered Wine helper slots (explorer.exe/xalia.exe/game.exe) so
+        # process startup order or Wayland/XWayland changes never miss compiled shaders.
+        __GL_SHADER_DISK_CACHE_APP_NAME = "steamapp_shader_cache";
+        __GL_SHADER_DISK_CACHE_READ_ONLY_APP_NAME = "steamapp_shader_cache0;steamapp_shader_cache1;steamapp_shader_cache2;steamapp_shader_cache3;steamapp_merged_shader_cache";
         __GL_SHADER_DISK_CACHE_SIZE = "10737418240";
         __GL_SHADER_DISK_CACHE_SKIP_CLEANUP = "1";
         __GL_THREADED_OPTIMIZATIONS = "1";
