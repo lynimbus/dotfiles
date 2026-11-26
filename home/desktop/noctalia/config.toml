@@ -266,16 +266,15 @@ scale = 0.92
 media = false
 nightlight = false
 
-[plugin_settings."lynimbus/m3-expressive"]
-clock_max_occlusion = 28
-depth_enabled = true
-depth_feather = 6
-depth_threshold = 58
+[plugin_settings."noctalia/mpvpaper"]
+mpv_options = "no-save-position-on-quit no-resume-playback"
+video_directory = "~/.local/share/noctalia/wallpapers"
 
 [plugins]
 enabled = [
     "lynimbus/m3-expressive",
     "noctalia/lyrics",
+    "noctalia/mpvpaper",
 ]
 
 [shell]
@@ -307,8 +306,6 @@ session_placement = "floating"
 session_position = "center"
 shadow = true
 transparency_mode = "soft"
-wallpaper_placement = "floating"
-wallpaper_position = "center"
 
 [shell.screen_corners]
 enabled = true
@@ -389,16 +386,6 @@ input_path = "~/.config/noctalia/templates/fcitx5-mellow/theme.conf"
 output_path = "$XDG_DATA_HOME/fcitx5/themes/noctalia-mellow/theme.conf"
 hook_async = false
 post_hook = "bash \"$HOME/.config/noctalia/templates/fcitx5-mellow/apply.sh\" && busctl --user --auto-start=no call org.fcitx.Fcitx5 /controller org.fcitx.Fcitx.Controller1 ReloadAddonConfig s classicui >/dev/null 2>&1 || true"
-
-[wallpaper]
-directory = "~/Pictures/Wallpapers"
-fill_mode = "crop"
-transition = ["fade", "disc", "stripes", "wipe", "honeycomb"]
-
-[wallpaper.automation]
-enabled = true
-interval_seconds = 600
-recursive = true
 
 [widget.active_window]
 min_length = 0

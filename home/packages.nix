@@ -122,15 +122,7 @@ in
     mygo
     android-tools
     payload-dumper-go
-    # Python with numpy/onnxruntime/pillow so the Noctalia widget-aware wallpaper
-    # depth service (lynimbus/m3-expressive) runs ONNX inference natively on NixOS.
-    (python3.withPackages (
-      ps: with ps; [
-        numpy
-        onnxruntime
-        pillow
-      ]
-    ))
+    python3
     nodejs
     pnpm
     nil
