@@ -7,12 +7,15 @@ files = ["noctalia.toml"]
 [general]
 autostart = ["noctalia"]
 xwayland = true
+xwayland_native_resolution = true
 show_cheatsheet = false
 
 [output.eDP-1]
 mode = "2560x1600@240"
 position = [0, 0]
 scale = 1.75
+vrr = "fullscreen"
+tearing = true
 workspaces = ["1terminal", "2browser", "3chat", "4entertainment", "5utility", "0other"]
 
 [appearance]
