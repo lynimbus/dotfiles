@@ -27,6 +27,8 @@
       "gid=100"
       "windows_names"
       "nofail"
+      "noatime"
+      "prealloc"
     ];
   };
 
