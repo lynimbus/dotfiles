@@ -11,6 +11,15 @@ let
   # so a generated package names arguments that exist in the nixpkgs that will
   # actually build it instead of whatever the channel happens to hold.
   nixpkgs = "${pkgs.path}";
+  # Upstream's Nix derivations pass `--ignore-scripts`, skipping `npm run postinstall`
+  # (`scripts/postinstall-patches.mjs`). Without the `@gorhom/bottom-sheet` patch,
+  # `BottomSheetModalInternalProvider` is undefined and the web/Electron UI crashes
+  # with Minified React error #130 (getpaseo/paseo#7673).
+  withPaseoPatches =
+    pkg:
+    pkg.overrideAttrs (old: {
+      preBuild = (old.preBuild or "") + "\nnpm run postinstall\n";
+    });
   paseoPkgs = inputs.paseo.packages.${pkgs.stdenv.hostPlatform.system};
 in
 {
@@ -28,7 +37,7 @@ in
     dolt
     obelisk-cli
     antigravity-cli
-    paseoPkgs.paseo
+    (withPaseoPatches paseoPkgs.paseo)
     herdr-core
     agent-purge
     # Claude Code in a container that mounts nothing but the directory it is
@@ -74,7 +83,7 @@ in
     # GUI over libmpv; mpv itself and its config live in home/programs/mpv.nix.
     haruna
     antigravity-hub
-    paseoPkgs.desktop
+    (withPaseoPatches paseoPkgs.desktop)
 
     # Gaming launchers, compatibility layers, and diagnostics.
     heroic
