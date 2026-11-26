@@ -267,7 +267,7 @@ media = false
 nightlight = false
 
 [plugin_settings."noctalia/mpvpaper"]
-mpv_options = "no-save-position-on-quit no-resume-playback"
+mpv_options = "no-config profile=fast load-scripts=no no-save-position-on-quit no-resume-playback"
 video_directory = "~/.local/share/noctalia/wallpapers"
 
 [plugins]
