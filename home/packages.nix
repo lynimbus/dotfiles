@@ -86,35 +86,8 @@ in
     (withPaseoPatches paseoPkgs.desktop)
 
     # Gaming launchers, compatibility layers, and diagnostics.
+    # Lutris itself and its global config live in home/programs/lutris.nix.
     heroic
-    (lutris.override {
-      # Lutris hardcodes FHS Vulkan ICD paths and omits NixOS's /run/opengl-driver*,
-      # which causes selecting a discrete GPU in Lutris to export an empty
-      # VK_DRIVER_FILES / VK_ICD_FILENAMES. Include NixOS's driver paths so
-      # per-GPU Vulkan ICD filtering and DXVK_FILTER_DEVICE_UUID work properly.
-      lutris-unwrapped = lutris-unwrapped.overrideAttrs (old: {
-        postPatch = (old.postPatch or "") + ''
-          substituteInPlace lutris/util/graphics/gpu.py \
-            --replace-fail '"/usr/share",' '"/usr/share", "/run/opengl-driver/share", "/run/opengl-driver-32/share",'
-        '';
-      });
-      extraPkgs =
-        pkgs: with pkgs; [
-          vulkan-tools
-          pciutils
-          gamemode
-          gamescope
-          mangohud
-          umu-launcher
-          wineWow64Packages.stagingFull
-          winetricks
-        ];
-      extraLibraries =
-        pkgs: with pkgs; [
-          gamemode
-          mangohud
-        ];
-    })
     protonplus
     mangohud
     umu-launcher
