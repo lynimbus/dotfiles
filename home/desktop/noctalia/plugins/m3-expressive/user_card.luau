@@ -1,14 +1,11 @@
 --!nonstrict
 -- Editorial Session Plate (FIG. 04 // SESSION).
--- Combines a fine geometric compass monogram emblem, serif greeting + host uptime,
+-- 100% native UI primitives (zero async SVG reloads -> completely flicker-free).
+-- Combines a concentric orbital monogram badge, serif greeting + host uptime,
 -- and crisp micro-radius action controls (Lock, Settings, Session).
 
-local shapes = require("./shapes.luau")
-
-local lastPaletteKey = ""
-local emblemPath: string? = nil
-
 local username = noctalia.getenv("USER") or "user"
+local initial = string.upper(string.sub(username, 1, 1))
 local hostname = "nixos"
 do
   local rawHost = noctalia.readFile("/etc/hostname")
@@ -50,58 +47,9 @@ local function greetingForHour(hour: number): string
   end
 end
 
-local function ensureEmblem()
-  local cBg = shapes.color("surface_container_high", "#232227")
-  local cFg = shapes.color("on_surface", "#eae4dc")
-  local cAccent = shapes.color("primary", "#f2be6e")
-  local key = cBg .. "|" .. cFg .. "|" .. cAccent
-  if key == lastPaletteKey and emblemPath and noctalia.fileExists(emblemPath) then
-    return
-  end
-
-  local initial = string.upper(string.sub(username, 1, 1))
-  local svg = table.concat({
-    '<svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 38 38">',
-    string.format('<circle cx="19" cy="19" r="17" fill="%s" fill-opacity="0.7" stroke="%s" stroke-opacity="0.7" stroke-width="1"/>', cBg, cAccent),
-    string.format('<circle cx="19" cy="19" r="13" fill="none" stroke="%s" stroke-opacity="0.35" stroke-width="0.75" stroke-dasharray="2 2.5"/>', cAccent),
-    string.format(
-      '<g stroke="%s" stroke-opacity="0.25" stroke-width="0.7"><line x1="19" y1="1" x2="19" y2="5"/><line x1="19" y1="33" x2="19" y2="37"/><line x1="1" y1="19" x2="5" y2="19"/><line x1="33" y1="19" x2="37" y2="19"/></g>',
-      cFg
-    ),
-    string.format(
-      '<text x="19" y="20" fill="%s" font-family="Liberation Serif, DejaVu Serif, serif" font-weight="700" font-size="17" text-anchor="middle" dominant-baseline="central">%s</text>',
-      cFg,
-      initial
-    ),
-    "</svg>",
-  })
-  emblemPath = shapes.writeVersionedSvg("editorial_monogram", emblemPath, svg)
-  lastPaletteKey = key
-end
-
 local function render()
-  ensureEmblem()
-
   local now = os.date("*t")
   local up = readUptime()
-
-  local emblemNode
-  if emblemPath then
-    emblemNode = ui.image({ path = emblemPath, width = 36, height = 36, fit = "contain" })
-  else
-    emblemNode = ui.row({
-      width = 36,
-      height = 36,
-      radius = 999,
-      fill = "surface_container_high",
-      border = "primary/0.7",
-      borderWidth = 1,
-      align = "center",
-      justify = "center",
-    }, {
-      ui.glyph({ name = "user", size = 18, color = "on_surface" }),
-    })
-  end
 
   desktopWidget.render(ui.column({
     width = 316,
@@ -121,14 +69,14 @@ local function render()
         ui.label({
           text = "FIG. 04",
           fontFamily = "JetBrainsMono NF",
-          fontSize = 10,
+          fontSize = 9.5,
           fontWeight = "bold",
           color = "primary",
         }),
         ui.label({
           text = "// SESSION",
           fontFamily = "JetBrainsMono NF",
-          fontSize = 10,
+          fontSize = 9.5,
           fontWeight = "medium",
           color = "on_surface_variant/0.82",
         }),
@@ -136,7 +84,7 @@ local function render()
       ui.label({
         text = up,
         fontFamily = "JetBrainsMono NF",
-        fontSize = 9.5,
+        fontSize = 9,
         fontWeight = "medium",
         color = "on_surface_variant/0.72",
       }),
@@ -145,9 +93,36 @@ local function render()
       height = 1,
       fill = "outline_variant/0.38",
     }, {}),
-    -- Identity + compact actions row
+    -- Identity row with native concentric monogram badge
     ui.row({ gap = 10, align = "center" }, {
-      emblemNode,
+      ui.row({
+        width = 36,
+        height = 36,
+        radius = 999,
+        fill = "surface_container_high/0.65",
+        border = "primary/0.72",
+        borderWidth = 1.2,
+        align = "center",
+        justify = "center",
+      }, {
+        ui.row({
+          width = 28,
+          height = 28,
+          radius = 999,
+          border = "secondary/0.35",
+          borderWidth = 1,
+          align = "center",
+          justify = "center",
+        }, {
+          ui.label({
+            text = initial,
+            fontFamily = "Liberation Serif",
+            fontSize = 15,
+            fontWeight = "bold",
+            color = "on_surface",
+          }),
+        }),
+      }),
       ui.column({ gap = 1, flexGrow = 1, align = "start" }, {
         ui.label({
           text = string.format("%s, %s", greetingForHour(now.hour), username),
