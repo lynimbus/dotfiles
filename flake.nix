@@ -67,6 +67,10 @@
       url = "github:lynimbus/t3code-jj";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Upstream's nixpkgs is deliberately not followed: nix/npm-deps.hash is
+    # auto-updated by Paseo's CI against its own pinned nixpkgs fetchNpmDeps.
+    paseo.url = "github:getpaseo/paseo";
   };
 
   outputs =

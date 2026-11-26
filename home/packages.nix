@@ -1,4 +1,9 @@
-{ pkgs, lib, ... }:
+{
+  pkgs,
+  lib,
+  inputs,
+  ...
+}:
 
 let
   # nix-init resolves builder arguments and prefetches hashes against a nixpkgs
@@ -6,6 +11,7 @@ let
   # so a generated package names arguments that exist in the nixpkgs that will
   # actually build it instead of whatever the channel happens to hold.
   nixpkgs = "${pkgs.path}";
+  paseoPkgs = inputs.paseo.packages.${pkgs.stdenv.hostPlatform.system};
 in
 {
   home.packages = with pkgs; [
@@ -22,6 +28,7 @@ in
     dolt
     obelisk-cli
     antigravity-cli
+    paseoPkgs.paseo
     herdr-core
     agent-purge
     # Claude Code in a container that mounts nothing but the directory it is
@@ -67,6 +74,7 @@ in
     # GUI over libmpv; mpv itself and its config live in home/programs/mpv.nix.
     haruna
     antigravity-hub
+    paseoPkgs.desktop
 
     # Gaming launchers, compatibility layers, and diagnostics.
     heroic
