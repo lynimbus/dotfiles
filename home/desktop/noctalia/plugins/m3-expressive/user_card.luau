@@ -1,12 +1,12 @@
 --!nonstrict
--- Material 3 Expressive profile & quick-actions card (inspired by end4-pC UserCardWidget).
--- Combines a scalloped 8-sided Cookie avatar badge, greeting + uptime, and M3 Expressive
--- pill/circle action buttons (Lock, Settings, Session).
+-- Editorial Session Plate (FIG. 04 // SESSION).
+-- Combines a fine geometric compass monogram emblem, serif greeting + host uptime,
+-- and crisp micro-radius action controls (Lock, Settings, Session).
 
 local shapes = require("./shapes.luau")
 
 local lastPaletteKey = ""
-local avatarPath: string? = nil
+local emblemPath: string? = nil
 
 local username = noctalia.getenv("USER") or "user"
 local hostname = "nixos"
@@ -30,11 +30,11 @@ local function readUptime(): string
   local hours = math.floor((secs % 86400) / 3600)
   local mins = math.floor((secs % 3600) / 60)
   if days > 0 then
-    return string.format("Up %dd %dh", days, hours)
+    return string.format("UP %dD %dH", days, hours)
   elseif hours > 0 then
-    return string.format("Up %dh %dm", hours, mins)
+    return string.format("UP %dH %02dM", hours, mins)
   else
-    return string.format("Up %dm", mins)
+    return string.format("UP %dM", mins)
   end
 end
 
@@ -50,87 +50,128 @@ local function greetingForHour(hour: number): string
   end
 end
 
-local function ensureAvatar()
-  local cBg = shapes.color("primary_container", "#3d2c2e")
-  local cFg = shapes.color("on_primary_container", "#ffd9dd")
-  local cAccent = shapes.color("primary", "#ffb2bc")
+local function ensureEmblem()
+  local cBg = shapes.color("surface_container_high", "#232227")
+  local cFg = shapes.color("on_surface", "#eae4dc")
+  local cAccent = shapes.color("primary", "#f2be6e")
   local key = cBg .. "|" .. cFg .. "|" .. cAccent
-  if key == lastPaletteKey and avatarPath and noctalia.fileExists(avatarPath) then
+  if key == lastPaletteKey and emblemPath and noctalia.fileExists(emblemPath) then
     return
   end
 
-  local d = shapes.cookiePath(24, 24, 21, 8, 0.085, 112)
   local initial = string.upper(string.sub(username, 1, 1))
   local svg = table.concat({
-    '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">',
-    string.format('<path d="%s" fill="%s"/>', d, cBg),
-    string.format('<path d="%s" fill="none" stroke="%s" stroke-width="1.5" stroke-opacity="0.45"/>', d, cAccent),
+    '<svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 38 38">',
+    string.format('<circle cx="19" cy="19" r="17" fill="%s" fill-opacity="0.7" stroke="%s" stroke-opacity="0.7" stroke-width="1"/>', cBg, cAccent),
+    string.format('<circle cx="19" cy="19" r="13" fill="none" stroke="%s" stroke-opacity="0.35" stroke-width="0.75" stroke-dasharray="2 2.5"/>', cAccent),
     string.format(
-      '<text x="24" y="25" fill="%s" font-family="Rubik, sans-serif" font-weight="700" font-size="20" text-anchor="middle" dominant-baseline="central">%s</text>',
+      '<g stroke="%s" stroke-opacity="0.25" stroke-width="0.7"><line x1="19" y1="1" x2="19" y2="5"/><line x1="19" y1="33" x2="19" y2="37"/><line x1="1" y1="19" x2="5" y2="19"/><line x1="33" y1="19" x2="37" y2="19"/></g>',
+      cFg
+    ),
+    string.format(
+      '<text x="19" y="20" fill="%s" font-family="Liberation Serif, DejaVu Serif, serif" font-weight="700" font-size="17" text-anchor="middle" dominant-baseline="central">%s</text>',
       cFg,
       initial
     ),
     "</svg>",
   })
-  avatarPath = shapes.writeVersionedSvg("user_avatar", avatarPath, svg)
+  emblemPath = shapes.writeVersionedSvg("editorial_monogram", emblemPath, svg)
   lastPaletteKey = key
 end
 
 local function render()
-  ensureAvatar()
+  ensureEmblem()
 
   local now = os.date("*t")
   local up = readUptime()
-  local subline = if up ~= "" then string.format("%s@%s · %s", username, hostname, up) else string.format("%s@%s", username, hostname)
 
-  local avatarNode
-  if avatarPath then
-    avatarNode = ui.image({ path = avatarPath, width = 46, height = 46, fit = "contain" })
+  local emblemNode
+  if emblemPath then
+    emblemNode = ui.image({ path = emblemPath, width = 36, height = 36, fit = "contain" })
   else
-    avatarNode = ui.row({
-      width = 46,
-      height = 46,
+    emblemNode = ui.row({
+      width = 36,
+      height = 36,
       radius = 999,
-      fill = "primary_container",
+      fill = "surface_container_high",
+      border = "primary/0.7",
+      borderWidth = 1,
       align = "center",
       justify = "center",
     }, {
-      ui.glyph({ name = "user", size = 22, color = "on_primary_container" }),
+      ui.glyph({ name = "user", size = 18, color = "on_surface" }),
     })
   end
 
   desktopWidget.render(ui.column({
-    width = 312,
-    padding = 14,
-    gap = 12,
-    radius = 24,
-    fill = "surface_container/0.86",
-    border = "outline_variant/0.5",
+    width = 316,
+    height = 116,
+    paddingH = 14,
+    paddingV = 10,
+    gap = 7,
+    radius = 6,
+    fill = "surface/0.86",
+    border = "outline_variant/0.58",
     borderWidth = 1,
+    justify = "space_between",
   }, {
-    ui.row({ gap = 12, align = "center" }, {
-      avatarNode,
-      ui.column({ gap = 2, flexGrow = 1, align = "start" }, {
+    -- Header index row
+    ui.row({ justify = "space_between", align = "center" }, {
+      ui.row({ gap = 6, align = "center" }, {
+        ui.label({
+          text = "FIG. 04",
+          fontFamily = "JetBrainsMono NF",
+          fontSize = 10,
+          fontWeight = "bold",
+          color = "primary",
+        }),
+        ui.label({
+          text = "// SESSION",
+          fontFamily = "JetBrainsMono NF",
+          fontSize = 10,
+          fontWeight = "medium",
+          color = "on_surface_variant/0.82",
+        }),
+      }),
+      ui.label({
+        text = up,
+        fontFamily = "JetBrainsMono NF",
+        fontSize = 9.5,
+        fontWeight = "medium",
+        color = "on_surface_variant/0.72",
+      }),
+    }),
+    ui.row({
+      height = 1,
+      fill = "outline_variant/0.38",
+    }, {}),
+    -- Identity + compact actions row
+    ui.row({ gap = 10, align = "center" }, {
+      emblemNode,
+      ui.column({ gap = 1, flexGrow = 1, align = "start" }, {
         ui.label({
           text = string.format("%s, %s", greetingForHour(now.hour), username),
+          fontFamily = "Liberation Serif",
           fontSize = 15,
           fontWeight = "bold",
           color = "on_surface",
         }),
         ui.label({
-          text = subline,
-          fontSize = 12,
+          text = string.format("%s@%s", username, hostname),
+          fontFamily = "JetBrainsMono NF",
+          fontSize = 10,
           fontWeight = "medium",
-          color = "on_surface_variant",
+          color = "on_surface_variant/0.78",
         }),
       }),
     }),
-    ui.row({ gap = 8, align = "center" }, {
+    -- Crisp architectural action strip
+    ui.row({ gap = 6, align = "center" }, {
       ui.row({
         key = "lock",
         flexGrow = 1,
-        height = 36,
-        radius = 999,
+        height = 26,
+        radius = 4,
         fill = "primary",
         gap = 6,
         align = "center",
@@ -139,41 +180,46 @@ local function render()
           noctalia.runAsync({ "noctalia", "msg", "session", "lock" })
         end,
       }, {
-        ui.glyph({ name = "lock", size = 15, color = "on_primary" }),
+        ui.glyph({ name = "lock", size = 13, color = "on_primary" }),
         ui.label({
-          text = "Lock",
-          fontSize = 13,
+          text = "LOCK",
+          fontFamily = "JetBrainsMono NF",
+          fontSize = 10.5,
           fontWeight = "bold",
           color = "on_primary",
         }),
       }),
       ui.row({
         key = "settings",
-        width = 36,
-        height = 36,
-        radius = 999,
-        fill = "secondary_container",
+        width = 34,
+        height = 26,
+        radius = 4,
+        fill = "surface_container_high/0.85",
+        border = "outline_variant/0.55",
+        borderWidth = 1,
         align = "center",
         justify = "center",
         onClick = function()
           noctalia.runAsync({ "noctalia", "msg", "settings-toggle" })
         end,
       }, {
-        ui.glyph({ name = "settings", size = 16, color = "on_secondary_container" }),
+        ui.glyph({ name = "settings", size = 14, color = "on_surface" }),
       }),
       ui.row({
         key = "session",
-        width = 36,
-        height = 36,
-        radius = 999,
-        fill = "tertiary_container",
+        width = 34,
+        height = 26,
+        radius = 4,
+        fill = "surface_container_high/0.85",
+        border = "outline_variant/0.55",
+        borderWidth = 1,
         align = "center",
         justify = "center",
         onClick = function()
           noctalia.runAsync({ "noctalia", "msg", "panel-toggle", "session" })
         end,
       }, {
-        ui.glyph({ name = "power", size = 16, color = "on_tertiary_container" }),
+        ui.glyph({ name = "power", size = 14, color = "tertiary" }),
       }),
     }),
   }))

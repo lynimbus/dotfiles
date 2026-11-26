@@ -1,5 +1,5 @@
 --!nonstrict
--- Shared Material 3 Expressive scalloped polygon SVG helpers and cache-safe file writer.
+-- Shared editorial monograph SVG helpers, registration marks, and cache-safe file writer.
 
 local M = {}
 
@@ -7,26 +7,70 @@ function M.color(role: string, fallback: string): string
   return noctalia.getColor(role) or fallback
 end
 
--- Generates an SVG path for an N-sided Material 3 Expressive "Cookie" scalloped shape:
---   r(theta) = radius * (1 + amplitude * cos(lobes * theta))
-function M.cookiePath(cx: number, cy: number, radius: number, lobes: number, amplitude: number, steps: number?): string
-  local n = steps or 144
-  local parts = table.create(n + 1)
-  local twoPi = math.pi * 2
-  for i = 0, n - 1 do
-    local theta = (i / n) * twoPi
-    local r = radius * (1 + amplitude * math.cos(lobes * theta))
-    local x = cx + r * math.cos(theta)
-    local y = cy + r * math.sin(theta)
-    local prefix = if i == 0 then "M" else "L"
-    parts[i + 1] = string.format("%s%.2f %.2f", prefix, x, y)
+-- Minimalist architectural plate backdrop: translucent dark glass, subtle grid,
+-- 1px hairline border, and four primary-accented corner registration ticks.
+function M.plateFrameSvg(
+  w: number,
+  h: number,
+  cBg: string,
+  cBorder: string,
+  cAccent: string,
+  cGrid: string
+): string
+  local r = 6
+  local tick = 7
+  local parts = {
+    -- Dark glass base
+    string.format(
+      '<rect x="0.5" y="0.5" width="%.1f" height="%.1f" rx="%d" fill="%s" fill-opacity="0.86" stroke="%s" stroke-opacity="0.55" stroke-width="1"/>',
+      w - 1,
+      h - 1,
+      r,
+      cBg,
+      cBorder
+    ),
+    -- Faint mathematical grid inside plate
+    '<g stroke="' .. cGrid .. '" stroke-opacity="0.06" stroke-width="0.75">',
+  }
+  for x = 24, w - 12, 24 do
+    table.insert(parts, string.format('<line x1="%d" y1="1" x2="%d" y2="%d"/>', x, x, h - 1))
   end
-  parts[n + 1] = "Z"
-  return table.concat(parts, " ")
+  for y = 24, h - 12, 24 do
+    table.insert(parts, string.format('<line x1="1" y1="%d" x2="%d" y2="%d"/>', y, w - 1, y))
+  end
+  table.insert(parts, "</g>")
+
+  -- Four crisp corner registration marks
+  table.insert(
+    parts,
+    string.format(
+      '<g fill="none" stroke="%s" stroke-opacity="0.78" stroke-width="1.2" stroke-linecap="square">'
+        .. '<path d="M1 %d V1 H%d"/>'
+        .. '<path d="M%.1f 1 H%.1f V%d"/>'
+        .. '<path d="M1 %.1f V%.1f H%d"/>'
+        .. '<path d="M%.1f %.1f H%.1f V%.1f"/>'
+        .. "</g>",
+      cAccent,
+      1 + tick,
+      1 + tick,
+      w - 1 - tick,
+      w - 1,
+      1 + tick,
+      h - 1 - tick,
+      h - 1,
+      1 + tick,
+      w - 1 - tick,
+      h - 1,
+      w - 1,
+      h - 1 - tick
+    )
+  )
+
+  return table.concat(parts)
 end
 
 -- Simple deterministic 32-bit FNV-1a hex hash for cache-busting SVG filenames when
--- theme colors or time change, avoiding stale image texture caches.
+-- theme colors or metrics change, avoiding stale image texture caches.
 function M.hash(input: string): string
   local h = 2166136261
   for i = 1, #input do

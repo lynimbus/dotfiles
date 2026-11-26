@@ -81,8 +81,8 @@ visible = false
 [desktop_widgets.widget.m3_cookie_clock]
 box_height = 0.0
 box_width = 0.0
-cx = 148.0
-cy = 186.0
+cx = 172.0
+cy = 113.0
 output = "eDP-1"
 rotation = 0.0
 type = "lynimbus/m3-expressive:cookie_clock"
@@ -91,10 +91,10 @@ type = "lynimbus/m3-expressive:cookie_clock"
 background = false
 
 [desktop_widgets.widget.m3_media]
-box_height = 136.0
-box_width = 300.0
-cx = 196.0
-cy = 376.0
+box_height = 108.0
+box_width = 336.0
+cx = 731.0
+cy = 842.0
 output = "eDP-1"
 rotation = 0.0
 type = "media_player"
@@ -104,10 +104,10 @@ album_art_background = true
 album_art_blur = 28
 audio_visualizer = true
 background = true
-background_color = "surface_container"
-background_opacity = 0.88
-background_padding = 14.0
-background_radius = 24.0
+background_color = "surface"
+background_opacity = 0.86
+background_padding = 12.0
+background_radius = 6.0
 hide_when_no_media = true
 layout = "horizontal"
 shadow = false
@@ -116,7 +116,7 @@ shadow = false
 box_height = 0.0
 box_width = 0.0
 cx = 731.0
-cy = 742.0
+cy = 746.0
 output = "eDP-1"
 rotation = 0.0
 type = "noctalia/lyrics:desktop"
@@ -125,18 +125,18 @@ type = "noctalia/lyrics:desktop"
 active_color = "primary"
 background = false
 color = "on_surface"
-font_size = 18
+font_size = 16
 hide_when_idle = true
 hide_when_no_media = true
 line_count = 3
 shadow = true
-width = 560
+width = 520
 
 [desktop_widgets.widget.m3_resources]
 box_height = 0.0
 box_width = 0.0
-cx = 1236.0
-cy = 140.0
+cx = 172.0
+cy = 842.0
 output = "eDP-1"
 rotation = 0.0
 type = "lynimbus/m3-expressive:resources"
@@ -147,8 +147,8 @@ background = false
 [desktop_widgets.widget.m3_calendar]
 box_height = 0.0
 box_width = 0.0
-cx = 1274.0
-cy = 278.0
+cx = 1290.0
+cy = 113.0
 output = "eDP-1"
 rotation = 0.0
 type = "lynimbus/m3-expressive:calendar"
@@ -159,8 +159,8 @@ background = false
 [desktop_widgets.widget.m3_user_card]
 box_height = 0.0
 box_width = 0.0
-cx = 1274.0
-cy = 424.0
+cx = 1290.0
+cy = 842.0
 output = "eDP-1"
 rotation = 0.0
 type = "lynimbus/m3-expressive:user_card"
@@ -169,17 +169,17 @@ type = "lynimbus/m3-expressive:user_card"
 background = false
 
 [desktop_widgets.widget.m3_visualizer]
-box_height = 96.0
-box_width = 1380.0
+box_height = 56.0
+box_width = 740.0
 cx = 731.0
-cy = 846.0
+cy = 872.0
 output = "eDP-1"
 rotation = 0.0
 type = "audio_visualizer"
 
 [desktop_widgets.widget.m3_visualizer.settings]
 background = false
-bands = 72
+bands = 64
 centered = false
 color_1 = "primary"
 color_2 = "tertiary"
@@ -187,7 +187,7 @@ mirrored = true
 show_when_idle = false
 
 [dock]
-auto_hide = false
+auto_hide = true
 background_opacity = 0.86
 border = "outline_variant"
 border_width = 1.0
@@ -200,7 +200,7 @@ radius = 28
 reserve_space = false
 shadow = false
 show_dots = true
-smart_auto_hide = true
+smart_auto_hide = false
 
 [hot_corners]
 enabled = true
