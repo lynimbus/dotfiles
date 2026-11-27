@@ -68,12 +68,12 @@ in
 
   xdg.dataFile."lutris/runners/wine.yml".source = yaml.generate "lutris-wine.yml" {
     wine = {
-      version = "Proton-CachyOS Latest-x86_64_v3";
+      version = "Proton-Wineland Latest-x86_64_v3";
       Graphics = "wayland";
       dxvk = true;
       vkd3d = true;
       dxvk_nvapi = true;
-      d3d_extras = true;
+      d3d_extras = false;
       esync = true;
       fsync = true;
       show_debug = "-all";
