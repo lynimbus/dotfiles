@@ -205,7 +205,9 @@
               src = drv.src or null;
               isFetchUrl = src != null && (src ? url) && !(src ? rev) && !(src ? tag);
               pos = (drv.meta or { }).position or "";
-              expectedPos = "/pkgs/${name}.nix:";
+              srcPos = builtins.unsafeGetAttrPos "src" drv;
+              expectedFile = "/pkgs/${name}.nix";
+              expectedPos = "${expectedFile}:";
             in
             nixpkgs.lib.optional ((drv.pname or drv.name or "") == "") "${name}: missing pname/name"
             ++ nixpkgs.lib.optional (
@@ -217,6 +219,9 @@
             ++ nixpkgs.lib.optional (
               bump != null && !(nixpkgs.lib.hasInfix expectedPos pos)
             ) "${name}: meta.position (${pos}) must point into pkgs/${name}.nix for nix-update"
+            ++ nixpkgs.lib.optional (
+              bump != null && srcPos != null && !(nixpkgs.lib.hasSuffix expectedFile srcPos.file)
+            ) "${name}: src position (${srcPos.file}) must point into pkgs/${name}.nix for nix-update"
             ++ nixpkgs.lib.optional (
               bump != null && isFetchUrl && !(builtins.elem "--build" bump)
             ) "${name}: fetchurl package with passthru.bump must include \"--build\""

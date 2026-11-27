@@ -18,7 +18,7 @@
     gamescopeSession.enable = true;
     protontricks.enable = true;
     extraCompatPackages = with pkgs; [
-      proton-ge-bin
+      proton-wineland-bin
     ];
     extraPackages = with pkgs; [
       gamemode

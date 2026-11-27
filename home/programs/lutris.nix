@@ -66,9 +66,14 @@ in
     };
   };
 
+  # Expose the declarative Proton-Wineland build to Lutris without duplicating
+  # Steam's compatibilitytools.d entry (Steam gets it via extraCompatPackages).
+  xdg.dataFile."lutris/runners/wine/Proton-Wineland".source =
+    pkgs.proton-wineland-bin.steamcompattool;
+
   xdg.dataFile."lutris/runners/wine.yml".source = yaml.generate "lutris-wine.yml" {
     wine = {
-      version = "Proton-Wineland Latest-x86_64_v3";
+      version = "Proton-Wineland";
       Graphics = "wayland";
       dxvk = true;
       vkd3d = true;
