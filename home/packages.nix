@@ -37,6 +37,7 @@ in
     dolt
     obelisk-cli
     antigravity-cli
+    amp-cli
     (withPaseoPatches paseoPkgs.paseo)
     herdr-core
     agent-purge
