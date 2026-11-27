@@ -10,8 +10,8 @@
   # is maven-metadata.xml, which passthru.bump reads — so the version and its
   # hash live here and are bumped together. The jar runs on JDK 17, the JDK
   # this environment pins.
-  version ? "9.5.33",
-  hash ? "sha256-l0PpXeKV+29UkOIdomU25NCSGAlRFCMSL/IDKKVy5/U=",
+  version ? "9.5.34",
+  hash ? "sha256-RweDOgGHvCcVoPfaAZOVSifkEb/fL0690yDTX9tjCjU=",
 }:
 
 stdenv.mkDerivation {

@@ -30,8 +30,8 @@
   # patchelf 0.15.2's --set-rpath corrupts this ~79MB Go PIE binary (leaving it
   # segfaulting with no output); nixpkgs provides 0.19.x as patchelfUnstable,
   # put first on PATH in preFixup ahead of shrink-rpath and autoPatchelfHook.
-  version ? "1.15.0-alpha.13",
-  hash ? "sha256-v8OfZDpezBtwLFcj/2YuYd3oE/ErOvDQz85PYp/3QEc=",
+  version ? "1.15.0-alpha.14",
+  hash ? "sha256-2x4ZgiRKca9HjVnDGU3kRHxjDFT2oTCN8/W6e1sEtsg=",
 }:
 
 stdenvNoCC.mkDerivation {
