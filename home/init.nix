@@ -36,7 +36,7 @@
     ./programs/hourly-chime.nix
     ./programs/hy-mt2.nix
     ./programs/memo.nix
-    ./programs/pig.nix
+    ./programs/pi.nix
     ./programs/magpie.nix
     ./programs/t3code-jj.nix
     ./programs/blackhole.nix

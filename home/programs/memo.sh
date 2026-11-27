@@ -192,7 +192,7 @@ cmdDigest() {
       cat "$promptFile" >"$tmp/prompt.md" &&
         printf '\n这一天（04:00 到次日 03:59）的记录：\n\n' >>"$tmp/prompt.md" &&
         printf '%s\n' "$body" >>"$tmp/prompt.md" &&
-        pig -p --no-tools --no-session --model "$model" <"$tmp/prompt.md" >"$tmp/out.md" 2>"$tmp/err"
+        pi -p --no-tools --no-session --model "$model" <"$tmp/prompt.md" >"$tmp/out.md" 2>"$tmp/err"
     }; then
       failed=1
       notify-send --app-name=memo "memo：$day 整理失败" "$(head -c 300 "$tmp/err")" || true

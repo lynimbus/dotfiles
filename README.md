@@ -13,7 +13,7 @@
 
 ---
 
-一套追求**极简、自洽与零冗余**的个人 NixOS 与 Home Manager 配置（主机名 `nixos`，针对 Mechrevo GM5HG0A / AMD Zen 4 笔记本深度调优）。仓库内置 **22 个本地自维护软件包**、**双模式 Wayland 合成器环境**、**端侧 Vulkan AI 翻译流水线**以及**完整的多智能体（Multi-Agent）编码工具栈**。
+一套追求**极简、自洽与零冗余**的个人 NixOS 与 Home Manager 配置（主机名 `nixos`，针对 Mechrevo GM5HG0A / AMD Zen 4 笔记本深度调优）。仓库内置 **20 个本地自维护软件包**、**双模式 Wayland 合成器环境**、**端侧 Vulkan AI 翻译流水线**以及**完整的多智能体（Multi-Agent）编码工具栈**。
 
 ## ✨ 核心亮点
 
@@ -23,7 +23,7 @@
   - **热编辑配置（`liveFiles`）**：通过 `home/init.nix` 注入 `_module.args.liveFiles`，将窗口管理器、快捷键与 Rime 输入法词库以 `mkOutOfStoreSymlink` 链接至仓库源码，修改即刻生效，无需触发 `nh os switch`。
 
 - **🤖 本地优先的 AI 与 Agent 工具栈**
-  - **多智能体协同与沙盒**：内置 `pi` / `pig`（单二进制 Go 移植版 Pi，无缝兼容 TS 扩展）、`pig-swarm`（基于 Beads 账本的多智能体并发编排）、`t3code`、`alma`、`antigravity-hub` / `antigravity-cli`、`herdr-core`、`kero`、`obelisk-cli`（历史会话 SQLite 检索）以及 `blackhole`（仅挂载当前工作目录的容器化 Claude Code）。
+  - **多智能体协同与沙盒**：内置 `pi`、`t3code`、`alma`、`antigravity-hub` / `antigravity-cli`、`herdr-core`、`kero`、`obelisk-cli`（历史会话 SQLite 检索）以及 `blackhole`（仅挂载当前工作目录的容器化 Claude Code）。
   - **Fcitx5 端侧实时中译英**：自研 C++ 插件 `fcitx5-hymt-translate` 搭配用户态 `hy-mt2-server` 服务（基于 `llama.cpp` Vulkan 后端运行 `tencent/Hy-MT2-1.8B-GGUF:Q8_0`），在输入法内按下快捷键即可异步完成中译英并直接上屏。
   - **夜间自动思想归纳（`memo`）**：随手通过 `memo` 记录灵感碎片，每晚由 systemd 定时器触发 `memo-digest`，通过本地模型网关 `magpie` 按主题自动聚类归档。
 
@@ -47,7 +47,7 @@
 ├── lib/
 │   ├── build-mygo-app.nix    # MyGo (Go + GTK3) 原生桌面应用通用构建器与运行库包装器
 │   └── fonts.nix             # 系统与用户态共享字体配置
-├── pkgs/                     # 22 个本地维护软件包与树内源码
+├── pkgs/                     # 20 个本地维护软件包与树内源码
 │   ├── overview/             # 原生 NixOS Flake 配置概览桌面应用 (Go + GTK3 + i18n)
 │   ├── fcitx5-hymt-translate/# Fcitx5 异步本地大模型中英翻译 C++ 插件
 │   └── *.nix                 # 各类 Agent 工具、GUI 应用与 Android 逆向/构建工具链
@@ -62,7 +62,7 @@
 │   └── ...                   # 网络、sing-box、Docker、Wireshark、Comma (nix-index) 等
 ├── home/                     # Home Manager 用户级模块 (经由 home/init.nix 统一聚合)
 │   ├── desktop/              # Umbriel、Mango、Noctalia、Luciole、Fcitx5 (Rime 雾凇拼音)
-│   ├── programs/             # Ghostty、Fish、Jujutsu、Git、Yazi、Memo、Hy-MT2、Pig、Nsh、Rust 等
+│   ├── programs/             # Ghostty、Fish、Jujutsu、Git、Yazi、Memo、Hy-MT2、Pi、Nsh、Rust 等
 │   ├── audio/rnnoise.nix     # PipeWire LADSPA 自动增益 (dysonCompress) + RNNoise 麦克风降噪链
 │   └── packages.nix          # CLI、桌面应用、多语言工具链与 Android 逆向套件清单
 └── scripts/                  # 自动化维护脚本
@@ -82,9 +82,7 @@
 | **系统与输入法** | `overview` | 原生 MyGo 桌面应用，实时自省并可视化展示本 Flake 安装的包与模块设置 |
 | | `fcitx5-hymt-translate` | Fcitx5 C++ 插件，通过本地 `Hy-MT2-1.8B` (`llama.cpp`) 实现异步中译英 |
 | | `sing-box` | 通用代理平台（跟进上游 prerelease 二进制并补齐 NixOS systemd/polkit 资产） |
-| **AI 编码与 Agent** | `pig` | 用 Go 重构为单原生二进制的 Pi 智能体，原样运行 Pi 的 TypeScript 扩展 |
-| | `pig-swarm` | 将多个 `pig` 智能体围绕同一问题并发扇出，以 `bd` (Beads) epic 作为账本 |
-| | `t3code` | 极简编码智能体 Web GUI（含原生资源诊断 sidecar） |
+| **AI 编码与 Agent** | `t3code` | 极简编码智能体 Web GUI（含原生资源诊断 sidecar） |
 | | `alma` | 支持 `herdr`、Claude Code、Codex 与 `pi` 的 Agent 客户端与 Harness |
 | | `antigravity-cli` | Google Antigravity 终端智能体客户端 |
 | | `antigravity-hub` | 跨独立项目管理多个自主智能体的桌面环境 |
@@ -126,7 +124,7 @@ just gc              # 清理 3 天前的历史世代并执行 nix store 硬链�
 ```bash
 just update                        # 自动注入 gh token 并更新 flake.lock 所有输入
 just bump                          # 批量更新 pkgs/ 下所有声明了 passthru.bump 的本地包
-just bump pig kero                 # 仅更新指定的本地包
+just bump rtk alma                 # 仅更新指定的本地包
 just scaffold <github-url> [ver]   # 使用 nix-init 自动生成符合本仓库规范的 pkgs/<name>.nix
 just snapshot                      # 重新求值 pkgs/overview/data.nix 并刷新 overview 内置快照
 ```

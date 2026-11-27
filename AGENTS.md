@@ -5,7 +5,7 @@
 - `flake.nix` — single source of truth for inputs, `nixpkgsConfig`, overlays, shared `sccache` settings, `packages`, `legacyPackages`, `nixosConfigurations`, `checks`, and `formatter`.
 - `overlay.nix` — auto-discovers every `pkgs/*.nix` file and injects `repoRoot`, `craneLib`, or `buildMyGoApp` when a package's function signature asks for them.
 - `lib/` — shared pure Nix helpers and builders (`lib/fonts.nix`, `lib/build-mygo-app.nix`).
-- `pkgs/` — local derivations and their in-tree sources (`pkgs/overview/`, `pkgs/fcitx5-hymt-translate/`, `pkgs/nsh-launcher.sh`, `pkgs/pig-swarm.sh`).
+- `pkgs/` — local derivations and their in-tree sources (`pkgs/overview/`, `pkgs/fcitx5-hymt-translate/`, `pkgs/nsh-launcher.sh`).
 - `system/` — NixOS system modules wired through `system/init.nix`.
 - `home/` — Home Manager modules wired through `home/init.nix` (provides `_module.args.liveFiles` for out-of-store editable desktop configs).
 - `scripts/` — repository maintenance scripts (`lib.sh`, `bump-packages.sh`, `scaffold-package.sh`).

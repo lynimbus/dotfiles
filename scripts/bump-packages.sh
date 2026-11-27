@@ -36,7 +36,7 @@
 #
 # Usage:
 #   scripts/bump-packages.sh              # every package that tracks a release
-#   scripts/bump-packages.sh pig kero     # just those
+#   scripts/bump-packages.sh rtk alma     # just those
 #
 # A failed rewrite can leave a half-updated file, version written and hash not.
 # The run compares pkgs/ before and after each package and says whether that

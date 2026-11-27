@@ -14,7 +14,7 @@ let
       findutils
       ripgrep
       bat
-      pig
+      pi
       libnotify
     ];
     text = builtins.readFile ./memo.sh;

@@ -24,7 +24,7 @@ update:
 # Move the packages in pkgs/ that track an upstream release to that release's
 # latest version. Each package declares its own nix-update flags in passthru.bump.
 #   just bump            # every package that tracks a release
-#   just bump pig kero   # just those
+#   just bump rtk alma   # just those
 bump *pkgs:
     scripts/bump-packages.sh {{pkgs}}
 
