@@ -84,6 +84,7 @@ in
     # GUI over libmpv; mpv itself and its config live in home/programs/mpv.nix.
     haruna
     antigravity-hub
+    amp-desktop
     (withPaseoPatches paseoPkgs.desktop)
 
     # Gaming launchers, compatibility layers, and diagnostics.
