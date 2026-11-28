@@ -29,7 +29,7 @@
 
 - **⚡ 内核、编译与安全自愈**
   - **Zen 4 LTO 内核与启动防砖**：采用 `nix-cachyos-kernel`（Clang + ThinLTO + `znver4` 优化，直连 Hydra 二进制缓存免编译）；启用 `systemd-boot` 启动计数（`bootCounting`），配合 `boot-complete-check.service` 确保 DRM 显卡设备与 `greetd` 登录界面真正就绪后才标记系统世代为健康，连续失败自动回滚。
-  - **跨沙盒共享 `sccache` + `mold`**：在 `/var/cache/sccache` 维护 20G 编译缓存，通过 POSIX ACL 与 `extra-sandbox-paths` 同时供 Nix 沙盒内的 Crane Rust 构建与宿主机日常 `cargo` 调用，全链路默认使用 `mold` 链接器。
+  - **跨沙盒共享 `sccache` + `mold`**：在 `/var/cache/sccache` 维护 20G 编译缓存，通过 POSIX ACL 与 `extra-sandbox-paths` 同时供 Nix 沙盒构建与宿主机日常 `cargo` 调用，全链路默认使用 `mold` 链接器。
   - **Overlay `/etc` 密码防锁死守卫**：在 `system/password-guard.nix` 中实现纯 Shell 激活守卫，自动拦截 `hashedPasswordFile` 缺失或 `/etc/shadow` 异常锁死状态并从现有 shadow 自动回填，彻底规避可变 `/etc` overlay 重建时的账户锁死隐患。
 
 - **🔍 自省式桌面概览应用（`overview`）**
@@ -42,7 +42,7 @@
 ```text
 .
 ├── flake.nix                 # Flake 入口：inputs、共享 sccache、overlay 注入、nixosConfigurations 与 checks
-├── overlay.nix               # 自动扫描 pkgs/*.nix，按函数签名按需注入 repoRoot / craneLib / buildMyGoApp
+├── overlay.nix               # 自动扫描 pkgs/*.nix，按函数签名按需注入 repoRoot / buildMyGoApp
 ├── justfile                  # 日常构建、测试、格式化、自动追新与脚手架任务入口
 ├── lib/
 │   ├── build-mygo-app.nix    # MyGo (Go + GTK3) 原生桌面应用通用构建器与运行库包装器
@@ -62,7 +62,7 @@
 │   └── ...                   # 网络、sing-box、Docker、Wireshark、Comma (nix-index) 等
 ├── home/                     # Home Manager 用户级模块 (经由 home/init.nix 统一聚合)
 │   ├── desktop/              # Umbriel、Mango、Noctalia、Luciole、Fcitx5 (Rime 雾凇拼音)
-│   ├── programs/             # Ghostty、Fish、Jujutsu、Git、Yazi、Memo、Hy-MT2、Pi、Nsh、Rust 等
+│   ├── programs/             # Ghostty、Fish、Jujutsu、Git、Yazi、Memo、Hy-MT2、Pi、Rust 等
 │   ├── audio/rnnoise.nix     # PipeWire LADSPA 自动增益 (dysonCompress) + RNNoise 麦克风降噪链
 │   └── packages.nix          # CLI、桌面应用、多语言工具链与 Android 逆向套件清单
 └── scripts/                  # 自动化维护脚本
@@ -90,11 +90,11 @@
 | | `herdr-core` | 脱离窗口后会话依然存活的编码智能体终端 (`hc`) |
 | | `kero` | 会话生命周期独立于窗口的原生编码智能体终端 |
 | | `obelisk-cli` | 将过往编码智能体会话索引至本地 SQLite 数据库，供 Agent 检索回溯 |
+| | `paseo` | AI 编码智能体自托管守护进程与原生桌面应用（官方预编译发行版） |
 | | `rtk` | CLI 代理，在常见开发命令输出送达 LLM 前自动裁剪冗余上下文 |
 | **编辑器与桌面应用** | `mayoi` | 基于 GPU 自绘 UI 的代码编辑器，支持标签页、分屏、插件与 Vim 模式 |
 | | `mygo-music` | 支持本地曲库与流媒体账号登录的原生音乐播放器 |
 | **开发与 Android 工具链** | `mygo` | 脚手架、开发与打包 MyGo 桌面应用的 CLI 工具 |
-| | `nsh` / `nsh-android-sdk` | Native Shell（TSX 原生运行时 GUI 框架）及其配套 Android SDK 组合 |
 | | `r8` | 来自 Google Maven 的 Android dex 编译器 (`d8`) 与代码压缩优化器 (`r8`) |
 | | `opengrep` | 开源静态代码分析引擎（无登录、无遥测的 Semgrep 分支） |
 | | `dolt` | 支持 Git 风格版本控制的 SQL 数据库（支撑 Beads 本地问题追踪） |

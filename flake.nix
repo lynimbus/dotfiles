@@ -51,8 +51,6 @@
     # builds both assume the revision this flake pins.
     nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
 
-    crane.url = "github:ipetkov/crane";
-
     magpie-releases = {
       url = "github:yetone/magpie-releases";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -67,10 +65,6 @@
       url = "github:lynimbus/t3code-jj";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    # Upstream's nixpkgs is deliberately not followed: nix/npm-deps.hash is
-    # auto-updated by Paseo's CI against its own pinned nixpkgs fetchNpmDeps.
-    paseo.url = "github:getpaseo/paseo";
   };
 
   outputs =
@@ -91,17 +85,16 @@
 
       sshKey = "${homeDirectory}/.ssh/id_ed25519";
 
-      # Shared across overlay.nix (Crane builds), system/nix.nix (Nix sandbox
-      # mount + tmpfiles ACLs), and home/programs/rust.nix (Cargo wrapper).
+      # Shared across system/nix.nix (Nix sandbox mount + tmpfiles ACLs) and
+      # home/programs/rust.nix (Cargo wrapper).
       sccache = {
         dir = "/var/cache/sccache";
         cacheSize = "20G";
       };
 
       local = import ./overlay.nix {
-        inherit repoRoot sccache;
+        inherit repoRoot;
         lib = nixpkgs.lib;
-        crane = inputs.crane;
       };
 
       # Single source of truth for nixpkgs config and overlays shared between
@@ -109,7 +102,6 @@
       # NixOS module fixpoint.
       nixpkgsConfig = {
         allowUnfree = true;
-        android_sdk.accept_license = true;
       };
 
       overlays = [
@@ -139,8 +131,7 @@
       };
     in
     {
-      # Direct local packages so `nix build .#<pkg>` works for any derivation in
-      # pkgs/ (excluding non-derivation compositions such as nsh-android-sdk).
+      # Direct local packages so `nix build .#<pkg>` works for any derivation in pkgs/.
       packages.${system} = nixpkgs.lib.filterAttrs (_: nixpkgs.lib.isDerivation) (
         builtins.listToAttrs (
           map (name: {

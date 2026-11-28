@@ -3,14 +3,11 @@
 {
   programs.yazi = {
     enable = true;
-    # Use the RAR-enabled 7zz build so Yazi's built-in extract and archive
-    # commands handle RAR5 alongside standard formats.
-    package = pkgs.yazi.override { _7zz = pkgs._7zz-rar; };
     enableFishIntegration = true;
     shellWrapperName = "y";
 
     extraPackages = with pkgs; [
-      ouch-rar
+      ouch
       unar
       unrar
       mediainfo
