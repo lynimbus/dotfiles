@@ -179,11 +179,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1795856708,
-        "narHash": "sha256-S0EP9EuO4SMj/p+DvdYOulZJ9BJYF+lE1aaB5KCnXbI=",
+        "lastModified": 1795862612,
+        "narHash": "sha256-9eM5BRCJc2rptzyNfUCdp5Wjz8GOIbyRdCCbS1eXN5s=",
         "owner": "yetone",
         "repo": "magpie-releases",
-        "rev": "ea17a3005bc79c20df8f5afe550f549cacdc0deb",
+        "rev": "fe77664348530c0b58cfd65e00d5f9caf020c61d",
         "type": "github"
       },
       "original": {
@@ -560,11 +560,11 @@
         "nixpkgs-darwin-x64": "nixpkgs-darwin-x64_2"
       },
       "locked": {
-        "lastModified": 1795680171,
-        "narHash": "sha256-QqbqakQ6RtvRmcqlakjUjaVBzCKfJ4+OTOxBqkw7nI4=",
+        "lastModified": 1795860546,
+        "narHash": "sha256-8qwwxOLsMAONls7pqOtAE/DRyndmpcdg/yerRavJ75c=",
         "owner": "lynimbus",
         "repo": "t3code-jj",
-        "rev": "41541aacfcdc0a7f53f6a61ef2e9b20157e31353",
+        "rev": "30b39d104353adf045d4ef12f9a0a3a9869b20a2",
         "type": "github"
       },
       "original": {
